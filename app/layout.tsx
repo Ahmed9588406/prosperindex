@@ -3,14 +3,12 @@ import localFont from "next/font/local";
 import "./globals.css";
 import {
   ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton
+
 } from '@clerk/nextjs';
-import Image from 'next/image';
-import Link from "next/link";
 import FloatingButton from '@/components/FloatingButton';
+
+import categories from './categories/Categories';
+import SidebarLayout from './components/SidebarLayout';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,30 +37,13 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-            <div className="flex justify-between items-center p-4">
-            <Link href="/">
-              <Image 
-                src="/assets/AI_PAT.jpg" 
-                alt="AI PAT" 
-                width={50} 
-                height={50} 
-                className="rounded-full"
-                draggable={false}
-              />
-            </Link>
-            <div>
-              <SignedOut>
-              <SignInButton />
-              </SignedOut>
-              <SignedIn>
-              <UserButton />
-              </SignedIn>
-            </div>
-            </div>
-          {children}
+          <SidebarLayout categories={categories}>
+            {children}
+          </SidebarLayout>
           <FloatingButton />
         </body>
       </html>
     </ClerkProvider>
   );
 }
+              
