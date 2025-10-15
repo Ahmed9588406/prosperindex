@@ -75,30 +75,49 @@ const handlePostRequest = async (req: Request) => {
 };
 
 export async function GET() {
+  console.log('GET /api/calculation-history called');
+  
   try {
-    const { userId } = await auth();
+    console.log('Starting auth check...');
+    const authResult = await auth();
+    const userId = authResult?.userId;
+    console.log('Auth result - userId:', userId);
+    
     if (!userId) {
+      console.log('No userId found - returning 401');
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const history = await prisma.calculationHistory.findMany({
-      where: {
-        userId: userId,
-      },
-      orderBy: {
-        updatedAt: 'desc',
-      },
-    });
+    console.log('Fetching calculations for userId:', userId);
 
-    if (!history || history.length === 0) {
-      return NextResponse.json([], { status: 200 }); // Return empty array instead of 404
+    try {
+      const history = await prisma.calculationHistory.findMany({
+        where: {
+          userId: userId,
+          city: { not: null },
+          country: { not: null },
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
+
+      console.log('Found calculations:', history?.length ?? 0);
+
+      return NextResponse.json(history || [], { status: 200 });
+    } catch (dbError) {
+      const errorMessage = dbError instanceof Error ? dbError.message : 'Database query failed';
+      console.error('[CALCULATION_HISTORY_GET] Database error:', errorMessage);
+      return NextResponse.json(
+        { error: "Database error", details: errorMessage },
+        { status: 500 }
+      );
     }
-
-    return NextResponse.json(history);
   } catch (error) {
-    console.error('[CALCULATION_HISTORY_GET]', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[CALCULATION_HISTORY_GET] Error:', errorMessage);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Internal Server Error", details: errorMessage },
       { status: 500 }
     );
   }
@@ -106,4 +125,41 @@ export async function GET() {
 
 export async function POST(req: Request) {
   return handlePostRequest(req);
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: "ID required" }, { status: 400 });
+    }
+
+    // Verify ownership before deleting
+    const calculation = await prisma.calculationHistory.findUnique({
+      where: { id },
+    });
+
+    if (!calculation || calculation.userId !== userId) {
+      return NextResponse.json({ error: "Calculation not found" }, { status: 404 });
+    }
+
+    await prisma.calculationHistory.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('[CALCULATION_HISTORY_DELETE]', error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }

@@ -11,6 +11,7 @@ import FloatingButton from '@/components/FloatingButton';
 import categories from './categories/Categories';
 import SidebarLayout from './components/SidebarLayout';
 import { CityProvider } from './context/CityContext';
+import { CalculationsProvider } from './context/CalculationsContext';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -40,9 +41,11 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <CityProvider>
-            <SidebarLayout categories={categories}>
-              {children}
-            </SidebarLayout>
+            <CalculationsProvider>
+              <SidebarLayout categories={categories}>
+                {children}
+              </SidebarLayout>
+            </CalculationsProvider>
           </CityProvider>
           <FloatingButton />
           <Toaster />

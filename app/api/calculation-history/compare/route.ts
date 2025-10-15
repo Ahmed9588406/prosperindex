@@ -16,7 +16,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "No cities specified" }, { status: 400 });
     }
 
-    // Parse city,country pairs
+    // Parse city:country pairs
     const cityQueries = cities.map(item => {
       const [city, country] = item.split(':');
       return { city, country };
@@ -25,16 +25,23 @@ export async function GET(req: Request) {
     const history = await prisma.calculationHistory.findMany({
       where: {
         userId,
+        NOT: [
+          { city: { equals: null } },
+          { country: { equals: null } }
+        ],
         OR: cityQueries.map(({ city, country }) => ({
-          city,
-          country,
+          AND: [
+            { city },
+            { country }
+          ]
         })),
       },
       orderBy: {
-        createdAt: 'desc',
+        updatedAt: 'desc',
       },
     });
 
+    // Return with proper structure for comparison
     return NextResponse.json(history);
   } catch (error) {
     console.error('[CALCULATION_HISTORY_COMPARE]', error);
