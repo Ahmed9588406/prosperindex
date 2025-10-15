@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from '../../../../context/CityContext';
+import toast from 'react-hot-toast';
 
 function MaternalMortalityCalculator() {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [maternalDeaths, setMaternalDeaths] = useState<string>("");
   const [liveBirths, setLiveBirths] = useState<string>("");
   const [maternalMortality, setMaternalMortality] = useState<number | null>(null);
@@ -24,17 +27,49 @@ function MaternalMortalityCalculator() {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedMaternalDeaths = localStorage.getItem("maternalDeaths");
+      const savedLiveBirths = localStorage.getItem("liveBirths");
+
+      if (savedMaternalDeaths) setMaternalDeaths(savedMaternalDeaths);
+      if (savedLiveBirths) setLiveBirths(savedLiveBirths);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleMaternalDeathsChange = (value: string) => {
+    setMaternalDeaths(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("maternalDeaths", value);
+    }
+  };
+
+  const handleLiveBirthsChange = (value: string) => {
+    setLiveBirths(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("liveBirths", value);
+    }
+  };
+
   // Function to calculate Maternal Mortality
   const calculateMaternalMortality = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const deaths = parseFloat(maternalDeaths);
     const births = parseFloat(liveBirths);
 
     if (isNaN(deaths) || isNaN(births) || births <= 0) {
-      alert("Please provide valid inputs for both fields.");
+      toast.error("Please provide valid inputs for both fields.");
       return;
     }
 
@@ -60,6 +95,8 @@ function MaternalMortalityCalculator() {
 
     // Prepare data to send
     const postData = {
+      city,
+      country,
       maternal_mortality: mortality,
       maternal_mortality_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -81,11 +118,11 @@ function MaternalMortalityCalculator() {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -94,6 +131,28 @@ function MaternalMortalityCalculator() {
   return (
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-4">Maternal Mortality Calculator</h1>
+
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
+
       <div className="mb-4">
         <label className="block mb-2 font-semibold">
           Maternal Deaths:
@@ -101,7 +160,7 @@ function MaternalMortalityCalculator() {
         <input
           type="number"
           value={maternalDeaths}
-          onChange={(e) => setMaternalDeaths(e.target.value)}
+          onChange={(e) => handleMaternalDeathsChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter maternal deaths"
         />
@@ -111,14 +170,14 @@ function MaternalMortalityCalculator() {
         <input
           type="number"
           value={liveBirths}
-          onChange={(e) => setLiveBirths(e.target.value)}
+          onChange={(e) => handleLiveBirthsChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter live births"
         />
       </div>
       <button
         onClick={calculateMaternalMortality}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-2 bg-blue-500 text-white rounded w-full hover:bg-blue-600 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import Image from 'next/image';
 import { jsPDF } from 'jspdf';
@@ -234,7 +234,7 @@ export default function ContentTable() {
   const [calculationData, setCalculationData] = useState<CalculationData | null>(null);
   const { isLoaded, userId } = useAuth();
 
-  const calculateHouseInfrastructureAverage = (data: CalculationData | null) => {
+  const calculateHouseInfrastructureAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -266,9 +266,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateEconomicStrengthAverage = (data: CalculationData | null) => {
+  const calculateEconomicStrengthAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -297,9 +297,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateEconomicAgglomerationAverage = (data: CalculationData | null) => {
+  const calculateEconomicAgglomerationAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -327,9 +327,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateEmploymentAverage = (data: CalculationData | null) => {
+  const calculateEmploymentAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -358,9 +358,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateSocialInfrastructureAverage = (data: CalculationData | null) => {
+  const calculateSocialInfrastructureAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -388,9 +388,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateUrbanMobilityAverage = (data: CalculationData | null) => {
+  const calculateUrbanMobilityAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -421,9 +421,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateUrbanFormAverage = (data: CalculationData | null) => {
+  const calculateUrbanFormAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -452,9 +452,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateHealthAverage = (data: CalculationData | null) => {
+  const calculateHealthAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -484,9 +484,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateEducationAverage = (data: CalculationData | null) => {
+  const calculateEducationAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -516,9 +516,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateSafetyAndSecurityAverage = (data: CalculationData | null) => {
+  const calculateSafetyAndSecurityAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -546,9 +546,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculatePublicSpaceAverage = (data: CalculationData | null) => {
+  const calculatePublicSpaceAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -576,9 +576,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateEconomicEquityAverage = (data: CalculationData | null) => {
+  const calculateEconomicEquityAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -606,9 +606,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateSocialInclusionAverage = (data: CalculationData | null) => {
+  const calculateSocialInclusionAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -636,9 +636,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateGenderInclusionAverage = (data: CalculationData | null) => {
+  const calculateGenderInclusionAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -667,9 +667,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateUrbanDiversityAverage = (data: CalculationData | null) => {
+  const calculateUrbanDiversityAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -696,9 +696,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateAirQualityAverage = (data: CalculationData | null) => {
+  const calculateAirQualityAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -727,9 +727,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateWasteManagementAverage = (data: CalculationData | null) => {
+  const calculateWasteManagementAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -758,9 +758,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateSustainableEnergyAverage = (data: CalculationData | null) => {
+  const calculateSustainableEnergyAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -787,9 +787,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateParticipationAverage = (data: CalculationData | null) => {
+  const calculateParticipationAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -818,9 +818,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateMunicipalFinancingAverage = (data: CalculationData | null) => {
+  const calculateMunicipalFinancingAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -850,9 +850,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateGovernanceAverage = (data: CalculationData | null) => {
+  const calculateGovernanceAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -879,9 +879,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateICTAverage = (data: CalculationData | null) => {
+  const calculateICTAverage = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -910,9 +910,9 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
-  const calculateCPI = (data: CalculationData | null) => {
+  const calculateCPI = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
     const fields = [
@@ -961,7 +961,7 @@ export default function ContentTable() {
     }
     
     return average;
-  };
+  }, []);
 
   useEffect(() => {
     const fetchCalculationHistory = async () => {
@@ -1073,7 +1073,33 @@ export default function ContentTable() {
     };
 
     fetchCalculationHistory();
-  }, [isLoaded, userId]);
+  }, [
+    isLoaded, 
+    userId,
+    calculateHouseInfrastructureAverage,
+    calculateEconomicStrengthAverage,
+    calculateEconomicAgglomerationAverage,
+    calculateEmploymentAverage,
+    calculateSocialInfrastructureAverage,
+    calculateUrbanMobilityAverage,
+    calculateUrbanFormAverage,
+    calculateHealthAverage,
+    calculateEducationAverage,
+    calculateSafetyAndSecurityAverage,
+    calculatePublicSpaceAverage,
+    calculateEconomicEquityAverage,
+    calculateSocialInclusionAverage,
+    calculateGenderInclusionAverage,
+    calculateUrbanDiversityAverage,
+    calculateAirQualityAverage,
+    calculateWasteManagementAverage,
+    calculateSustainableEnergyAverage,
+    calculateParticipationAverage,
+    calculateMunicipalFinancingAverage,
+    calculateGovernanceAverage,
+    calculateICTAverage,
+    calculateCPI
+  ]);
 
   const formatValue = (value: string | number | null | undefined) => {
       if (value === null || value === undefined) return '-';

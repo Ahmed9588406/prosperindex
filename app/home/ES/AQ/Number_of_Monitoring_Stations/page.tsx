@@ -1,16 +1,54 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast";
 
 const PM10MonitoringStations: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [population, setPopulation] = useState<number | string>(""); // Input: Population
   const [pm10Level, setPm10Level] = useState<string>(""); // Input: PM10 Level
   const [numStations, setNumStations] = useState<number | string>(""); // Input: Number of monitoring stations
   const [standardizedScore, setStandardizedScore] = useState<string | null>(null); // Standardized score
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
+
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedPopulation = localStorage.getItem("population");
+      const savedPm10 = localStorage.getItem("pm10Level");
+      const savedStations = localStorage.getItem("numStations");
+
+      if (savedPopulation) setPopulation(savedPopulation);
+      if (savedPm10) setPm10Level(savedPm10);
+      if (savedStations) setNumStations(savedStations);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handlePopulationChange = (value: string) => {
+    setPopulation(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("population", value);
+    }
+  };
+
+  const handlePm10Change = (value: string) => {
+    setPm10Level(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("pm10Level", value);
+    }
+  };
+
+  const handleStationsChange = (value: string) => {
+    setNumStations(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("numStations", value);
+    }
+  };
 
   // Validate inputs
   const validateInputs = () => {
@@ -98,8 +136,13 @@ const PM10MonitoringStations: React.FC = () => {
 
   // Handle calculation and saving data
   const handleCalculateAndSave = async () => {
-    if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+    if (!user) {
+      toast.error("Please sign in to save calculations.");
+      return;
+    }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
       return;
     }
 
@@ -113,6 +156,8 @@ const PM10MonitoringStations: React.FC = () => {
       setIsSubmitting(true);
 
       const postData = {
+        city,
+        country,
         number_of_monitoring_stations: stationsNum || 0,
         number_of_monitoring_stations_comment: calculatedComment || "",
         userId: user.id
@@ -136,19 +181,44 @@ const PM10MonitoringStations: React.FC = () => {
       }
 
       const result = await response.json();
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
       console.log('Result:', result);
     } catch (error) {
       console.error('Error saving data:', error);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h2 className="text-2xl font-bold mb-4">PM10 Monitoring Stations</h2>
+
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
 
       <div className="mb-4">
         <label htmlFor="population" className="block mb-2 font-semibold">
@@ -158,7 +228,7 @@ const PM10MonitoringStations: React.FC = () => {
           id="population"
           type="number"
           value={population}
-          onChange={(e) => setPopulation(e.target.value)}
+          onChange={(e) => handlePopulationChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter population"
           aria-label="Enter population"
@@ -172,7 +242,7 @@ const PM10MonitoringStations: React.FC = () => {
         <select
           id="pm10Level"
           value={pm10Level}
-          onChange={(e) => setPm10Level(e.target.value)}
+          onChange={(e) => handlePm10Change(e.target.value)}
           className="border rounded p-2 w-full"
           aria-label="Select PM10 Level"
         >
@@ -191,7 +261,7 @@ const PM10MonitoringStations: React.FC = () => {
           id="numStations"
           type="number"
           value={numStations}
-          onChange={(e) => setNumStations(e.target.value)}
+          onChange={(e) => handleStationsChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter number of monitoring stations"
           aria-label="Enter number of monitoring stations"
@@ -200,7 +270,7 @@ const PM10MonitoringStations: React.FC = () => {
 
       <button
         onClick={handleCalculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-2 bg-blue-500 text-white rounded w-full hover:bg-blue-600 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
@@ -214,9 +284,19 @@ const PM10MonitoringStations: React.FC = () => {
           <h3 className="text-lg">
             Standardized Score: {standardizedScore}
           </h3>
-          <h3 className="text-lg">
-            Comment: {comment}
-          </h3>
+          {comment && (
+            <p
+              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
+                comment === "VERY SOLID"
+                  ? "bg-green-500"
+                  : comment === "SOLID"
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
+              }`}
+            >
+              {comment}
+            </p>
+          )}
         </div>
       )}
     </div>

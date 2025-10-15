@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from '../../../../context/CityContext';
+import toast from 'react-hot-toast';
 
 function VaccinationCoverageCalculator() {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [immunizedPopulation, setImmunizedPopulation] = useState<string>("");
   const [eligiblePopulation, setEligiblePopulation] = useState<string>("");
   const [vaccinationCoverage, setVaccinationCoverage] = useState<number | null>(null);
@@ -24,16 +27,48 @@ function VaccinationCoverageCalculator() {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedImmunizedPopulation = localStorage.getItem("immunizedPopulation");
+      const savedEligiblePopulation = localStorage.getItem("eligiblePopulation");
+
+      if (savedImmunizedPopulation) setImmunizedPopulation(savedImmunizedPopulation);
+      if (savedEligiblePopulation) setEligiblePopulation(savedEligiblePopulation);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleImmunizedPopulationChange = (value: string) => {
+    setImmunizedPopulation(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("immunizedPopulation", value);
+    }
+  };
+
+  const handleEligiblePopulationChange = (value: string) => {
+    setEligiblePopulation(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("eligiblePopulation", value);
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const immunized = parseFloat(immunizedPopulation);
     const eligible = parseFloat(eligiblePopulation);
 
     if (isNaN(immunized) || isNaN(eligible) || eligible <= 0) {
-      alert("Please provide valid inputs for both fields.");
+      toast.error("Please provide valid inputs for both fields.");
       return;
     }
 
@@ -61,6 +96,8 @@ function VaccinationCoverageCalculator() {
 
     // Prepare data to send
     const postData = {
+      city,
+      country,
       vaccination_coverage: coverage,
       vaccination_coverage_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -82,11 +119,11 @@ function VaccinationCoverageCalculator() {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -96,6 +133,27 @@ function VaccinationCoverageCalculator() {
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Vaccination Coverage Calculator</h1>
 
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
+
       <div className="mb-6">
         <label className="block mb-3 text-lg font-semibold">
           Population Immunized (according to national policies):
@@ -103,7 +161,7 @@ function VaccinationCoverageCalculator() {
         <input
           type="number"
           value={immunizedPopulation}
-          onChange={(e) => setImmunizedPopulation(e.target.value)}
+          onChange={(e) => handleImmunizedPopulationChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter immunized population"
         />
@@ -115,14 +173,14 @@ function VaccinationCoverageCalculator() {
         <input
           type="number"
           value={eligiblePopulation}
-          onChange={(e) => setEligiblePopulation(e.target.value)}
+          onChange={(e) => handleEligiblePopulationChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter eligible population"
         />
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-4 bg-blue-600 text-white rounded-lg w-full text-xl hover:bg-blue-700 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}

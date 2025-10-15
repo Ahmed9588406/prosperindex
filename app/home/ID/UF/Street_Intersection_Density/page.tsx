@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from '../../../../context/CityContext';
+import toast from 'react-hot-toast';
 
 function StreetIntersectionDensityForm() {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [intersectionCount, setIntersectionCount] = useState<string>("");
   const [urbanArea, setUrbanArea] = useState<string>("");
   const [density, setDensity] = useState<number | null>(null);
@@ -24,19 +27,51 @@ function StreetIntersectionDensityForm() {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedIntersectionCount = localStorage.getItem("intersectionCount");
+      const savedUrbanArea = localStorage.getItem("urbanArea");
+
+      if (savedIntersectionCount) setIntersectionCount(savedIntersectionCount);
+      if (savedUrbanArea) setUrbanArea(savedUrbanArea);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleIntersectionCountChange = (value: string) => {
+    setIntersectionCount(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("intersectionCount", value);
+    }
+  };
+
+  const handleUrbanAreaChange = (value: string) => {
+    setUrbanArea(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("urbanArea", value);
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const numericIntersectionCount = parseFloat(intersectionCount);
     const numericUrbanArea = parseFloat(urbanArea);
     if (isNaN(numericIntersectionCount) || isNaN(numericUrbanArea)) {
-      alert("Please enter valid numbers for both fields.");
+      toast.error("Please enter valid numbers for both fields.");
       return;
     }
     if (numericIntersectionCount <= 0 || numericUrbanArea <= 0) {
-      alert("Both intersection count and urban area must be positive numbers.");
+      toast.error("Both intersection count and urban area must be positive numbers.");
       return;
     }
 
@@ -67,6 +102,8 @@ function StreetIntersectionDensityForm() {
 
     // Prepare data to send
     const postData = {
+      city,
+      country,
       street_intersection_density: streetIntersectionDensity,
       street_intersection_density_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -88,11 +125,11 @@ function StreetIntersectionDensityForm() {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -104,6 +141,27 @@ function StreetIntersectionDensityForm() {
         Street Intersection Density Calculator
       </h1>
 
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
+
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Total Number of Intersections:
@@ -111,7 +169,7 @@ function StreetIntersectionDensityForm() {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="number"
             value={intersectionCount}
-            onChange={(e) => setIntersectionCount(e.target.value)}
+            onChange={(e) => handleIntersectionCountChange(e.target.value)}
             required
           />
         </label>
@@ -123,14 +181,14 @@ function StreetIntersectionDensityForm() {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="number"
             value={urbanArea}
-            onChange={(e) => setUrbanArea(e.target.value)}
+            onChange={(e) => handleUrbanAreaChange(e.target.value)}
             required
           />
         </label>
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}

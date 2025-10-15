@@ -1,14 +1,43 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast";
 
 const VoterTurnout: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [votersWhoCastBallot, setVotersWhoCastBallot] = useState<number | string>(""); // Input for voters who cast a ballot
   const [eligibleVoters, setEligibleVoters] = useState<number | string>(""); // Input for number of eligible voters
   const [voterTurnout, setVoterTurnout] = useState<number | null>(null);
   const [turnoutLevel, setTurnoutLevel] = useState<string | null>(null); // Qualitative evaluation
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
+
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedCast = localStorage.getItem("votersWhoCastBallot");
+      const savedEligible = localStorage.getItem("eligibleVoters");
+
+      if (savedCast) setVotersWhoCastBallot(savedCast);
+      if (savedEligible) setEligibleVoters(savedEligible);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleCastChange = (value: string) => {
+    setVotersWhoCastBallot(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("votersWhoCastBallot", value);
+    }
+  };
+
+  const handleEligibleChange = (value: string) => {
+    setEligibleVoters(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("eligibleVoters", value);
+    }
+  };
 
   // Add getComment function for evaluation
   const getComment = (score: number) => {
@@ -21,15 +50,21 @@ const VoterTurnout: React.FC = () => {
   };
 
   const calculateAndSave = async () => {
-    if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+    if (!user) {
+      toast.error("Please sign in to save calculations.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const castBallot = parseFloat(votersWhoCastBallot.toString());
     const eligible = parseFloat(eligibleVoters.toString());
 
     if (isNaN(castBallot) || isNaN(eligible) || eligible <= 0 || castBallot < 0 || castBallot > eligible) {
-      alert("Please provide valid inputs for both fields.");
+      toast.error("Please provide valid inputs for both fields.");
       return;
     }
 
@@ -41,8 +76,10 @@ const VoterTurnout: React.FC = () => {
     const evaluationComment = getComment(turnout);
     setTurnoutLevel(evaluationComment);
 
-    // Prepare data to send
+    // Prepare data to send - now includes city and country
     const postData = {
+      city,
+      country,
       voter_turnout: turnout,
       voter_turnout_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -64,19 +101,44 @@ const VoterTurnout: React.FC = () => {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Voter Turnout Calculator</h1>
+
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
 
       <div className="mb-6">
         <label className="block mb-3 text-lg font-semibold">
@@ -85,7 +147,7 @@ const VoterTurnout: React.FC = () => {
         <input
           type="number"
           value={votersWhoCastBallot}
-          onChange={(e) => setVotersWhoCastBallot(e.target.value)}
+          onChange={(e) => handleCastChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter number of voters who cast a ballot"
         />
@@ -97,14 +159,14 @@ const VoterTurnout: React.FC = () => {
         <input
           type="number"
           value={eligibleVoters}
-          onChange={(e) => setEligibleVoters(e.target.value)}
+          onChange={(e) => handleEligibleChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter number of eligible voters"
         />
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-4 bg-blue-600 text-white rounded-lg w-full text-xl hover:bg-blue-700 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
@@ -117,20 +179,17 @@ const VoterTurnout: React.FC = () => {
             Voter Turnout: {voterTurnout.toFixed(2)}%
           </h2>
           {turnoutLevel && (
-            <h2 className="text-xl font-semibold">
-              Turnout Level:{" "}
-              <span
-                className={`${
-                  turnoutLevel === "VERY SOLID"
-                    ? "text-green-600"
-                    : turnoutLevel === "SOLID"
-                    ? "text-yellow-600"
-                    : "text-red-600"
-                }`}
-              >
-                {turnoutLevel}
-              </span>
-            </h2>
+            <p
+              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
+                turnoutLevel === "VERY SOLID"
+                  ? "bg-green-500"
+                  : turnoutLevel === "SOLID"
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
+              }`}
+            >
+              {turnoutLevel}
+            </p>
           )}
         </div>
       )}

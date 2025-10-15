@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 import {
   ClerkProvider,
 
@@ -9,6 +10,7 @@ import FloatingButton from '@/components/FloatingButton';
 
 import categories from './categories/Categories';
 import SidebarLayout from './components/SidebarLayout';
+import { CityProvider } from './context/CityContext';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -37,13 +39,15 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <SidebarLayout categories={categories}>
-            {children}
-          </SidebarLayout>
+          <CityProvider>
+            <SidebarLayout categories={categories}>
+              {children}
+            </SidebarLayout>
+          </CityProvider>
           <FloatingButton />
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>
   );
 }
-              

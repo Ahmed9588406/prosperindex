@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast"; // Import the toast function
 
 const PhysicianDensityForm: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [physicians, setPhysicians] = useState<string>("");
   const [totalPopulation, setTotalPopulation] = useState<string>("");
   const [physicianDensity, setPhysicianDensity] = useState<string | null>(null);
@@ -25,20 +28,51 @@ const PhysicianDensityForm: React.FC = () => {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedPhysicians = localStorage.getItem("physicians");
+      const savedPopulation = localStorage.getItem("totalPopulation");
+
+      if (savedPhysicians) setPhysicians(savedPhysicians);
+      if (savedPopulation) setTotalPopulation(savedPopulation);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handlePhysiciansChange = (value: string) => {
+    setPhysicians(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("physicians", value);
+    }
+  };
+
+  const handleTotalPopulationChange = (value: string) => {
+    setTotalPopulation(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("totalPopulation", value);
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
+      return;
+    }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
       return;
     }
 
     const numericPopulation = Number(totalPopulation);
     if (numericPopulation <= 0) {
-      alert("Total population must be greater than zero.");
+      toast.error("Total population must be greater than zero.");
       return;
     }
     const numericPhysicians = Number(physicians);
     if (isNaN(numericPhysicians) || isNaN(numericPopulation)) {
-      alert("Please enter valid numbers for both fields.");
+      toast.error("Please enter valid numbers for both fields.");
       return;
     }
 
@@ -58,8 +92,10 @@ const PhysicianDensityForm: React.FC = () => {
 
     setEvaluation(evaluationComment);
 
-    // Prepare data to send
+    // Prepare data to send - now includes city and country
     const postData = {
+      city,
+      country,
       physician_density: density,
       physician_density_comment: evaluationComment,
       userId: user.id,
@@ -81,11 +117,11 @@ const PhysicianDensityForm: React.FC = () => {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -96,7 +132,28 @@ const PhysicianDensityForm: React.FC = () => {
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
         Calculate Physician Density
       </h1>
-      
+
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || (!country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      ))}
+
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Number of Physicians:
@@ -104,7 +161,7 @@ const PhysicianDensityForm: React.FC = () => {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="number"
             value={physicians}
-            onChange={(e) => setPhysicians(e.target.value)}
+            onChange={(e) => handlePhysiciansChange(e.target.value)}
             required
           />
         </label>
@@ -116,14 +173,14 @@ const PhysicianDensityForm: React.FC = () => {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="number"
             value={totalPopulation}
-            onChange={(e) => setTotalPopulation(e.target.value)}
+            onChange={(e) => handleTotalPopulationChange(e.target.value)}
             required
           />
         </label>
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
@@ -140,12 +197,11 @@ const PhysicianDensityForm: React.FC = () => {
           {evaluation && (
             <p
               className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
-                evaluation === "VERY SOLID" ? "bg-green-500" :
-                evaluation === "SOLID" ? "bg-yellow-500" :
-                evaluation === "MODERATELY SOLID" ? "bg-yellow-500" :
-                evaluation === "MODERATELY WEAK" ? "bg-orange-500" :
-                evaluation === "WEAK" ? "bg-red-500" :
-                "bg-red-500"
+                evaluation === "VERY SOLID"
+                  ? "bg-green-500"
+                  : evaluation === "SOLID"
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
               }`}
             >
               {evaluation}

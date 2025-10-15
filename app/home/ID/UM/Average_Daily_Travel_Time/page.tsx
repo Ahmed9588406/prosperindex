@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from '../../../../context/CityContext';
+import toast from 'react-hot-toast';
 
 function AverageDailyTravelTimeForm() {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [averageTravelTime, setAverageTravelTime] = useState<string>("");
   const [result, setResult] = useState<string | null>(null);
   const [standardizedTime, setStandardizedTime] = useState<number | null>(null);
@@ -23,18 +26,40 @@ function AverageDailyTravelTimeForm() {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedAverageTravelTime = localStorage.getItem("averageTravelTime");
+      if (savedAverageTravelTime) setAverageTravelTime(savedAverageTravelTime);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleAverageTravelTimeChange = (value: string) => {
+    setAverageTravelTime(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("averageTravelTime", value);
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const numericAverageTravelTime = Number(averageTravelTime);
     if (isNaN(numericAverageTravelTime)) {
-      alert("Please enter a valid number for average travel time.");
+      toast.error("Please enter a valid number for average travel time.");
       return;
     }
     if (numericAverageTravelTime < 0) {
-      alert("Average travel time must be a non-negative number.");
+      toast.error("Average travel time must be a non-negative number.");
       return;
     }
 
@@ -57,6 +82,8 @@ function AverageDailyTravelTimeForm() {
 
     // Prepare data to send
     const postData = {
+      city,
+      country,
       average_daily_travel_time: numericAverageTravelTime,
       average_daily_travel_time_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -78,11 +105,11 @@ function AverageDailyTravelTimeForm() {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -94,6 +121,27 @@ function AverageDailyTravelTimeForm() {
         Calculate Average Daily Travel Time
       </h1>
 
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
+
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Average Daily Travel Time (in minutes):
@@ -101,14 +149,14 @@ function AverageDailyTravelTimeForm() {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="number"
             value={averageTravelTime}
-            onChange={(e) => setAverageTravelTime(e.target.value)}
+            onChange={(e) => handleAverageTravelTimeChange(e.target.value)}
             required
           />
         </label>
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}

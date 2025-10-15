@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from '../../../../context/CityContext';
+import toast from 'react-hot-toast';
 
 function UnderFiveMortalityRateCalculator() {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [underFiveDeaths, setUnderFiveDeaths] = useState<string>("");
   const [liveBirths, setLiveBirths] = useState<string>("");
   const [u5mr, setU5mr] = useState<number | null>(null);
@@ -24,16 +27,48 @@ function UnderFiveMortalityRateCalculator() {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedUnderFiveDeaths = localStorage.getItem("underFiveDeaths");
+      const savedLiveBirths = localStorage.getItem("liveBirths");
+
+      if (savedUnderFiveDeaths) setUnderFiveDeaths(savedUnderFiveDeaths);
+      if (savedLiveBirths) setLiveBirths(savedLiveBirths);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleUnderFiveDeathsChange = (value: string) => {
+    setUnderFiveDeaths(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("underFiveDeaths", value);
+    }
+  };
+
+  const handleLiveBirthsChange = (value: string) => {
+    setLiveBirths(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("liveBirths", value);
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const deaths = parseFloat(underFiveDeaths);
     const births = parseFloat(liveBirths);
 
     if (isNaN(deaths) || isNaN(births) || births <= 0) {
-      alert("Please ensure valid input for deaths and live births.");
+      toast.error("Please ensure valid input for deaths and live births.");
       return;
     }
 
@@ -62,6 +97,8 @@ function UnderFiveMortalityRateCalculator() {
 
     // Prepare data to send
     const postData = {
+      city,
+      country,
       under_five_mortality_rate: u5mrValue,
       under_five_mortality_rate_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -83,11 +120,11 @@ function UnderFiveMortalityRateCalculator() {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -97,6 +134,27 @@ function UnderFiveMortalityRateCalculator() {
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Under-Five Mortality Rate (U5MR) Calculator</h1>
 
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
+
       <div className="mb-6">
         <label className="block mb-3 text-lg font-semibold">
           Number of Under-Five Deaths:
@@ -104,7 +162,7 @@ function UnderFiveMortalityRateCalculator() {
         <input
           type="number"
           value={underFiveDeaths}
-          onChange={(e) => setUnderFiveDeaths(e.target.value)}
+          onChange={(e) => handleUnderFiveDeathsChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter number of under-five deaths"
         />
@@ -116,14 +174,14 @@ function UnderFiveMortalityRateCalculator() {
         <input
           type="number"
           value={liveBirths}
-          onChange={(e) => setLiveBirths(e.target.value)}
+          onChange={(e) => handleLiveBirthsChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter number of live births"
         />
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-4 bg-blue-600 text-white rounded w-full hover:bg-blue-700 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}

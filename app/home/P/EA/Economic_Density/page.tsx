@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast"; // Import the toast function
 
 const EconomicDensityCalculator: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [cityProduct, setCityProduct] = useState<number | undefined>();
   const [cityArea, setCityArea] = useState<number | undefined>();
   const [economicDensity, setEconomicDensity] = useState<number>(0); // Economic Density
@@ -24,17 +27,49 @@ const EconomicDensityCalculator: React.FC = () => {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedCityProduct = localStorage.getItem("cityProduct");
+      const savedCityArea = localStorage.getItem("cityArea");
+
+      if (savedCityProduct) setCityProduct(Number(savedCityProduct));
+      if (savedCityArea) setCityArea(Number(savedCityArea));
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleCityProductChange = (value: number | undefined) => {
+    setCityProduct(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cityProduct", value?.toString() || "");
+    }
+  };
+
+  const handleCityAreaChange = (value: number | undefined) => {
+    setCityArea(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cityArea", value?.toString() || "");
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     if (!cityArea || cityArea === 0) {
-      alert("City area cannot be zero.");
+      toast.error("City area cannot be zero.");
       return;
     }
     if (!cityProduct || cityProduct < 0) {
-      alert("Please enter a valid city product.");
+      toast.error("Please enter a valid city product.");
       return;
     }
 
@@ -55,10 +90,12 @@ const EconomicDensityCalculator: React.FC = () => {
     const evaluationComment = getComment(standardized);
     setDecision(evaluationComment);
 
-    // Prepare data to send
+    // Prepare data to send - now includes city and country
     const postData = {
+      city,
+      country,
       economic_density: density,
-      economic_density_comment: evaluationComment, // Renamed for consistency
+      economic_density_comment: evaluationComment,
       userId: user.id,
     };
 
@@ -78,11 +115,11 @@ const EconomicDensityCalculator: React.FC = () => {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -92,6 +129,27 @@ const EconomicDensityCalculator: React.FC = () => {
     <div className="max-w-lg mx-auto p-10 bg-white shadow-lg rounded-2xl">
       <h1 className="text-3xl font-bold mb-6 text-center">Economic Density Calculator</h1>
 
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || (!country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      ))}
+
       <div className="mb-6">
         <label className="block mb-3 text-lg font-semibold">
           City Product (in million PPP):
@@ -99,7 +157,7 @@ const EconomicDensityCalculator: React.FC = () => {
         <input
           type="number"
           value={cityProduct !== undefined ? cityProduct : ""}
-          onChange={(e) => setCityProduct(Number(e.target.value) || undefined)}
+          onChange={(e) => handleCityProductChange(Number(e.target.value) || undefined)}
           className="border rounded-lg p-4 w-full text-lg"
           placeholder="Enter the city product"
         />
@@ -111,14 +169,14 @@ const EconomicDensityCalculator: React.FC = () => {
         <input
           type="number"
           value={cityArea !== undefined ? cityArea : ""}
-          onChange={(e) => setCityArea(Number(e.target.value) || undefined)}
+          onChange={(e) => handleCityAreaChange(Number(e.target.value) || undefined)}
           className="border rounded-lg p-4 w-full text-lg"
           placeholder="Enter the city area"
         />
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-4 bg-blue-600 text-white rounded-lg w-full text-xl hover:bg-blue-700 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
@@ -135,17 +193,17 @@ const EconomicDensityCalculator: React.FC = () => {
           </h2>
           <h2 className="text-xl font-semibold">
             Decision:{" "}
-            <span
-              className={`${
+            <p
+              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
                 decision === "VERY SOLID"
-                  ? "text-green-600"
+                  ? "bg-green-500"
                   : decision === "SOLID"
-                  ? "text-yellow-600"
-                  : "text-red-600"
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
               }`}
             >
               {decision}
-            </span>
+            </p>
           </h2>
         </div>
       )}

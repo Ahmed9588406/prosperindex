@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast"; // Import the toast function
 
 const CityProductPerCapitaPage: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [nationalProduct, setNationalProduct] = useState<number[]>(Array(7).fill(0));
   const [nationalEmployment, setNationalEmployment] = useState<number[]>(Array(7).fill(0));
   const [cityEmployment, setCityEmployment] = useState<number[]>(Array(7).fill(0));
@@ -34,19 +37,42 @@ const CityProductPerCapitaPage: React.FC = () => {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedNationalProduct = localStorage.getItem("nationalProduct");
+      const savedNationalEmployment = localStorage.getItem("nationalEmployment");
+      const savedCityEmployment = localStorage.getItem("cityEmployment");
+      const savedCityPopulation = localStorage.getItem("cityPopulation");
+      const savedPppExchangeRate = localStorage.getItem("pppExchangeRate");
+
+      if (savedNationalProduct) setNationalProduct(JSON.parse(savedNationalProduct));
+      if (savedNationalEmployment) setNationalEmployment(JSON.parse(savedNationalEmployment));
+      if (savedCityEmployment) setCityEmployment(JSON.parse(savedCityEmployment));
+      if (savedCityPopulation) setCityPopulation(parseFloat(savedCityPopulation));
+      if (savedPppExchangeRate) setPppExchangeRate(parseFloat(savedPppExchangeRate));
+    }
+  }, []);
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     if (cityPopulation <= 0) {
-      alert("City population must be greater than zero.");
+      toast.error("City population must be greater than zero.");
       return;
     }
     let totalCityProduct = 0;
     for (let i = 0; i < sectors.length; i++) {
       if (nationalEmployment[i] <= 0) {
-        alert(`National employment for sector "${sectors[i]}" must be greater than zero.`);
+        toast.error(`National employment for sector "${sectors[i]}" must be greater than zero.`);
         return;
       }
       const employmentRatio = cityEmployment[i] / nationalEmployment[i];
@@ -76,10 +102,12 @@ const CityProductPerCapitaPage: React.FC = () => {
     const evaluationComment = getComment(standardizedValue);
     setDecision(evaluationComment);
 
-    // Prepare data to send
+    // Prepare data to send - now includes city and country
     const postData = {
+      city,
+      country,
       city_product_per_capita: cityProductPerCapitaValue,
-      city_product_per_capita_comment: evaluationComment, // Renamed for consistency
+      city_product_per_capita_comment: evaluationComment,
       userId: user.id,
     };
 
@@ -99,11 +127,11 @@ const CityProductPerCapitaPage: React.FC = () => {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -112,6 +140,27 @@ const CityProductPerCapitaPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-3xl font-bold mb-6 text-center">City Product Per Capita Calculator</h1>
+
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || (!country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      ))}
 
       <div className="mb-6">
         <h2 className="text-2xl font-semibold mb-4">Input Data</h2>
@@ -136,6 +185,9 @@ const CityProductPerCapitaPage: React.FC = () => {
                       const newNationalProduct = [...nationalProduct];
                       newNationalProduct[index] = parseFloat(e.target.value);
                       setNationalProduct(newNationalProduct);
+                      if (typeof window !== "undefined") {
+                        localStorage.setItem("nationalProduct", JSON.stringify(newNationalProduct));
+                      }
                     }}
                     className="border rounded w-full p-1"
                   />
@@ -148,6 +200,9 @@ const CityProductPerCapitaPage: React.FC = () => {
                       const newNationalEmployment = [...nationalEmployment];
                       newNationalEmployment[index] = parseFloat(e.target.value);
                       setNationalEmployment(newNationalEmployment);
+                      if (typeof window !== "undefined") {
+                        localStorage.setItem("nationalEmployment", JSON.stringify(newNationalEmployment));
+                      }
                     }}
                     className="border rounded w-full p-1"
                   />
@@ -160,6 +215,9 @@ const CityProductPerCapitaPage: React.FC = () => {
                       const newCityEmployment = [...cityEmployment];
                       newCityEmployment[index] = parseFloat(e.target.value);
                       setCityEmployment(newCityEmployment);
+                      if (typeof window !== "undefined") {
+                        localStorage.setItem("cityEmployment", JSON.stringify(newCityEmployment));
+                      }
                     }}
                     className="border rounded w-full p-1"
                   />
@@ -175,7 +233,13 @@ const CityProductPerCapitaPage: React.FC = () => {
           <input
             type="number"
             value={cityPopulation}
-            onChange={(e) => setCityPopulation(parseFloat(e.target.value))}
+            onChange={(e) => {
+              const value = parseFloat(e.target.value);
+              setCityPopulation(value);
+              if (typeof window !== "undefined") {
+                localStorage.setItem("cityPopulation", value.toString());
+              }
+            }}
             className="border rounded p-2 w-full"
           />
         </label>
@@ -186,14 +250,20 @@ const CityProductPerCapitaPage: React.FC = () => {
           <input
             type="number"
             value={pppExchangeRate}
-            onChange={(e) => setPppExchangeRate(parseFloat(e.target.value))}
+            onChange={(e) => {
+              const value = parseFloat(e.target.value);
+              setPppExchangeRate(value);
+              if (typeof window !== "undefined") {
+                localStorage.setItem("pppExchangeRate", value.toString());
+              }
+            }}
             className="border rounded p-2 w-full"
           />
         </label>
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-2 bg-blue-500 text-white rounded w-full hover:bg-blue-600 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
@@ -210,19 +280,16 @@ const CityProductPerCapitaPage: React.FC = () => {
             <strong>Standardized Value:</strong> {standardizedValue?.toFixed(2)}
           </p>
           {decision && (
-            <p className="text-lg">
-              <strong>Decision:</strong>{" "}
-              <span
-                className={`font-bold ${
-                  decision === "VERY SOLID"
-                    ? "text-green-600"
-                    : decision === "SOLID"
-                    ? "text-yellow-600"
-                    : "text-red-600"
-                }`}
-              >
-                {decision}
-              </span>
+            <p
+              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
+                decision === "VERY SOLID"
+                  ? "bg-green-500"
+                  : decision === "SOLID"
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
+              }`}
+            >
+              {decision}
             </p>
           )}
         </div>

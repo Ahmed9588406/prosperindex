@@ -20,15 +20,25 @@ const handlePostRequest = async (req: Request) => {
       return NextResponse.json({ error: "No data provided" }, { status: 400 });
     }
 
-    // Find existing record
+    const { city, country, ...calculationData } = data;
+
+    if (!city || !country) {
+      return NextResponse.json({ error: "City and country are required" }, { status: 400 });
+    }
+
+    // Find existing record by userId AND city/country
     const existingRecord = await prisma.calculationHistory.findFirst({
       where: {
         userId,
+        city,
+        country,
       },
     });
 
     const updateData = {
-      ...data,
+      ...calculationData,
+      city,
+      country,
       userId,
       updatedAt: new Date(),
     };
@@ -76,7 +86,7 @@ export async function GET() {
         userId: userId,
       },
       orderBy: {
-        createdAt: 'desc',
+        updatedAt: 'desc',
       },
     });
 

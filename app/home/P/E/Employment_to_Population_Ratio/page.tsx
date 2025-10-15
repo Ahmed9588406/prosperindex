@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast"; // Import the toast function
 
 const EmploymentToPopulationRatioCalculator: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [employed, setEmployed] = useState<number | undefined>();
   const [workingAgePopulation, setWorkingAgePopulation] = useState<number | undefined>();
   const [epr, setEpr] = useState<number>(0); // Employment to Population Ratio
@@ -25,17 +28,49 @@ const EmploymentToPopulationRatioCalculator: React.FC = () => {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedEmployed = localStorage.getItem("employed");
+      const savedWorkingAgePopulation = localStorage.getItem("workingAgePopulation");
+
+      if (savedEmployed) setEmployed(Number(savedEmployed));
+      if (savedWorkingAgePopulation) setWorkingAgePopulation(Number(savedWorkingAgePopulation));
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleEmployedChange = (value: number | undefined) => {
+    setEmployed(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("employed", value?.toString() || "");
+    }
+  };
+
+  const handleWorkingAgePopulationChange = (value: number | undefined) => {
+    setWorkingAgePopulation(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("workingAgePopulation", value?.toString() || "");
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     if (!workingAgePopulation || workingAgePopulation === 0) {
-      alert("Working age population cannot be zero.");
+      toast.error("Working age population cannot be zero.");
       return;
     }
     if (!employed || employed < 0) {
-      alert("Please enter a valid number of employed people.");
+      toast.error("Please enter a valid number of employed people.");
       return;
     }
 
@@ -56,10 +91,12 @@ const EmploymentToPopulationRatioCalculator: React.FC = () => {
     const evaluationComment = getComment(standardized);
     setDecision(evaluationComment);
 
-    // Prepare data to send
+    // Prepare data to send - now includes city and country
     const postData = {
+      city,
+      country,
       employment_to_population_ratio: ratio,
-      employment_to_population_ratio_comment: evaluationComment, // Renamed for consistency
+      employment_to_population_ratio_comment: evaluationComment,
       userId: user.id,
     };
 
@@ -79,11 +116,11 @@ const EmploymentToPopulationRatioCalculator: React.FC = () => {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -95,6 +132,27 @@ const EmploymentToPopulationRatioCalculator: React.FC = () => {
         Employment to Population Ratio (EPR) Calculator
       </h1>
 
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || (!country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      ))}
+
       <div className="mb-6">
         <label className="block mb-3 text-lg font-semibold">
           Total Number of Employed People:
@@ -102,7 +160,7 @@ const EmploymentToPopulationRatioCalculator: React.FC = () => {
         <input
           type="number"
           value={employed !== undefined ? employed : ""}
-          onChange={(e) => setEmployed(Number(e.target.value) || undefined)}
+          onChange={(e) => handleEmployedChange(Number(e.target.value) || undefined)}
           className="border rounded-lg p-4 w-full text-lg"
           placeholder="Enter number of employed people"
         />
@@ -114,14 +172,14 @@ const EmploymentToPopulationRatioCalculator: React.FC = () => {
         <input
           type="number"
           value={workingAgePopulation !== undefined ? workingAgePopulation : ""}
-          onChange={(e) => setWorkingAgePopulation(Number(e.target.value) || undefined)}
+          onChange={(e) => handleWorkingAgePopulationChange(Number(e.target.value) || undefined)}
           className="border rounded-lg p-4 w-full text-lg"
           placeholder="Enter working age population"
         />
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-4 bg-blue-600 text-white rounded-lg w-full text-xl hover:bg-blue-700 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
@@ -138,17 +196,17 @@ const EmploymentToPopulationRatioCalculator: React.FC = () => {
           </h2>
           <h2 className="text-xl font-semibold">
             Decision:{" "}
-            <span
-              className={`${
+            <p
+              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
                 decision === "VERY SOLID"
-                  ? "text-green-600"
+                  ? "bg-green-500"
                   : decision === "SOLID"
-                  ? "text-yellow-600"
-                  : "text-red-600"
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
               }`}
             >
               {decision}
-            </span>
+            </p>
           </h2>
         </div>
       )}

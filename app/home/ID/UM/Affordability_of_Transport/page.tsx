@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from '../../../../context/CityContext';
+import toast from 'react-hot-toast';
 
 function AffordabilityOfTransportForm() {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [averageCostPerTrip, setAverageCostPerTrip] = useState<string>("");
   const [averageIncome, setAverageIncome] = useState<string>("");
   const [affordability, setAffordability] = useState<number | null>(null);
@@ -26,19 +29,51 @@ function AffordabilityOfTransportForm() {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedAverageCostPerTrip = localStorage.getItem("averageCostPerTrip");
+      const savedAverageIncome = localStorage.getItem("averageIncome");
+
+      if (savedAverageCostPerTrip) setAverageCostPerTrip(savedAverageCostPerTrip);
+      if (savedAverageIncome) setAverageIncome(savedAverageIncome);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleAverageCostPerTripChange = (value: string) => {
+    setAverageCostPerTrip(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("averageCostPerTrip", value);
+    }
+  };
+
+  const handleAverageIncomeChange = (value: string) => {
+    setAverageIncome(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("averageIncome", value);
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const numericCostPerTrip = parseFloat(averageCostPerTrip);
     const numericIncome = parseFloat(averageIncome);
     if (isNaN(numericCostPerTrip) || isNaN(numericIncome)) {
-      alert("Please enter valid numbers for both fields.");
+      toast.error("Please enter valid numbers for both fields.");
       return;
     }
     if (numericCostPerTrip <= 0 || numericIncome <= 0) {
-      alert("Both average cost per trip and average income must be positive numbers.");
+      toast.error("Both average cost per trip and average income must be positive numbers.");
       return;
     }
 
@@ -65,6 +100,8 @@ function AffordabilityOfTransportForm() {
 
     // Prepare data to send
     const postData = {
+      city,
+      country,
       affordability_of_transport: affordabilityValue,
       affordability_of_transport_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -86,11 +123,11 @@ function AffordabilityOfTransportForm() {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -102,6 +139,27 @@ function AffordabilityOfTransportForm() {
         Affordability of Transport Calculator
       </h1>
 
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
+
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Average Cost per Trip (in local currency):
@@ -109,7 +167,7 @@ function AffordabilityOfTransportForm() {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="number"
             value={averageCostPerTrip}
-            onChange={(e) => setAverageCostPerTrip(e.target.value)}
+            onChange={(e) => handleAverageCostPerTripChange(e.target.value)}
             required
           />
         </label>
@@ -121,14 +179,14 @@ function AffordabilityOfTransportForm() {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="number"
             value={averageIncome}
-            onChange={(e) => setAverageIncome(e.target.value)}
+            onChange={(e) => handleAverageIncomeChange(e.target.value)}
             required
           />
         </label>
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
