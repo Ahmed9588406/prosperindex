@@ -196,109 +196,121 @@ const PM10MonitoringStations: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">PM10 Monitoring Stations</h2>
-
-      {/* Display selected city and country */}
-      {city && country && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-gray-600">Calculating for:</p>
-          <p className="text-lg font-semibold text-blue-800">
-            {cityName || `${city}, ${country}`}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            City: {city} | Country: {country}
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-6">
+      <div className="max-w-2xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 to-green-600 p-6 text-white">
+          <h2 className="text-3xl font-bold flex items-center">
+            📡 PM10 Monitoring Stations Evaluation
+          </h2>
+          <p className="mt-2 text-blue-100">Assess and save your city's monitoring stations data</p>
         </div>
-      )}
+        
+        <div className="p-8">
+          {/* Display selected city and country */}
+          {city && country && (
+            <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+              <p className="text-sm text-gray-600 flex items-center">
+                📍 Calculating for:
+              </p>
+              <p className="text-lg font-semibold text-blue-800">
+                {cityName || `${city}, ${country}`}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                City: {city} | Country: {country}
+              </p>
+            </div>
+          )}
 
-      {!city || !country && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800">
-            ⚠️ Please select a city from the cities page first
-          </p>
-        </div>
-      )}
+          {!city || !country && (
+            <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+              <p className="text-sm text-yellow-800 flex items-center">
+                ⚠️ Please select a city from the cities page first
+              </p>
+            </div>
+          )}
 
-      <div className="mb-4">
-        <label htmlFor="population" className="block mb-2 font-semibold">
-          Population:
-        </label>
-        <input
-          id="population"
-          type="number"
-          value={population}
-          onChange={(e) => handlePopulationChange(e.target.value)}
-          className="border rounded p-2 w-full"
-          placeholder="Enter population"
-          aria-label="Enter population"
-        />
-      </div>
+          <div className="mb-6">
+            <label htmlFor="population" className="block mb-3 font-semibold text-gray-700 flex items-center">
+              👥 Population:
+            </label>
+            <input
+              id="population"
+              type="number"
+              value={population}
+              onChange={(e) => handlePopulationChange(e.target.value)}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="Enter population"
+              aria-label="Enter population"
+            />
+          </div>
 
-      <div className="mb-4">
-        <label htmlFor="pm10Level" className="block mb-2 font-semibold">
-          PM10 Level:
-        </label>
-        <select
-          id="pm10Level"
-          value={pm10Level}
-          onChange={(e) => handlePm10Change(e.target.value)}
-          className="border rounded p-2 w-full"
-          aria-label="Select PM10 Level"
-        >
-          <option value="">Select PM10 Level</option>
-          <option value="greater_or_equal_48">≥ 48 μg/m³</option>
-          <option value="between_32_and_48">≥ 32 μg/m³ and &lt; 48 μg/m³</option>
-          <option value="less_than_32">{`< 32 μg/m³`}</option>
-        </select>
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor="numStations" className="block mb-2 font-semibold">
-          Number of Monitoring Stations:
-        </label>
-        <input
-          id="numStations"
-          type="number"
-          value={numStations}
-          onChange={(e) => handleStationsChange(e.target.value)}
-          className="border rounded p-2 w-full"
-          placeholder="Enter number of monitoring stations"
-          aria-label="Enter number of monitoring stations"
-        />
-      </div>
-
-      <button
-        onClick={handleCalculateAndSave}
-        disabled={isSubmitting || !city || !country}
-        className={`p-2 bg-blue-500 text-white rounded w-full hover:bg-blue-600 transition ${
-          isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
-        aria-label="Calculate and Save"
-      >
-        {isSubmitting ? 'Calculating and Saving...' : 'Calculate and Save'}
-      </button>
-
-      {standardizedScore !== null && (
-        <div className="mt-4">
-          <h3 className="text-lg">
-            Standardized Score: {standardizedScore}
-          </h3>
-          {comment && (
-            <p
-              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
-                comment === "VERY SOLID"
-                  ? "bg-green-500"
-                  : comment === "SOLID"
-                  ? "bg-yellow-500"
-                  : "bg-red-500"
-              }`}
+          <div className="mb-6">
+            <label htmlFor="pm10Level" className="block mb-3 font-semibold text-gray-700 flex items-center">
+              🌫️ PM10 Level:
+            </label>
+            <select
+              id="pm10Level"
+              value={pm10Level}
+              onChange={(e) => handlePm10Change(e.target.value)}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              aria-label="Select PM10 Level"
             >
-              {comment}
-            </p>
+              <option value="">Select PM10 Level</option>
+              <option value="greater_or_equal_48">≥ 48 μg/m³</option>
+              <option value="between_32_and_48">≥ 32 μg/m³ and &lt; 48 μg/m³</option>
+              <option value="less_than_32">{`< 32 μg/m³`}</option>
+            </select>
+          </div>
+
+          <div className="mb-6">
+            <label htmlFor="numStations" className="block mb-3 font-semibold text-gray-700 flex items-center">
+              📊 Number of Monitoring Stations:
+            </label>
+            <input
+              id="numStations"
+              type="number"
+              value={numStations}
+              onChange={(e) => handleStationsChange(e.target.value)}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="Enter number of monitoring stations"
+              aria-label="Enter number of monitoring stations"
+            />
+          </div>
+          
+          <button
+            onClick={handleCalculateAndSave}
+            disabled={isSubmitting || !city || !country}
+            className={`w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-green-600 transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center`}
+            aria-label="Calculate and Save"
+          >
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Calculating and Saving...
+              </>
+            ) : (
+              <>🚀 Calculate and Save</>
+            )}
+          </button>
+          
+          {comment && (
+            <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
+              <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
+                comment === "VERY SOLID"
+                  ? "bg-gradient-to-r from-green-400 to-green-600"
+                  : comment === "SOLID"
+                  ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                  : "bg-gradient-to-r from-red-400 to-red-600"
+              }`}>
+                {comment}
+              </div>
+            </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
