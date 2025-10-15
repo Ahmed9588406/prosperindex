@@ -9,7 +9,9 @@ const OldAgeDependencyCalculator: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [peopleOver65, setPeopleOver65] = useState<number | undefined>();
   const [peopleAged15to64, setPeopleAged15to64] = useState<number | undefined>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [oldAgeDependencyRatio, setOldAgeDependencyRatio] = useState<number>(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedRatio, setStandardizedRatio] = useState<number>(0);
   const [decision, setDecision] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -128,7 +130,7 @@ const OldAgeDependencyCalculator: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             👴 Old Age Dependency Ratio
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's dependency ratio data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s dependency ratio data</p>
         </div>
         
         <div className="p-8">

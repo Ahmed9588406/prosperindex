@@ -11,7 +11,6 @@ const EquitableSecondarySchoolEnrollment: React.FC = () => {
   const [femaleAgeRange, setFemaleAgeRange] = useState<string>(""); // Input: Female secondary education age range
   const [maleEnrollment, setMaleEnrollment] = useState<string>(""); // Input: Male enrollment in secondary school
   const [maleAgeRange, setMaleAgeRange] = useState<string>(""); // Input: Male secondary education age range
-  const [standardizedRate, setStandardizedRate] = useState<string | null>(null); // Standardized rate
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
 
@@ -116,10 +115,10 @@ const EquitableSecondarySchoolEnrollment: React.FC = () => {
     }
 
     const scoreNum = standardizedRateValue.toFixed(2); // Limit to 2 decimal places
-    setStandardizedRate(scoreNum);
+    console.log('Standardized Score:', scoreNum); // Log the score to the console
     const calculatedComment = getComment(parseFloat(scoreNum));
     setComment(calculatedComment); // Set comment based on score
-    console.log('Calculated Score:', scoreNum, 'Calculated Comment:', calculatedComment);
+    console.log('Calculated Comment:', calculatedComment);
     return { equitableEnrollment, scoreNum, calculatedComment };
   };
 
@@ -192,7 +191,7 @@ const EquitableSecondarySchoolEnrollment: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🎓 Equitable Secondary School Enrollment
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's equitable enrollment data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s equitable enrollment data</p>
         </div>
         
         <div className="p-8">

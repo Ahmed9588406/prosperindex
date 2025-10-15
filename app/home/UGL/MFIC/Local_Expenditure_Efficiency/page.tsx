@@ -9,6 +9,7 @@ const LocalExpenditureIndicator: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [realExpenditure, setRealExpenditure] = useState<number | string>("");
   const [estimatedExpenditure, setEstimatedExpenditure] = useState<number | string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedValue, setStandardizedValue] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -141,7 +142,7 @@ const LocalExpenditureIndicator: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             💰 Local Expenditure Efficiency
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's expenditure efficiency data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s expenditure efficiency data</p>
         </div>
         
         <div className="p-8">

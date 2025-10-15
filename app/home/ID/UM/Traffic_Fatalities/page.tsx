@@ -9,7 +9,9 @@ function TrafficFatalitiesForm() {
   const { city, country, cityName } = useCity();
   const [totalFatalities, setTotalFatalities] = useState<string>("");
   const [cityPopulation, setCityPopulation] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [fatalitiesPer100k, setFatalitiesPer100k] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -139,7 +141,7 @@ function TrafficFatalitiesForm() {
           <h2 className="text-3xl font-bold flex items-center">
             🚗 Traffic Fatalities
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's traffic fatalities data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s traffic fatalities data</p>
         </div>
         
         <div className="p-8">

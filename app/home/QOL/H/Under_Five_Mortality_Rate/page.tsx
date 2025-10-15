@@ -9,7 +9,9 @@ function UnderFiveMortalityRateCalculator() {
   const { city, country, cityName } = useCity();
   const [underFiveDeaths, setUnderFiveDeaths] = useState<string>("");
   const [liveBirths, setLiveBirths] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [u5mr, setU5mr] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -137,7 +139,7 @@ function UnderFiveMortalityRateCalculator() {
           <h2 className="text-3xl font-bold flex items-center">
             👶 Under-Five Mortality Rate
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's under-five mortality data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s under-five mortality data</p>
         </div>
         
         <div className="p-8">

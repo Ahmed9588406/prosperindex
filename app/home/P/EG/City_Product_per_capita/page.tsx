@@ -12,7 +12,9 @@ const CityProductPerCapitaPage: React.FC = () => {
   const [cityEmployment, setCityEmployment] = useState<number[]>(Array(7).fill(0));
   const [cityPopulation, setCityPopulation] = useState<number>(0);
   const [pppExchangeRate, setPppExchangeRate] = useState<number>(1);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [cityProductPerCapita, setCityProductPerCapita] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedValue, setStandardizedValue] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -144,7 +146,7 @@ const CityProductPerCapitaPage: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             💰 City Product Per Capita
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's product per capita data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s product per capita data</p>
         </div>
         
         <div className="p-8">

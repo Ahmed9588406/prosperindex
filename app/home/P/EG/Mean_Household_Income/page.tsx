@@ -8,8 +8,10 @@ const MeanHouseholdIncomeApp: React.FC = () => {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
   const [householdIncome, setHouseholdIncome] = useState<number | undefined>(); // Allow undefined for no fixed zero value
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedIncome, setStandardizedIncome] = useState<number>(0);
   const [decision, setDecision] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [economicStrength, setEconomicStrength] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
 
@@ -122,7 +124,7 @@ const MeanHouseholdIncomeApp: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             💰 Mean Household Income
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's household income data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s household income data</p>
         </div>
         
         <div className="p-8">

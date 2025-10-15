@@ -9,7 +9,9 @@ function PublicTransportForm() {
   const { city, country, cityName } = useCity();
   const [tripsInPTModes, setTripsInPTModes] = useState<string>("");
   const [totalMotorizedTrips, setTotalMotorizedTrips] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [usePTRatio, setUsePTRatio] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedPTRatio, setStandardizedPTRatio] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -138,7 +140,7 @@ function PublicTransportForm() {
           <h2 className="text-3xl font-bold flex items-center">
             🚇 Use of Public Transport
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's public transport usage data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s public transport usage data</p>
         </div>
         
         <div className="p-8">

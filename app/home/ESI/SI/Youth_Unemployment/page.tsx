@@ -9,7 +9,6 @@ const YouthUnemploymentStandardization: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [unemployedYouth, setUnemployedYouth] = useState<number>(0); // Input: Number of unemployed youth
   const [youthLaborForce, setYouthLaborForce] = useState<number>(0); // Input: Total youth labor force
-  const [standardizedRate, setStandardizedRate] = useState<string | null>(null); // Standardized rate
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
 
@@ -91,10 +90,10 @@ const YouthUnemploymentStandardization: React.FC = () => {
     }
 
     const scoreNum = standardizedRateValue.toFixed(2); // Limit to 2 decimal places
-    setStandardizedRate(scoreNum);
+    console.log('Standardized Score:', scoreNum); // Log the score to the console
     const calculatedComment = getComment(parseFloat(scoreNum));
     setComment(calculatedComment); // Set comment based on score
-    console.log('Calculated Score:', scoreNum, 'Calculated Comment:', calculatedComment);
+    console.log('Calculated Comment:', calculatedComment);
     return { unemploymentRate, scoreNum, calculatedComment };
   };
 
@@ -167,7 +166,7 @@ const YouthUnemploymentStandardization: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             👨‍🎓 Youth Unemployment Standardization
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's youth unemployment data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s youth unemployment data</p>
         </div>
         
         <div className="p-8">

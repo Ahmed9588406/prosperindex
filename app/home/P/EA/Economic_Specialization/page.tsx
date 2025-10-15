@@ -9,9 +9,13 @@ const HerfindahlHirschmanIndex: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [industryShares, setIndustryShares] = useState<string>(""); // Comma-separated values
   const [numberOfIndustries, setNumberOfIndustries] = useState<number | undefined>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hIndex, setHIndex] = useState<number>(0); // H Index
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [normalizedHIndex, setNormalizedHIndex] = useState<number>(0); // Normalized H*
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedHIndex, setStandardizedHIndex] = useState<number>(0); // Standardized H(S)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [benchmark, setBenchmark] = useState<number>(0); // X*
   const [decision, setDecision] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -142,7 +146,7 @@ const HerfindahlHirschmanIndex: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             📊 Economic Specialization
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's economic specialization data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s economic specialization data</p>
         </div>
         
         <div className="p-8">

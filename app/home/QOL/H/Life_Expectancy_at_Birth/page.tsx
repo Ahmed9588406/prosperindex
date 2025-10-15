@@ -14,7 +14,9 @@ function LifeExpectancyCalculator() {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
   const [data, setData] = useState<LifeTableRow[]>([{ age: "", lx: "", tx: "" }]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [lifeExpectancy, setLifeExpectancy] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -157,7 +159,7 @@ function LifeExpectancyCalculator() {
           <h2 className="text-3xl font-bold flex items-center">
             🧬 Life Expectancy at Birth
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's life expectancy data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s life expectancy data</p>
         </div>
         
         <div className="p-8">

@@ -8,7 +8,9 @@ function AverageDailyTravelTimeForm() {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
   const [averageTravelTime, setAverageTravelTime] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [result, setResult] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedTime, setStandardizedTime] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -122,7 +124,7 @@ function AverageDailyTravelTimeForm() {
           <h2 className="text-3xl font-bold flex items-center">
             🕒 Average Daily Travel Time
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's travel time data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s travel time data</p>
         </div>
         
         <div className="p-8">

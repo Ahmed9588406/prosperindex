@@ -8,7 +8,9 @@ function BroadbandSpeedCalculator() {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
   const [speeds, setSpeeds] = useState<string>(""); // Input: comma-separated broadband speeds
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [averageSpeed, setAverageSpeed] = useState<number | null>(null); // Average broadband speed
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedSpeed, setStandardizedSpeed] = useState<string | null>(null); // Standardized speed
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -141,7 +143,7 @@ function BroadbandSpeedCalculator() {
           <h2 className="text-3xl font-bold flex items-center">
             📡 Average Broadband Speed
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's broadband speed data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s broadband speed data</p>
         </div>
         
         <div className="p-8">

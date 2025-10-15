@@ -11,7 +11,6 @@ const PM10MonitoringStations: React.FC = () => {
   const [population, setPopulation] = useState<number | string>(""); // Input: Population
   const [pm10Level, setPm10Level] = useState<string>(""); // Input: PM10 Level
   const [numStations, setNumStations] = useState<number | string>(""); // Input: Number of monitoring stations
-  const [standardizedScore, setStandardizedScore] = useState<string | null>(null); // Standardized score
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
 
@@ -127,10 +126,10 @@ const PM10MonitoringStations: React.FC = () => {
     }
 
     const scoreNum = standardizedValue.toFixed(2);
-    setStandardizedScore(scoreNum);
+    console.log('Standardized Score:', scoreNum); // Log the score to the console
     const calculatedComment = getComment(parseFloat(scoreNum));
     setComment(calculatedComment); // Set comment immediately after calculating score
-    console.log('Calculated Score:', scoreNum, 'Calculated Comment:', calculatedComment);
+    console.log('Calculated Comment:', calculatedComment);
     return { scoreNum, calculatedComment };
   };
 
@@ -202,7 +201,7 @@ const PM10MonitoringStations: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             📡 PM10 Monitoring Stations Evaluation
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's monitoring stations data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&#39;s monitoring stations data</p>
         </div>
         
         <div className="p-8">

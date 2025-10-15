@@ -9,7 +9,9 @@ const EmploymentToPopulationRatioCalculator: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [employed, setEmployed] = useState<number | undefined>();
   const [workingAgePopulation, setWorkingAgePopulation] = useState<number | undefined>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [epr, setEpr] = useState<number>(0); // Employment to Population Ratio
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedEpr, setStandardizedEpr] = useState<number>(0); // Standardized EPR
   const [decision, setDecision] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -133,7 +135,7 @@ const EmploymentToPopulationRatioCalculator: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             👔 Employment to Population Ratio
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's employment data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s employment data</p>
         </div>
         
         <div className="p-8">

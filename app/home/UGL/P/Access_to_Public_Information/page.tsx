@@ -9,6 +9,7 @@ const AccessToPublicInfo: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [selectedElements, setSelectedElements] = useState<string[]>([]);
   const totalElements = 10; // Total number of elements to check
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [accessScore, setAccessScore] = useState<number | null>(null);
   const [transparencyLevel, setTransparencyLevel] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -109,7 +110,7 @@ const AccessToPublicInfo: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             📄 Access to Public Information
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's public information access data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s public information access data</p>
         </div>
         
         <div className="p-8">

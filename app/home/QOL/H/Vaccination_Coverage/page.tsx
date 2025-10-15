@@ -9,7 +9,9 @@ function VaccinationCoverageCalculator() {
   const { city, country, cityName } = useCity();
   const [immunizedPopulation, setImmunizedPopulation] = useState<string>("");
   const [eligiblePopulation, setEligiblePopulation] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [vaccinationCoverage, setVaccinationCoverage] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -136,7 +138,7 @@ function VaccinationCoverageCalculator() {
           <h2 className="text-3xl font-bold flex items-center">
             💉 Vaccination Coverage
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's vaccination coverage data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s vaccination coverage data</p>
         </div>
         
         <div className="p-8">

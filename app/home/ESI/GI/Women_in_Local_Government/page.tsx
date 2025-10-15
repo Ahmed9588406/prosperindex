@@ -9,7 +9,6 @@ const WomenInLocalGovernment: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [womenInGovJobs, setWomenInGovJobs] = useState<number | string>(""); // Number of women in government jobs
   const [totalGovJobs, setTotalGovJobs] = useState<number | string>(""); // Total government jobs
-  const [standardizedRate, setStandardizedRate] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<string | null>(null); // Decision evaluation
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
 
@@ -87,7 +86,7 @@ const WomenInLocalGovernment: React.FC = () => {
     // Get the comment based on the standardized value
     const evaluationComment = getComment(standardizedValue);
 
-    setStandardizedRate(standardizedValue.toFixed(2));
+    console.log('Standardized Score:', standardizedValue.toFixed(2)); // Log the score to the console
     setEvaluation(evaluationComment);
 
     // Prepare data to send - now includes city and country
@@ -136,7 +135,7 @@ const WomenInLocalGovernment: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             👩‍💼 Women in Local Government
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's women in government data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s women in government data</p>
         </div>
         
         <div className="p-8">

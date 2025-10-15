@@ -9,7 +9,9 @@ const UnemploymentRateCalculator: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [unemployed, setUnemployed] = useState<number | undefined>();
   const [labourForce, setLabourForce] = useState<number | undefined>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [unemploymentRate, setUnemploymentRate] = useState<number>(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedRate, setStandardizedRate] = useState<number>(0);
   const [decision, setDecision] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -137,7 +139,7 @@ const UnemploymentRateCalculator: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             📉 Unemployment Rate
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's unemployment data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s unemployment data</p>
         </div>
         
         <div className="p-8">

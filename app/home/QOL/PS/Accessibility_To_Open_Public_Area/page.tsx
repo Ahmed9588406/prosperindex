@@ -9,7 +9,9 @@ const AccessibilityToOpenPublicArea: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [population, setPopulation] = useState<string>(""); // Input: total city population
   const [lessThan400mPopulation, setLessThan400mPopulation] = useState<string>(""); // Input: population within 400m of open public area
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [accessibilityRate, setAccessibilityRate] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -134,7 +136,7 @@ const AccessibilityToOpenPublicArea: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🌳 Accessibility to Open Public Area
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's public area accessibility data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s public area accessibility data</p>
         </div>
         
         <div className="p-8">

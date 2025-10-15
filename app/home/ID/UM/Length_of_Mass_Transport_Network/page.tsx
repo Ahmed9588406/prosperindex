@@ -9,7 +9,9 @@ function LengthMassTransportNetworkForm() {
   const { city, country, cityName } = useCity();
   const [totalLength, setTotalLength] = useState<string>("");
   const [totalPopulation, setTotalPopulation] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [lengthPerMillion, setLengthPerMillion] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -138,7 +140,7 @@ function LengthMassTransportNetworkForm() {
           <h2 className="text-3xl font-bold flex items-center">
             🚇 Length of Mass Transport Network
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's transport network data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s transport network data</p>
         </div>
         
         <div className="p-8">

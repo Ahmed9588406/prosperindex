@@ -12,7 +12,9 @@ const LandUseEfficiencyIndicator: React.FC = () => {
   const [popInit, setPopInit] = useState<number | string>(""); // Population in the initial year
   const [popFinal, setPopFinal] = useState<number | string>(""); // Population in the final year
   const [years, setYears] = useState<number | string>(""); // Number of years between initial and final year
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [landUseEfficiency, setLandUseEfficiency] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedEfficiency, setStandardizedEfficiency] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -188,7 +190,7 @@ const LandUseEfficiencyIndicator: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🏗️ Land Use Efficiency
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's land use efficiency data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s land use efficiency data</p>
         </div>
         
         <div className="p-8">

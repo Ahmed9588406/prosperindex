@@ -9,6 +9,7 @@ const GreenAreaPerCapitaStandardization: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [totalGreenArea, setTotalGreenArea] = useState<string>(""); // Input: total green area in the city
   const [population, setPopulation] = useState<string>(""); // Input: city population
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedRate, setStandardizedRate] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null); // Decision evaluation
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -134,7 +135,7 @@ const GreenAreaPerCapitaStandardization: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🌿 Green Area Per Capita
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's green area data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s green area data</p>
         </div>
         
         <div className="p-8">

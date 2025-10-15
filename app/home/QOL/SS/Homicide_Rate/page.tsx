@@ -9,7 +9,9 @@ function HomicideRateCalculator() {
   const { city, country, cityName } = useCity();
   const [homicides, setHomicides] = useState<string>(""); // Number of homicides
   const [cityPopulation, setCityPopulation] = useState<string>(""); // Total city population
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [homicideRate, setHomicideRate] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedRate, setStandardizedRate] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null); // Decision evaluation
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -142,7 +144,7 @@ function HomicideRateCalculator() {
           <h2 className="text-3xl font-bold flex items-center">
             🔪 Homicide Rate
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's homicide rate data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s homicide rate data</p>
         </div>
         
         <div className="p-8">

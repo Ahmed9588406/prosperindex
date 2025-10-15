@@ -9,7 +9,6 @@ const SlumHouseholdsStandardization: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [slumPopulation, setSlumPopulation] = useState<number | string>(""); // Input: number of people living in slums
   const [cityPopulation, setCityPopulation] = useState<number | string>(""); // Input: total city population
-  const [standardizedRate, setStandardizedRate] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<string | null>(null); // Decision evaluation
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
 
@@ -96,7 +95,7 @@ const SlumHouseholdsStandardization: React.FC = () => {
       evaluationComment = "Good";
     }
 
-    setStandardizedRate(standardizedValue.toFixed(2));
+    console.log('Standardized Score:', standardizedValue.toFixed(2)); // Log the score to the console
     setEvaluation(evaluationComment);
 
     // Prepare data to send - now includes city and country
@@ -145,7 +144,7 @@ const SlumHouseholdsStandardization: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🏚️ Slum Households Standardization
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's slum households data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s slum households data</p>
         </div>
         
         <div className="p-8">

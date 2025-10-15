@@ -9,7 +9,9 @@ const EconomicDensityCalculator: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [cityProduct, setCityProduct] = useState<number | undefined>();
   const [cityArea, setCityArea] = useState<number | undefined>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [economicDensity, setEconomicDensity] = useState<number>(0); // Economic Density
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedEconomicDensity, setStandardizedEconomicDensity] = useState<number>(0); // Standardized Economic Density
   const [decision, setDecision] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -132,7 +134,7 @@ const EconomicDensityCalculator: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             💰 Economic Density
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's economic density data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s economic density data</p>
         </div>
         
         <div className="p-8">

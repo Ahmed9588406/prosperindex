@@ -9,7 +9,7 @@ const PovertyRateStandardization: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [povertyPopulation, setPovertyPopulation] = useState<number | string>(""); // Input: population below $1.25 PPP a day
   const [totalPopulation, setTotalPopulation] = useState<number | string>(""); // Input: total population
-  const [standardizedRate, setStandardizedRate] = useState<string | null>(null); // Standardized poverty rate
+  // Removed unused standardizedRate state
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
 
@@ -83,10 +83,10 @@ const PovertyRateStandardization: React.FC = () => {
     }
 
     const scoreNum = standardizedRateValue.toFixed(2); // Limit to 2 decimal places
-    setStandardizedRate(scoreNum);
+    console.log('Standardized Score:', scoreNum); // Log the score to the console
     const calculatedComment = getComment(parseFloat(scoreNum));
     setComment(calculatedComment); // Set comment based on score
-    console.log('Calculated Score:', scoreNum, 'Calculated Comment:', calculatedComment);
+    console.log('Calculated Comment:', calculatedComment);
     return { povertyRate, scoreNum, calculatedComment };
   };
 
@@ -159,7 +159,7 @@ const PovertyRateStandardization: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             📉 Poverty Rate Standardization
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's poverty rate data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s poverty rate data</p>
         </div>
         
         <div className="p-8">

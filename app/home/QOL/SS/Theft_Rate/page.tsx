@@ -9,6 +9,7 @@ const TheftRateStandardization: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [thefts, setThefts] = useState<string>(""); // Input: number of thefts
   const [population, setPopulation] = useState<string>(""); // Input: city population
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedRate, setStandardizedRate] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null); // Decision result
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -135,7 +136,7 @@ const TheftRateStandardization: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🕵️ Theft Rate
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's theft rate data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s theft rate data</p>
         </div>
         
         <div className="p-8">

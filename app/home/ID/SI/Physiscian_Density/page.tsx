@@ -9,7 +9,9 @@ const PhysicianDensityForm: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [physicians, setPhysicians] = useState<string>("");
   const [totalPopulation, setTotalPopulation] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [physicianDensity, setPhysicianDensity] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedDensity, setStandardizedDensity] = useState<number | null>(null);
   const [evaluation, setEvaluation] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -134,7 +136,7 @@ const PhysicianDensityForm: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🩺 Physician Density
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's physician density data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s physician density data</p>
         </div>
         
         <div className="p-8">

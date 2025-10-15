@@ -9,7 +9,6 @@ const PM25Concentration: React.FC = () => {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
   const [pm25Concentration, setPm25Concentration] = useState<number | string>(""); // Input: PM2.5 concentration
-  const [standardizedScore, setStandardizedScore] = useState<string | null>(null); // Standardized score
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
   const BENCHMARK = 10; // Benchmark for PM2.5 concentration (X*)
@@ -61,10 +60,10 @@ const PM25Concentration: React.FC = () => {
     }
 
     const scoreNum = standardizedValue.toFixed(2);
-    setStandardizedScore(scoreNum);
+    console.log('Standardized Score:', scoreNum); // Log the score to the console
     const calculatedComment = getComment(parseFloat(scoreNum));
     setComment(calculatedComment); // Set comment immediately after calculating score
-    console.log('Calculated Score:', scoreNum, 'Calculated Comment:', calculatedComment);
+    console.log('Calculated Comment:', calculatedComment);
     return { scoreNum, calculatedComment };
   };
 
@@ -134,7 +133,7 @@ const PM25Concentration: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🌫️ PM2.5 Concentration Evaluation
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's PM2.5 concentration data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s PM2.5 concentration data</p>
         </div>
         
         <div className="p-8">

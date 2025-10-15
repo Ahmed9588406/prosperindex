@@ -9,7 +9,9 @@ function MaternalMortalityCalculator() {
   const { city, country, cityName } = useCity();
   const [maternalDeaths, setMaternalDeaths] = useState<string>("");
   const [liveBirths, setLiveBirths] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [maternalMortality, setMaternalMortality] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedMortality, setStandardizedMortality] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -135,7 +137,7 @@ function MaternalMortalityCalculator() {
           <h2 className="text-3xl font-bold flex items-center">
             🤰 Maternal Mortality
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's maternal mortality data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s maternal mortality data</p>
         </div>
         
         <div className="p-8">

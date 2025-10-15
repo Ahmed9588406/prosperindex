@@ -9,7 +9,9 @@ function MeanYearsOfSchoolingCalculator() {
   const { city, country, cityName } = useCity();
   const [proportions, setProportions] = useState<number[]>([]); // HS (proportion of population)
   const [durations, setDurations] = useState<number[]>([]); // YS (official duration of education)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [meanResult, setMeanResult] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedResult, setStandardizedResult] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -118,7 +120,7 @@ function MeanYearsOfSchoolingCalculator() {
           <h2 className="text-3xl font-bold flex items-center">
             🎓 Mean Years of Schooling
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's schooling data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s schooling data</p>
         </div>
         
         <div className="p-8">

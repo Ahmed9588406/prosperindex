@@ -8,7 +8,6 @@ const CO2Emissions: React.FC = () => {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
   const [co2Emissions, setCo2Emissions] = useState<number | string>(""); // Input: CO2 emissions
-  const [standardizedScore, setStandardizedScore] = useState<string | null>(null); // Standardized score
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
   const BENCHMARK = 0.39; // Benchmark value for CO2 emissions
@@ -51,10 +50,10 @@ const CO2Emissions: React.FC = () => {
     }
 
     const scoreNum = standardizedValue.toFixed(2);
-    setStandardizedScore(scoreNum);
+    console.log('Standardized Score:', scoreNum); // Log the score to the console
     const calculatedComment = getComment(parseFloat(scoreNum));
     setComment(calculatedComment); // Set comment immediately after calculating score
-    console.log('Calculated Score:', scoreNum, 'Calculated Comment:', calculatedComment);
+    console.log('Calculated Comment:', calculatedComment);
     return { scoreNum, calculatedComment };
   };
 
@@ -130,7 +129,7 @@ const CO2Emissions: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🌿 CO₂ Emissions Evaluation
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's CO₂ emissions data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s CO₂ emissions data</p>
         </div>
         
         <div className="p-8">

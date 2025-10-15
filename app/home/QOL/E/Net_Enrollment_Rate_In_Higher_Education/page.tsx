@@ -9,7 +9,9 @@ function HigherEducationEnrollmentCalculator() {
   const { city, country, cityName } = useCity();
   const [enrolledPopulation, setEnrolledPopulation] = useState<string>(""); // Population enrolled in tertiary education
   const [tertiaryAgePopulation, setTertiaryAgePopulation] = useState<string>(""); // People in the tertiary education age range
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [enrollmentRate, setEnrollmentRate] = useState<number | null>(null); // Enrollment rate as a number
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedRate, setStandardizedRate] = useState<number | null>(null); // Standardized enrollment rate
   const [decision, setDecision] = useState<string | null>(null); // Qualitative decision
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -141,7 +143,7 @@ function HigherEducationEnrollmentCalculator() {
           <h2 className="text-3xl font-bold flex items-center">
             🎓 Net Enrollment Rate in Higher Education
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's higher education enrollment data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s higher education enrollment data</p>
         </div>
         
         <div className="p-8">

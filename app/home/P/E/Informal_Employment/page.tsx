@@ -9,7 +9,9 @@ const InformalEmploymentCalculator: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [informalEmployees, setInformalEmployees] = useState<number | undefined>();
   const [totalEmployedPersons, setTotalEmployedPersons] = useState<number | undefined>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [informalEmployment, setInformalEmployment] = useState<number>(0); // Informal Employment Ratio
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedInformalEmployment, setStandardizedInformalEmployment] = useState<number>(0); // Standardized Informal Employment
   const [decision, setDecision] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -133,7 +135,7 @@ const InformalEmploymentCalculator: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             👷 Informal Employment
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's informal employment data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s informal employment data</p>
         </div>
         
         <div className="p-8">

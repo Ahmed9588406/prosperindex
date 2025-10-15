@@ -9,7 +9,9 @@ const PublicLibrariesForm: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [numLibraries, setNumLibraries] = useState<string>("");
   const [totalPopulation, setTotalPopulation] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [librariesDensity, setLibrariesDensity] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedLibraries, setStandardizedLibraries] = useState<number | null>(null);
   const [evaluation, setEvaluation] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -134,7 +136,7 @@ const PublicLibrariesForm: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             📚 Number of Libraries
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's public libraries data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s public libraries data</p>
         </div>
         
         <div className="p-8">

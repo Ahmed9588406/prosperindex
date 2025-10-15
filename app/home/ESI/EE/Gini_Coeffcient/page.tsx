@@ -8,8 +8,7 @@ const GiniIndexStandardization: React.FC = () => {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
   const [incomes, setIncomes] = useState<string>(""); // Input: comma-separated list of incomes
-  const [giniCoefficient, setGiniCoefficient] = useState<number | null>(null); // Raw Gini coefficient
-  const [standardizedRate, setStandardizedRate] = useState<string | null>(null); // Standardized Gini index
+  // Removed unused giniCoefficient state
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
   // Constants for benchmarks
@@ -88,11 +87,11 @@ const GiniIndexStandardization: React.FC = () => {
     }
 
     const scoreNum = standardized.toFixed(2); // Limit to 2 decimal places
-    setGiniCoefficient(giniValue); // Set the raw Gini coefficient
-    setStandardizedRate(scoreNum); // Set the standardized Gini index
+    // Removed setting giniCoefficient as it is unused
+    console.log('Standardized Score:', scoreNum); // Log the score to the console
     const calculatedComment = getComment(parseFloat(scoreNum));
     setComment(calculatedComment); // Set comment based on score
-    console.log('Calculated Score:', scoreNum, 'Calculated Comment:', calculatedComment);
+    console.log('Calculated Comment:', calculatedComment);
     return { giniValue, scoreNum, calculatedComment };
   };
 
@@ -165,7 +164,7 @@ const GiniIndexStandardization: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             📊 Gini Index Standardization
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's Gini coefficient data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s Gini coefficient data</p>
         </div>
         
         <div className="p-8">

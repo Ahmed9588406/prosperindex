@@ -9,7 +9,9 @@ const LandUseMix: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [landUseData, setLandUseData] = useState<number[][]>([]); // Array of p_i values for each cell
   const [numCells, setNumCells] = useState<string>(""); // Total number of cells as a string to allow empty input
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [averageIndex, setAverageIndex] = useState<number | null>(null); // Average Land Use Mix index
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedScore, setStandardizedScore] = useState<string | null>(null); // Standardized score
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -55,12 +57,11 @@ const LandUseMix: React.FC = () => {
     // Standardized formula
     const standardizedValue = 100 * (average / MAX_INDEX);
 
-    const scoreNum = standardizedValue.toFixed(2); // Limit to 2 decimal places
-    setStandardizedScore(scoreNum);
-    const calculatedComment = getComment(parseFloat(scoreNum));
+    console.log('Standardized Score:', standardizedValue.toFixed(2)); // Log the score to the console
+    const calculatedComment = getComment(parseFloat(standardizedValue.toFixed(2)));
     setComment(calculatedComment); // Set comment based on score
-    console.log('Calculated Score:', scoreNum, 'Calculated Comment:', calculatedComment);
-    return { average, scoreNum, calculatedComment };
+    console.log('Calculated Comment:', calculatedComment);
+    return { average, standardizedValue, calculatedComment };
   };
 
   // Load saved inputs on component mount
@@ -158,7 +159,7 @@ const LandUseMix: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🏙️ Land Use Mix
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's land use mix data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s land use mix data</p>
         </div>
         
         <div className="p-8">

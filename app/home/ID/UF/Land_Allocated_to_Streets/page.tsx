@@ -9,7 +9,9 @@ function LandAllocatedToStreetsCalculator() {
   const { city, country, cityName } = useCity();
   const [urbanSurfaceStreets, setUrbanSurfaceStreets] = useState<string>("");
   const [totalUrbanArea, setTotalUrbanArea] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [allocatedPercentage, setAllocatedPercentage] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -141,7 +143,7 @@ function LandAllocatedToStreetsCalculator() {
           <h2 className="text-3xl font-bold flex items-center">
             🛣️ Land Allocated to Streets
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's land allocation data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s land allocation data</p>
         </div>
         
         <div className="p-8">

@@ -9,7 +9,9 @@ function ImprovedSanitationForm() {
   const { city, country, cityName } = useCity();
   const [improvedSanitationHouseholds, setImprovedSanitationHouseholds] = useState("");
   const [totalHouseholds, setTotalHouseholds] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [result, setResult] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [improvedSanitationS, setImprovedSanitationS] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -129,7 +131,7 @@ function ImprovedSanitationForm() {
           <h2 className="text-3xl font-bold flex items-center">
             🚽 Improved Sanitation
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's improved sanitation data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s improved sanitation data</p>
         </div>
         
         <div className="p-8">

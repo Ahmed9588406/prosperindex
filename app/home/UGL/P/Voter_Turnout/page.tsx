@@ -9,6 +9,7 @@ const VoterTurnout: React.FC = () => {
   const { city, country, cityName } = useCity();
   const [votersWhoCastBallot, setVotersWhoCastBallot] = useState<number | string>(""); // Input for voters who cast a ballot
   const [eligibleVoters, setEligibleVoters] = useState<number | string>(""); // Input for number of eligible voters
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [voterTurnout, setVoterTurnout] = useState<number | null>(null);
   const [turnoutLevel, setTurnoutLevel] = useState<string | null>(null); // Qualitative evaluation
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -122,7 +123,7 @@ const VoterTurnout: React.FC = () => {
           <h2 className="text-3xl font-bold flex items-center">
             🗳️ Voter Turnout
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city's voter turnout data</p>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s voter turnout data</p>
         </div>
         
         <div className="p-8">
