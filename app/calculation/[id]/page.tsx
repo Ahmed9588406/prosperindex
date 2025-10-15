@@ -3,9 +3,21 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import CardDetails from '@/components/CardDetails';
 
+interface Calculation {
+  id: string;
+  userId: string;
+  city?: string | null;
+  country?: string | null;
+  cityName?: string | null;
+  cpi?: number | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  [key: string]: string | number | Date | null | undefined;
+}
+
 export default function CalculationDetailsPage() {
   const params = useParams();
-  const [calculation, setCalculation] = useState<any>(null);
+  const [calculation, setCalculation] = useState<Calculation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

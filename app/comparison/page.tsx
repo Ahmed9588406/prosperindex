@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { ArrowLeft, Save, Trash2, BarChart3, TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useCalculations } from '../context/CalculationsContext';
@@ -33,7 +33,8 @@ interface MetricCategory {
   }>;
 }
 
-export default function ComparisonPage() {
+// Content component that uses useSearchParams
+function ComparisonContent() {
   const searchParams = useSearchParams();
   const { calculations: availableCities, loading, deleteCalculation } = useCalculations();
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
@@ -328,9 +329,9 @@ export default function ComparisonPage() {
     try {
       const response = await fetch(`/api/calculation-history/compare?cities=${citiesParam}`);
       if (response.ok) {
-        const data = await response.json();
+        const data: CityData[] = await response.json();
         // Ensure data has id field from Prisma
-        const transformedData = data.map((item: any) => ({
+        const transformedData = data.map((item: CityData) => ({
           ...item,
           id: item.id,
         }));
@@ -377,7 +378,7 @@ export default function ComparisonPage() {
     try {
       const response = await fetch(`/api/calculation-history/compare?cities=${comparison.cities.join(',')}`);
       if (response.ok) {
-        const data = await response.json();
+        const data: CityData[] = await response.json();
         setComparisonData(data);
       }
     } catch (error) {
@@ -435,12 +436,16 @@ export default function ComparisonPage() {
   };
 
   useEffect(() => {
-    if (selectedCities.length >= 2) {
-      compareSelectedCities();
-    } else {
-      setComparisonData([]);
-    }
-  }, [selectedCities]);
+    const compareIfReady = async () => {
+      if (selectedCities.length >= 2) {
+        await compareSelectedCities();
+      } else {
+        setComparisonData([]);
+      }
+    };
+
+    compareIfReady();
+  }, [selectedCities]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading || !mounted) {
     return (
@@ -696,5 +701,18 @@ export default function ComparisonPage() {
         </div>
       )}
     </div>
+  );
+}
+
+// Main page component with Suspense
+export default function ComparisonPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    }>
+      <ComparisonContent />
+    </Suspense>
   );
 }

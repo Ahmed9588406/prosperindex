@@ -52,7 +52,7 @@ export function CalculationsProvider({ children }: { children: React.ReactNode }
         const dataArray = Array.isArray(data) ? data : [];
         
         // Transform Prisma data to match our interface
-        const transformedData = dataArray.map((item: any) => ({
+        const transformedData = dataArray.map((item: CityCalculation) => ({
           ...item,
           updatedAt: item.updatedAt || item.createdAt,
         }));

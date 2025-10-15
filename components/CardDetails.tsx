@@ -3,8 +3,20 @@ import React from 'react';
 import { ArrowLeft, MapPin, Calendar, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
+interface Calculation {
+  id: string;
+  userId: string;
+  city?: string | null;
+  country?: string | null;
+  cityName?: string | null;
+  cpi?: number | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  [key: string]: string | number | Date | null | undefined;
+}
+
 interface CardDetailsProps {
-  calculation: any;
+  calculation: Calculation;
 }
 
 const CardDetails: React.FC<CardDetailsProps> = ({ calculation }) => {
@@ -205,7 +217,7 @@ const CardDetails: React.FC<CardDetailsProps> = ({ calculation }) => {
     },
   ];
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -276,12 +288,12 @@ const CardDetails: React.FC<CardDetailsProps> = ({ calculation }) => {
                           {field.label}
                         </span>
                         <span className={`${field.highlight ? 'text-xl font-bold text-white' : 'font-medium text-white'}`}>
-                          {typeof value === 'number' ? value.toFixed(2) : value}
+                          {typeof value === 'number' ? value.toFixed(2) : String(value)}
                         </span>
                       </div>
                       {comment && (
                         <p className="text-sm text-gray-400 mt-1 italic">
-                          {comment}
+                          {String(comment)}
                         </p>
                       )}
                     </div>
