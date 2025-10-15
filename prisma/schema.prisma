@@ -18,8 +18,8 @@ model CalculationHistory {
   userId      String
   
   // Location Information
-  city        String
-  country     String
+  city        String?
+  country     String?
   cityName    String?
   
   // House Infrastructure

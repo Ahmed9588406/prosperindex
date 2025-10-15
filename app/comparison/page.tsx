@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Trash2, BarChart3, TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { useCalculations } from '../context/CalculationsContext';
+import { useSearchParams } from 'next/navigation';
 
 interface CityData {
   id: string;
@@ -32,13 +34,13 @@ interface MetricCategory {
 }
 
 export default function ComparisonPage() {
-  const [availableCities, setAvailableCities] = useState<CityData[]>([]);
+  const searchParams = useSearchParams();
+  const { calculations: availableCities, loading, deleteCalculation } = useCalculations();
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [comparisonData, setComparisonData] = useState<CityData[]>([]);
   const [savedComparisons, setSavedComparisons] = useState<SavedComparison[]>([]);
   const [comparisonName, setComparisonName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [mounted, setMounted] = useState(false);
 
@@ -273,25 +275,21 @@ export default function ComparisonPage() {
   }, []);
 
   useEffect(() => {
-    if (mounted) {
-      fetchAvailableCities();
+    if (mounted && availableCities.length > 0) {
       fetchSavedComparisons();
-    }
-  }, [mounted]);
-
-  const fetchAvailableCities = async () => {
-    try {
-      const response = await fetch('/api/calculation-history');
-      if (response.ok) {
-        const data = await response.json();
-        setAvailableCities(data);
+      
+      // Load pre-selected cities from URL
+      const preSelected = searchParams.get('selected');
+      if (preSelected) {
+        const cityIds = preSelected.split(',').filter(id => 
+          availableCities.some(city => city.id === id)
+        );
+        if (cityIds.length > 0) {
+          setSelectedCities(cityIds);
+        }
       }
-    } catch (error) {
-      console.error('Error fetching cities:', error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [mounted, searchParams, availableCities]);
 
   const fetchSavedComparisons = async () => {
     try {
@@ -331,7 +329,12 @@ export default function ComparisonPage() {
       const response = await fetch(`/api/calculation-history/compare?cities=${citiesParam}`);
       if (response.ok) {
         const data = await response.json();
-        setComparisonData(data);
+        // Ensure data has id field from Prisma
+        const transformedData = data.map((item: any) => ({
+          ...item,
+          id: item.id,
+        }));
+        setComparisonData(transformedData);
       }
     } catch (error) {
       console.error('Error comparing cities:', error);
@@ -396,18 +399,9 @@ export default function ComparisonPage() {
       return;
     }
 
-    try {
-      const response = await fetch(`/api/calculation-history?id=${cityId}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        // Remove from selected cities and refresh
-        setSelectedCities(prev => prev.filter(id => id !== cityId));
-        fetchAvailableCities();
-      }
-    } catch (error) {
-      console.error('Error deleting city calculation:', error);
+    const success = await deleteCalculation(cityId);
+    if (success) {
+      setSelectedCities(prev => prev.filter(id => id !== cityId));
     }
   };
 

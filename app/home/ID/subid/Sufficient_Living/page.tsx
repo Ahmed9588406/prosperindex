@@ -1,15 +1,44 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast";
 
 function SufficientLivingForm() {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [durableHouseholds, setDurableHouseholds] = useState("");
   const [totalHouseholds, setTotalHouseholds] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const [sufficientLivingS, setSufficientLivingS] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedDurable = localStorage.getItem("sufficientLivingDurableHouseholds");
+      const savedTotal = localStorage.getItem("sufficientLivingTotalHouseholds");
+
+      if (savedDurable) setDurableHouseholds(savedDurable);
+      if (savedTotal) setTotalHouseholds(savedTotal);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleDurableChange = (value: string) => {
+    setDurableHouseholds(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("sufficientLivingDurableHouseholds", value);
+    }
+  };
+
+  const handleTotalChange = (value: string) => {
+    setTotalHouseholds(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("sufficientLivingTotalHouseholds", value);
+    }
+  };
 
   // Constants
   const MIN = 2.5;
@@ -27,9 +56,15 @@ function SufficientLivingForm() {
 
   const calculateSufficientLiving = async () => {
     if (!user) {
-      alert("Please sign in to save calculations");
+      toast.error("Please sign in to save calculations.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const numericTotalHouseholds = Number(totalHouseholds);
     if (numericTotalHouseholds > 0) {
       const numericDurableHouseholds = Number(durableHouseholds);
@@ -48,10 +83,12 @@ function SufficientLivingForm() {
       const evaluationComment = getComment(standardizedSufficientLiving);
       setDecision(evaluationComment);
 
-      // Prepare data to send
+      // Prepare data to send - now includes city and country
       const postData = {
+        city,
+        country,
         sufficient_living: sufficient_living,
-        sufficient_living_comment: evaluationComment, // Renamed for consistency
+        sufficient_living_comment: evaluationComment,
         userId: user.id,
       };
 
@@ -71,16 +108,16 @@ function SufficientLivingForm() {
 
         const result = await response.json();
         console.log('Result:', result);
-        alert("Data calculated and saved successfully!");
+        toast.success("Data calculated and saved successfully!");
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         console.error('Error saving data:', errorMessage);
-        alert("Failed to save data. Please try again.");
+        toast.error("Failed to save data. Please try again.");
       } finally {
         setIsSubmitting(false);
       }
     } else {
-      alert("Total households must be greater than zero.");
+      toast.error("Total households must be greater than zero.");
     }
   };
 
@@ -93,6 +130,28 @@ function SufficientLivingForm() {
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
         Calculate Sufficient Living
       </h1>
+
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
+
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Number of Households with Sufficient Living Area:
@@ -100,7 +159,7 @@ function SufficientLivingForm() {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="number"
             value={durableHouseholds}
-            onChange={(e) => setDurableHouseholds(e.target.value)}
+            onChange={(e) => handleDurableChange(e.target.value)}
             required
           />
         </label>
@@ -112,7 +171,7 @@ function SufficientLivingForm() {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="number"
             value={totalHouseholds}
-            onChange={(e) => setTotalHouseholds(e.target.value)}
+            onChange={(e) => handleTotalChange(e.target.value)}
             required
           />
         </label>
@@ -120,7 +179,7 @@ function SufficientLivingForm() {
       <button
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:bg-gray-400"
         onClick={calculateSufficientLiving}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
       >
         {isSubmitting ? 'Saving...' : 'Calculate'}
       </button>
