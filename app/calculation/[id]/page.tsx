@@ -26,7 +26,7 @@ const getComment = (score: number | string): string => {
   else return "VERY WEAK";
 };
 
-const calculateAverage = (data: any, fields: string[]): number | string => {
+const calculateAverage = (data: Calculation, fields: string[]): number | string => {
   let sum = 0;
   let count = 0;
   
