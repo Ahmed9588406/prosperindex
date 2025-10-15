@@ -4,6 +4,9 @@ const prisma = new PrismaClient();
 // Define the type for the data object
 type CalculationHistoryData = {
   userId: string;
+  city: string;  // Changed from optional to required
+  country: string; // Changed from optional to required
+  cityName?: string; // Optional field
   // House Infrastructure
   improved_shelter?: number;
   improved_water?: number;
