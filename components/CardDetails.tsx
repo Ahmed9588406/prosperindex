@@ -259,6 +259,13 @@ const CardDetails: React.FC<CardDetailsProps> = ({ calculation }) => {
                 </span>
                 <span className="text-sm text-purple-100">CPI</span>
               </div>
+              {calculation.cpi_comment && (
+                <div className="bg-white/10 px-3 py-1 rounded-lg">
+                  <p className="text-sm font-semibold text-purple-100">
+                    {String(calculation.cpi_comment)}
+                  </p>
+                </div>
+              )}
               <div className="flex items-center gap-2 text-purple-100 text-sm">
                 <Calendar className="w-4 h-4" />
                 <span>{formatDate(calculation.updatedAt || calculation.createdAt)}</span>

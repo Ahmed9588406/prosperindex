@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import Image from "next/image";
 
 function CardSlider() {
   const router = useRouter();
@@ -25,7 +26,7 @@ function CardSlider() {
           >
             <div className="flex flex-col items-center p-6">
                 <div className="w-16 h-16 bg-white flex items-center justify-center rounded-full mb-4 shadow-lg overflow-hidden">
-                <img 
+                <Image 
                   src="/assets/8194017.png"
                   alt="Economic Density Icon"
                   className="w-12 h-12 object-cover rounded-full"
@@ -42,7 +43,7 @@ function CardSlider() {
           >
             <div className="flex flex-col items-center p-6">
               <div className="w-16 h-16 bg-white flex items-center justify-center rounded-full mb-4 shadow-lg overflow-hidden">
-                <img 
+                <Image 
                 src="/assets/download.png"
                 alt="Economic Specialization Icon"
                 className="w-12 h-12 object-cover rounded-full"

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import Image from "next/image";
 
 function CardSlider() {
   const router = useRouter();
@@ -27,7 +28,7 @@ function CardSlider() {
           >
             <div className="flex flex-col items-center p-6">
                 <div className="w-16 h-16 flex items-center justify-center mb-4">
-                <img 
+                <Image 
                   src="/assets/pngtree-unemployment-rate-rgb-color-icon-element-logotype-lineart-vector-png-image_10385249.png"
                   alt="Unemployment Rate Icon"
                   className="w-full h-full object-cover rounded-full shadow-lg"
@@ -44,7 +45,7 @@ function CardSlider() {
           >
             <div className="flex flex-col items-center p-6">
               <div className="w-16 h-16 flex items-center justify-center mb-4">
-                <img 
+                <Image 
                 src="/assets/businessmen-on-top-of-columns-of-chart-EK842J.jpg"
                 alt="Employment Population Ratio Icon"
                 className="w-full h-full object-cover rounded-full shadow-lg"
@@ -61,7 +62,7 @@ function CardSlider() {
           >
             <div className="flex flex-col items-center p-6">
                 <div className="w-16 h-16 flex items-center justify-center mb-4">
-                <img 
+                <Image 
                   src="/assets/png-clipart-career-development-job-application-for-employment-business-career-miscellaneous-trademark.png"
                   alt="Informal Employment Icon"
                   className="w-full h-full object-cover rounded-full shadow-lg"

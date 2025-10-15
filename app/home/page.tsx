@@ -9,6 +9,7 @@ import {
   Leaf, 
   Scale 
 } from "lucide-react";
+import Image from "next/image";
 
 const HomePage = () => {
   const router = useRouter();
@@ -117,7 +118,7 @@ const HomePage = () => {
                     
                     {/* Optional image */}
                     <div className="w-12 h-12 rounded-full overflow-hidden shadow-md ring-2 ring-white group-hover:ring-4 transition-all duration-300">
-                      <img 
+                      <Image 
                         src={card.image} 
                         alt={card.title} 
                         className="w-full h-full object-cover"
