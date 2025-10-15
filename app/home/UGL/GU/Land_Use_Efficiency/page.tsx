@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast";
 
 const LandUseEfficiencyIndicator: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [urbInit, setUrbInit] = useState<number | string>(""); // Built-up area in the initial year
   const [urbFinal, setUrbFinal] = useState<number | string>(""); // Built-up area in the final year
   const [popInit, setPopInit] = useState<number | string>(""); // Population in the initial year
@@ -27,11 +30,70 @@ const LandUseEfficiencyIndicator: React.FC = () => {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedUrbInit = localStorage.getItem("urbInit");
+      const savedUrbFinal = localStorage.getItem("urbFinal");
+      const savedPopInit = localStorage.getItem("popInit");
+      const savedPopFinal = localStorage.getItem("popFinal");
+      const savedYears = localStorage.getItem("years");
+
+      if (savedUrbInit) setUrbInit(savedUrbInit);
+      if (savedUrbFinal) setUrbFinal(savedUrbFinal);
+      if (savedPopInit) setPopInit(savedPopInit);
+      if (savedPopFinal) setPopFinal(savedPopFinal);
+      if (savedYears) setYears(savedYears);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleUrbInitChange = (value: string) => {
+    setUrbInit(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("urbInit", value);
+    }
+  };
+
+  const handleUrbFinalChange = (value: string) => {
+    setUrbFinal(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("urbFinal", value);
+    }
+  };
+
+  const handlePopInitChange = (value: string) => {
+    setPopInit(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("popInit", value);
+    }
+  };
+
+  const handlePopFinalChange = (value: string) => {
+    setPopFinal(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("popFinal", value);
+    }
+  };
+
+  const handleYearsChange = (value: string) => {
+    setYears(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("years", value);
+    }
+  };
+
   const calculateAndSave = async () => {
-    if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+    if (!user) {
+      toast.error("Please sign in to save calculations.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const urb_t = parseFloat(urbInit.toString());
     const urb_tn = parseFloat(urbFinal.toString());
     const pop_t = parseFloat(popInit.toString());
@@ -50,7 +112,7 @@ const LandUseEfficiencyIndicator: React.FC = () => {
       pop_tn <= 0 ||
       y <= 0
     ) {
-      alert("Please provide valid inputs for all fields.");
+      toast.error("Please provide valid inputs for all fields.");
       return;
     }
 
@@ -80,8 +142,10 @@ const LandUseEfficiencyIndicator: React.FC = () => {
     const evaluationComment = getComment(standardized);
     setDecision(evaluationComment);
 
-    // Prepare data to send
+    // Prepare data to send - now includes city and country
     const postData = {
+      city,
+      country,
       land_use_efficiency: efficiency,
       land_use_efficiency_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -103,19 +167,44 @@ const LandUseEfficiencyIndicator: React.FC = () => {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Land Use Efficiency Indicator</h1>
+
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
 
       <div className="mb-6">
         <label className="block mb-3 text-lg font-semibold">
@@ -124,7 +213,7 @@ const LandUseEfficiencyIndicator: React.FC = () => {
         <input
           type="number"
           value={urbInit}
-          onChange={(e) => setUrbInit(e.target.value)}
+          onChange={(e) => handleUrbInitChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter initial built-up area (km²)"
         />
@@ -136,7 +225,7 @@ const LandUseEfficiencyIndicator: React.FC = () => {
         <input
           type="number"
           value={urbFinal}
-          onChange={(e) => setUrbFinal(e.target.value)}
+          onChange={(e) => handleUrbFinalChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter final built-up area (km²)"
         />
@@ -148,7 +237,7 @@ const LandUseEfficiencyIndicator: React.FC = () => {
         <input
           type="number"
           value={popInit}
-          onChange={(e) => setPopInit(e.target.value)}
+          onChange={(e) => handlePopInitChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter initial population"
         />
@@ -160,7 +249,7 @@ const LandUseEfficiencyIndicator: React.FC = () => {
         <input
           type="number"
           value={popFinal}
-          onChange={(e) => setPopFinal(e.target.value)}
+          onChange={(e) => handlePopFinalChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter final population"
         />
@@ -172,14 +261,14 @@ const LandUseEfficiencyIndicator: React.FC = () => {
         <input
           type="number"
           value={years}
-          onChange={(e) => setYears(e.target.value)}
+          onChange={(e) => handleYearsChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter number of years"
         />
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-4 bg-blue-600 text-white rounded-lg w-full text-xl hover:bg-blue-700 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
@@ -195,20 +284,17 @@ const LandUseEfficiencyIndicator: React.FC = () => {
             Standardized Efficiency: {standardizedEfficiency?.toFixed(2)}
           </h2>
           {decision && (
-            <h2 className="text-xl font-semibold">
-              Decision:{" "}
-              <span
-                className={`${
-                  decision === "VERY SOLID"
-                    ? "text-green-600"
-                    : decision === "SOLID"
-                    ? "text-yellow-600"
-                    : "text-red-600"
-                }`}
-              >
-                {decision}
-              </span>
-            </h2>
+            <p
+              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
+                decision === "VERY SOLID"
+                  ? "bg-green-500"
+                  : decision === "SOLID"
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
+              }`}
+            >
+              {decision}
+            </p>
           )}
         </div>
       )}

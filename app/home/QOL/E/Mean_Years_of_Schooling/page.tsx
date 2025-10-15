@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from '../../../../context/CityContext';
+import toast from 'react-hot-toast';
 
 function MeanYearsOfSchoolingCalculator() {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [proportions, setProportions] = useState<number[]>([]); // HS (proportion of population)
   const [durations, setDurations] = useState<number[]>([]); // YS (official duration of education)
   const [meanResult, setMeanResult] = useState<number | null>(null);
@@ -23,15 +26,31 @@ function MeanYearsOfSchoolingCalculator() {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedProportions = localStorage.getItem("proportions");
+      const savedDurations = localStorage.getItem("durations");
+
+      if (savedProportions) setProportions(JSON.parse(savedProportions));
+      if (savedDurations) setDurations(JSON.parse(savedDurations));
+    }
+  }, []);
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
+      return;
+    }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
       return;
     }
 
     // Validate inputs
     if (proportions.length !== durations.length || proportions.length === 0) {
-      alert("Please provide valid proportions and durations for each education level.");
+      toast.error("Please provide valid proportions and durations for each education level.");
       return;
     }
 
@@ -59,6 +78,8 @@ function MeanYearsOfSchoolingCalculator() {
 
     // Prepare data to send
     const postData = {
+      city,
+      country,
       mean_years_of_schooling: meanYearsOfSchooling,
       mean_years_of_schooling_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -80,11 +101,11 @@ function MeanYearsOfSchoolingCalculator() {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -93,6 +114,27 @@ function MeanYearsOfSchoolingCalculator() {
   return (
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Mean Years of Schooling Calculator</h1>
+
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
 
       <div className="mb-6">
         <label className="block mb-3 text-lg font-semibold">
@@ -104,6 +146,9 @@ function MeanYearsOfSchoolingCalculator() {
           onChange={(e) => {
             const values = e.target.value.split(',').map(Number);
             setProportions(values);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("proportions", JSON.stringify(values));
+            }
           }}
           className="border rounded-lg p-4 w-full text-lg"
           placeholder="Enter proportions separated by commas"
@@ -119,6 +164,9 @@ function MeanYearsOfSchoolingCalculator() {
           onChange={(e) => {
             const values = e.target.value.split(',').map(Number);
             setDurations(values);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("durations", JSON.stringify(values));
+            }
           }}
           className="border rounded-lg p-4 w-full text-lg"
           placeholder="Enter durations separated by commas"
@@ -126,7 +174,7 @@ function MeanYearsOfSchoolingCalculator() {
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-4 bg-blue-600 text-white rounded-lg w-full text-xl hover:bg-blue-700 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}

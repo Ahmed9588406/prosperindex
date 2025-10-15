@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast"; // Import the toast function
 
 const HerfindahlHirschmanIndex: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [industryShares, setIndustryShares] = useState<string>(""); // Comma-separated values
   const [numberOfIndustries, setNumberOfIndustries] = useState<number | undefined>();
   const [hIndex, setHIndex] = useState<number>(0); // H Index
@@ -23,13 +26,45 @@ const HerfindahlHirschmanIndex: React.FC = () => {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedNumberOfIndustries = localStorage.getItem("numberOfIndustries");
+      const savedIndustryShares = localStorage.getItem("industryShares");
+
+      if (savedNumberOfIndustries) setNumberOfIndustries(Number(savedNumberOfIndustries));
+      if (savedIndustryShares) setIndustryShares(savedIndustryShares);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleNumberOfIndustriesChange = (value: number | undefined) => {
+    setNumberOfIndustries(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("numberOfIndustries", value?.toString() || "");
+    }
+  };
+
+  const handleIndustrySharesChange = (value: string) => {
+    setIndustryShares(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("industryShares", value);
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     if (!numberOfIndustries || numberOfIndustries <= 0) {
-      alert("Please enter a valid number of industries.");
+      toast.error("Please enter a valid number of industries.");
       return;
     }
     // Parse industry shares
@@ -38,7 +73,7 @@ const HerfindahlHirschmanIndex: React.FC = () => {
       .map((share) => parseFloat(share.trim()))
       .filter((share) => !isNaN(share));
     if (shares.length !== numberOfIndustries) {
-      alert("Number of industries must match the number of shares entered.");
+      toast.error("Number of industries must match the number of shares entered.");
       return;
     }
     // Calculate H Index
@@ -65,10 +100,12 @@ const HerfindahlHirschmanIndex: React.FC = () => {
     const evaluationComment = getComment(standardizedH);
     setDecision(evaluationComment);
 
-    // Prepare data to send
+    // Prepare data to send - now includes city and country
     const postData = {
+      city,
+      country,
       economic_specialization: h,
-      economic_specialization_comment: evaluationComment, // Renamed for consistency
+      economic_specialization_comment: evaluationComment,
       userId: user.id,
     };
 
@@ -88,11 +125,11 @@ const HerfindahlHirschmanIndex: React.FC = () => {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -104,6 +141,27 @@ const HerfindahlHirschmanIndex: React.FC = () => {
         Herfindahl-Hirschman Index Calculator
       </h1>
 
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || (!country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      ))}
+
       <div className="mb-6">
         <label className="block mb-3 text-lg font-semibold">
           Number of Industries (N):
@@ -111,7 +169,7 @@ const HerfindahlHirschmanIndex: React.FC = () => {
         <input
           type="number"
           value={numberOfIndustries !== undefined ? numberOfIndustries : ""}
-          onChange={(e) => setNumberOfIndustries(Number(e.target.value) || undefined)}
+          onChange={(e) => handleNumberOfIndustriesChange(Number(e.target.value) || undefined)}
           className="border rounded-lg p-4 w-full text-lg"
           placeholder="Enter the number of industries"
         />
@@ -123,14 +181,14 @@ const HerfindahlHirschmanIndex: React.FC = () => {
         <input
           type="text"
           value={industryShares}
-          onChange={(e) => setIndustryShares(e.target.value)}
+          onChange={(e) => handleIndustrySharesChange(e.target.value)}
           className="border rounded-lg p-4 w-full text-lg"
           placeholder="Enter shares as decimals"
         />
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-4 bg-blue-600 text-white rounded-lg w-full text-xl hover:bg-blue-700 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
@@ -153,17 +211,17 @@ const HerfindahlHirschmanIndex: React.FC = () => {
           </h2>
           <h2 className="text-xl font-semibold">
             Decision:{" "}
-            <span
-              className={`${
+            <p
+              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
                 decision === "VERY SOLID"
-                  ? "text-green-600"
+                  ? "bg-green-500"
                   : decision === "SOLID"
-                  ? "text-yellow-600"
-                  : "text-red-600"
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
               }`}
             >
               {decision}
-            </span>
+            </p>
           </h2>
         </div>
       )}

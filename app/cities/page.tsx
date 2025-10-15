@@ -80,7 +80,8 @@ export default function Page() {
   };
 
   const loadExistingCity = (existingCity: ExistingCity) => {
-    setLocation(existingCity.city, existingCity.country, existingCity.cityName);
+    const displayName = existingCity.cityName || `${existingCity.city}, ${existingCity.country}`;
+    setLocation(existingCity.city, existingCity.country, displayName, false);
     router.push('/home');
   };
 

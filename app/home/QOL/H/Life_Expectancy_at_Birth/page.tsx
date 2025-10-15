@@ -1,6 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from '../../../../context/CityContext';
+import toast from 'react-hot-toast';
 
 interface LifeTableRow {
   age: string;
@@ -10,6 +12,7 @@ interface LifeTableRow {
 
 function LifeExpectancyCalculator() {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [data, setData] = useState<LifeTableRow[]>([{ age: "", lx: "", tx: "" }]);
   const [lifeExpectancy, setLifeExpectancy] = useState<number | null>(null);
   const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
@@ -29,11 +32,24 @@ function LifeExpectancyCalculator() {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedData = localStorage.getItem("lifeExpectancyData");
+      if (savedData) {
+        setData(JSON.parse(savedData));
+      }
+    }
+  }, []);
+
   // Function to update data for each row
   const updateRow = (index: number, field: keyof LifeTableRow, value: string) => {
     const newData = [...data];
     newData[index][field] = value;
     setData(newData);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lifeExpectancyData", JSON.stringify(newData));
+    }
   };
 
   // Add a new row for additional age band data
@@ -51,7 +67,12 @@ function LifeExpectancyCalculator() {
   // Function to calculate life expectancy at birth
   const calculateLifeExpectancy = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
+      return;
+    }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
       return;
     }
 
@@ -63,7 +84,7 @@ function LifeExpectancyCalculator() {
       const tx = parseFloat(row.tx);
 
       if (isNaN(lx) || isNaN(tx)) {
-        alert("Please ensure all fields are filled with valid numbers.");
+        toast.error("Please ensure all fields are filled with valid numbers.");
         return;
       }
 
@@ -72,7 +93,7 @@ function LifeExpectancyCalculator() {
     }
 
     if (l0 <= 0) {
-      alert("The number of people alive at age 0 (l0) must be greater than zero.");
+      toast.error("The number of people alive at age 0 (l0) must be greater than zero.");
       return;
     }
 
@@ -96,6 +117,8 @@ function LifeExpectancyCalculator() {
 
     // Prepare data to send
     const postData = {
+      city,
+      country,
       life_expectancy_at_birth: e0,
       life_expectancy_at_birth_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -117,11 +140,11 @@ function LifeExpectancyCalculator() {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -130,6 +153,28 @@ function LifeExpectancyCalculator() {
   return (
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-4">Life Expectancy Calculator</h1>
+
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
+
       <table className="w-full mb-4 border-collapse border border-gray-400">
         <thead>
           <tr>
@@ -188,7 +233,7 @@ function LifeExpectancyCalculator() {
       </div>
       <button
         onClick={calculateLifeExpectancy}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-2 bg-green-500 text-white rounded w-full hover:bg-green-600 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}

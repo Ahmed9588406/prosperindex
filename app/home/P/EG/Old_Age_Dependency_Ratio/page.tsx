@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast"; // Import the toast function
 
 const OldAgeDependencyCalculator: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [peopleOver65, setPeopleOver65] = useState<number | undefined>();
   const [peopleAged15to64, setPeopleAged15to64] = useState<number | undefined>();
   const [oldAgeDependencyRatio, setOldAgeDependencyRatio] = useState<number>(0);
@@ -24,17 +27,49 @@ const OldAgeDependencyCalculator: React.FC = () => {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedPeopleOver65 = localStorage.getItem("peopleOver65");
+      const savedPeopleAged15to64 = localStorage.getItem("peopleAged15to64");
+
+      if (savedPeopleOver65) setPeopleOver65(Number(savedPeopleOver65));
+      if (savedPeopleAged15to64) setPeopleAged15to64(Number(savedPeopleAged15to64));
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handlePeopleOver65Change = (value: number | undefined) => {
+    setPeopleOver65(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("peopleOver65", value?.toString() || "");
+    }
+  };
+
+  const handlePeopleAged15to64Change = (value: number | undefined) => {
+    setPeopleAged15to64(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("peopleAged15to64", value?.toString() || "");
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     if (!peopleAged15to64 || peopleAged15to64 === 0) {
-      alert("The number of people aged 15 to 64 cannot be zero.");
+      toast.error("The number of people aged 15 to 64 cannot be zero.");
       return;
     }
     if (!peopleOver65 || peopleOver65 < 0) {
-      alert("Please enter a valid number of people aged 65 and over.");
+      toast.error("Please enter a valid number of people aged 65 and over.");
       return;
     }
 
@@ -51,10 +86,12 @@ const OldAgeDependencyCalculator: React.FC = () => {
     const evaluationComment = getComment(standardized);
     setDecision(evaluationComment);
 
-    // Prepare data to send
+    // Prepare data to send - now includes city and country
     const postData = {
+      city,
+      country,
       old_age_dependency_ratio: dependencyRatio,
-      old_age_dependency_ratio_comment: evaluationComment, // Renamed for consistency
+      old_age_dependency_ratio_comment: evaluationComment,
       userId: user.id,
     };
 
@@ -74,11 +111,11 @@ const OldAgeDependencyCalculator: React.FC = () => {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -88,12 +125,33 @@ const OldAgeDependencyCalculator: React.FC = () => {
     <div className="max-w-md mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-4">Old Age Dependency Ratio Calculator</h1>
 
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || (!country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      ))}
+
       <div className="mb-4">
         <label className="block mb-2 font-semibold">People aged 65 and over:</label>
         <input
           type="number"
           value={peopleOver65 !== undefined ? peopleOver65 : ""}
-          onChange={(e) => setPeopleOver65(Number(e.target.value) || undefined)}
+          onChange={(e) => handlePeopleOver65Change(Number(e.target.value) || undefined)}
           className="border rounded p-2 w-full"
           placeholder="Enter number of people aged 65 and over"
         />
@@ -103,14 +161,14 @@ const OldAgeDependencyCalculator: React.FC = () => {
         <input
           type="number"
           value={peopleAged15to64 !== undefined ? peopleAged15to64 : ""}
-          onChange={(e) => setPeopleAged15to64(Number(e.target.value) || undefined)}
+          onChange={(e) => handlePeopleAged15to64Change(Number(e.target.value) || undefined)}
           className="border rounded p-2 w-full"
           placeholder="Enter number of people aged 15 to 64"
         />
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-2 bg-blue-500 text-white rounded w-full hover:bg-blue-600 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
@@ -127,17 +185,17 @@ const OldAgeDependencyCalculator: React.FC = () => {
           </h2>
           <h2 className="text-lg font-semibold">
             Decision:{" "}
-            <span
-              className={`font-bold ${
+            <p
+              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
                 decision === "VERY SOLID"
-                  ? "text-green-600"
+                  ? "bg-green-500"
                   : decision === "SOLID"
-                  ? "text-yellow-600"
-                  : "text-red-600"
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
               }`}
             >
               {decision}
-            </span>
+            </p>
           </h2>
         </div>
       )}

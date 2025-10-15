@@ -17,6 +17,11 @@ model CalculationHistory {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   userId      String
   
+  // Location Information
+  city        String
+  country     String
+  cityName    String?
+  
   // House Infrastructure
   improved_shelter    Float?
   improved_shelter_comment String?
@@ -235,6 +240,8 @@ model CalculationHistory {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@index([city, country])
+  @@index([userId, city, country])
 }
 
 

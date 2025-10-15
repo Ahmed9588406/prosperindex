@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from '../../../../context/CityContext';
+import toast from 'react-hot-toast';
 
 const TheftRateStandardization: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [thefts, setThefts] = useState<string>(""); // Input: number of thefts
   const [population, setPopulation] = useState<string>(""); // Input: city population
   const [standardizedRate, setStandardizedRate] = useState<number | null>(null);
@@ -25,16 +28,48 @@ const TheftRateStandardization: React.FC = () => {
     else return "VERY WEAK";
   };
 
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedThefts = localStorage.getItem("thefts");
+      const savedPopulation = localStorage.getItem("population");
+
+      if (savedThefts) setThefts(savedThefts);
+      if (savedPopulation) setPopulation(savedPopulation);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleTheftsChange = (value: string) => {
+    setThefts(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("thefts", value);
+    }
+  };
+
+  const handlePopulationChange = (value: string) => {
+    setPopulation(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("population", value);
+    }
+  };
+
   const calculateAndSave = async () => {
     if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+      toast.error("User not authenticated. Please log in.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const theftsCount = parseFloat(thefts);
     const populationCount = parseFloat(population);
 
     if (isNaN(theftsCount) || isNaN(populationCount) || populationCount <= 0) {
-      alert("Please provide valid inputs for both fields.");
+      toast.error("Please provide valid inputs for both fields.");
       return;
     }
 
@@ -60,6 +95,8 @@ const TheftRateStandardization: React.FC = () => {
 
     // Prepare data to send
     const postData = {
+      city,
+      country,
       theft_rate: theftRate,
       theft_rate_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -81,11 +118,11 @@ const TheftRateStandardization: React.FC = () => {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -95,6 +132,27 @@ const TheftRateStandardization: React.FC = () => {
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Theft Rate Standardization</h1>
 
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
+
       <div className="mb-6">
         <label className="block mb-3 text-lg font-semibold">
           Number of Thefts:
@@ -102,7 +160,7 @@ const TheftRateStandardization: React.FC = () => {
         <input
           type="number"
           value={thefts}
-          onChange={(e) => setThefts(e.target.value)}
+          onChange={(e) => handleTheftsChange(e.target.value)}
           className="border rounded p-4 w-full text-lg"
           placeholder="Enter the number of thefts"
         />
@@ -114,14 +172,14 @@ const TheftRateStandardization: React.FC = () => {
         <input
           type="number"
           value={population}
-          onChange={(e) => setPopulation(e.target.value)}
+          onChange={(e) => handlePopulationChange(e.target.value)}
           className="border rounded p-4 w-full text-lg"
           placeholder="Enter the city population"
         />
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-4 bg-blue-600 text-white rounded-lg w-full text-xl hover:bg-blue-700 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}

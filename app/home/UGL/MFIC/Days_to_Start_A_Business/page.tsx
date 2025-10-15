@@ -1,13 +1,32 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
+import { useCity } from "../../../../context/CityContext";
+import toast from "react-hot-toast";
 
 const DaysToStartBusiness: React.FC = () => {
   const { user, isLoaded } = useUser();
+  const { city, country, cityName } = useCity();
   const [daysToStart, setDaysToStart] = useState<number | string>("");
   const [standardizedValue, setStandardizedValue] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
+
+  // Load saved inputs on component mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedDays = localStorage.getItem("daysToStart");
+      if (savedDays) setDaysToStart(savedDays);
+    }
+  }, []);
+
+  // Save inputs to localStorage on change
+  const handleDaysChange = (value: string) => {
+    setDaysToStart(value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("daysToStart", value);
+    }
+  };
 
   const MIN_DAYS = 2; // Minimum benchmark
   const MAX_DAYS = 208; // Maximum benchmark
@@ -23,14 +42,20 @@ const DaysToStartBusiness: React.FC = () => {
   };
 
   const calculateAndSave = async () => {
-    if (!isLoaded || !user) {
-      alert("User not authenticated. Please log in.");
+    if (!user) {
+      toast.error("Please sign in to save calculations.");
       return;
     }
+
+    if (!city || !country) {
+      toast.error("Please select a city from the cities page first.");
+      return;
+    }
+
     const days = parseFloat(daysToStart.toString());
 
     if (isNaN(days) || days <= 0) {
-      alert("Please provide a valid number of days.");
+      toast.error("Please provide a valid number of days.");
       return;
     }
 
@@ -40,7 +65,7 @@ const DaysToStartBusiness: React.FC = () => {
     const lnDifference = lnMax - lnMin;
 
     if (lnDifference === 0) {
-      alert("Invalid calculation");
+      toast.error("Invalid calculation");
       return;
     }
 
@@ -59,8 +84,10 @@ const DaysToStartBusiness: React.FC = () => {
     const evaluationComment = getComment(standardized);
     setDecision(evaluationComment);
 
-    // Prepare data to send
+    // Prepare data to send - now includes city and country
     const postData = {
+      city,
+      country,
       days_to_start_a_business: days,
       days_to_start_a_business_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
@@ -82,19 +109,44 @@ const DaysToStartBusiness: React.FC = () => {
 
       const result = await response.json();
       console.log('Result:', result);
-      alert("Data calculated and saved successfully!");
+      toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error saving data:', errorMessage);
-      alert("Failed to save data. Please try again.");
+      toast.error("Failed to save data. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Days to Start a Business Calculator</h1>
+
+      {/* Display selected city and country */}
+      {city && country && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-gray-600">Calculating for:</p>
+          <p className="text-lg font-semibold text-blue-800">
+            {cityName || `${city}, ${country}`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            City: {city} | Country: {country}
+          </p>
+        </div>
+      )}
+
+      {!city || !country && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            ⚠️ Please select a city from the cities page first
+          </p>
+        </div>
+      )}
 
       <div className="mb-6">
         <label className="block mb-3 text-lg font-semibold">
@@ -103,14 +155,14 @@ const DaysToStartBusiness: React.FC = () => {
         <input
           type="number"
           value={daysToStart}
-          onChange={(e) => setDaysToStart(e.target.value)}
+          onChange={(e) => handleDaysChange(e.target.value)}
           className="border rounded p-2 w-full"
           placeholder="Enter the number of days"
         />
       </div>
       <button
         onClick={calculateAndSave}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !city || !country}
         className={`p-4 bg-blue-600 text-white rounded-lg w-full text-xl hover:bg-blue-700 transition ${
           isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
         }`}
@@ -123,20 +175,17 @@ const DaysToStartBusiness: React.FC = () => {
             Standardized Value: {standardizedValue.toFixed(2)}
           </h2>
           {decision && (
-            <h2 className="text-xl font-semibold">
-              Decision:{" "}
-              <span
-                className={`${
-                  decision === "VERY SOLID"
-                    ? "text-green-600"
-                    : decision === "SOLID"
-                    ? "text-yellow-600"
-                    : "text-red-600"
-                }`}
-              >
-                {decision}
-              </span>
-            </h2>
+            <p
+              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
+                decision === "VERY SOLID"
+                  ? "bg-green-500"
+                  : decision === "SOLID"
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
+              }`}
+            >
+              {decision}
+            </p>
           )}
         </div>
       )}
