@@ -12,7 +12,9 @@ const LandUseEfficiencyIndicator: React.FC = () => {
   const [popInit, setPopInit] = useState<number | string>(""); // Population in the initial year
   const [popFinal, setPopFinal] = useState<number | string>(""); // Population in the final year
   const [years, setYears] = useState<number | string>(""); // Number of years between initial and final year
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [landUseEfficiency, setLandUseEfficiency] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedEfficiency, setStandardizedEfficiency] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -182,122 +184,137 @@ const LandUseEfficiencyIndicator: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-bold mb-6 text-center">Land Use Efficiency Indicator</h1>
-
-      {/* Display selected city and country */}
-      {city && country && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-gray-600">Calculating for:</p>
-          <p className="text-lg font-semibold text-blue-800">
-            {cityName || `${city}, ${country}`}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            City: {city} | Country: {country}
-          </p>
-        </div>
-      )}
-
-      {!city || !country && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800">
-            ⚠️ Please select a city from the cities page first
-          </p>
-        </div>
-      )}
-
-      <div className="mb-6">
-        <label className="block mb-3 text-lg font-semibold">
-          Built-up Area (Initial Year):
-        </label>
-        <input
-          type="number"
-          value={urbInit}
-          onChange={(e) => handleUrbInitChange(e.target.value)}
-          className="border rounded p-2 w-full"
-          placeholder="Enter initial built-up area (km²)"
-        />
-      </div>
-      <div className="mb-6">
-        <label className="block mb-3 text-lg font-semibold">
-          Built-up Area (Final Year):
-        </label>
-        <input
-          type="number"
-          value={urbFinal}
-          onChange={(e) => handleUrbFinalChange(e.target.value)}
-          className="border rounded p-2 w-full"
-          placeholder="Enter final built-up area (km²)"
-        />
-      </div>
-      <div className="mb-6">
-        <label className="block mb-3 text-lg font-semibold">
-          Population (Initial Year):
-        </label>
-        <input
-          type="number"
-          value={popInit}
-          onChange={(e) => handlePopInitChange(e.target.value)}
-          className="border rounded p-2 w-full"
-          placeholder="Enter initial population"
-        />
-      </div>
-      <div className="mb-6">
-        <label className="block mb-3 text-lg font-semibold">
-          Population (Final Year):
-        </label>
-        <input
-          type="number"
-          value={popFinal}
-          onChange={(e) => handlePopFinalChange(e.target.value)}
-          className="border rounded p-2 w-full"
-          placeholder="Enter final population"
-        />
-      </div>
-      <div className="mb-6">
-        <label className="block mb-3 text-lg font-semibold">
-          Number of Years:
-        </label>
-        <input
-          type="number"
-          value={years}
-          onChange={(e) => handleYearsChange(e.target.value)}
-          className="border rounded p-2 w-full"
-          placeholder="Enter number of years"
-        />
-      </div>
-      <button
-        onClick={calculateAndSave}
-        disabled={isSubmitting || !city || !country}
-        className={`p-4 bg-blue-600 text-white rounded-lg w-full text-xl hover:bg-blue-700 transition ${
-          isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
-      >
-        {isSubmitting ? 'Calculating and Saving...' : 'Calculate Land Use Efficiency'}
-      </button>
-      {landUseEfficiency !== null && (
-        <div className="mt-8 p-6 bg-gray-100 rounded-lg shadow-inner">
-          <h2 className="text-xl font-semibold mb-4">
-            Land Use Efficiency: {landUseEfficiency.toFixed(4)}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-6">
+      <div className="max-w-2xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 to-green-600 p-6 text-white">
+          <h2 className="text-3xl font-bold flex items-center">
+            🏗️ Land Use Efficiency
           </h2>
-          <h2 className="text-xl font-semibold mb-4">
-            Standardized Efficiency: {standardizedEfficiency?.toFixed(2)}
-          </h2>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s land use efficiency data</p>
+        </div>
+        
+        <div className="p-8">
+          {/* Display selected city and country */}
+          {city && country && (
+            <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+              <p className="text-sm text-gray-600 flex items-center">
+                📍 Calculating for:
+              </p>
+              <p className="text-lg font-semibold text-blue-800">
+                {cityName || `${city}, ${country}`}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                City: {city} | Country: {country}
+              </p>
+            </div>
+          )}
+
+          {!city || !country && (
+            <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+              <p className="text-sm text-yellow-800 flex items-center">
+                ⚠️ Please select a city from the cities page first
+              </p>
+            </div>
+          )}
+
+          <div className="mb-6">
+            <label className="block mb-3 font-semibold text-gray-700 flex items-center">
+              🏗️ Built-up Area (Initial Year):
+            </label>
+            <input
+              type="number"
+              value={urbInit}
+              onChange={(e) => handleUrbInitChange(e.target.value)}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="Enter initial built-up area (km²)"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block mb-3 font-semibold text-gray-700 flex items-center">
+              🏗️ Built-up Area (Final Year):
+            </label>
+            <input
+              type="number"
+              value={urbFinal}
+              onChange={(e) => handleUrbFinalChange(e.target.value)}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="Enter final built-up area (km²)"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block mb-3 font-semibold text-gray-700 flex items-center">
+              👥 Population (Initial Year):
+            </label>
+            <input
+              type="number"
+              value={popInit}
+              onChange={(e) => handlePopInitChange(e.target.value)}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="Enter initial population"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block mb-3 font-semibold text-gray-700 flex items-center">
+              👥 Population (Final Year):
+            </label>
+            <input
+              type="number"
+              value={popFinal}
+              onChange={(e) => handlePopFinalChange(e.target.value)}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="Enter final population"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block mb-3 font-semibold text-gray-700 flex items-center">
+              📅 Number of Years:
+            </label>
+            <input
+              type="number"
+              value={years}
+              onChange={(e) => handleYearsChange(e.target.value)}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="Enter number of years"
+            />
+          </div>
+          
+          <button
+            onClick={calculateAndSave}
+            disabled={isSubmitting || !city || !country}
+            className={`w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-green-600 transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center`}
+          >
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Calculating and Saving...
+              </>
+            ) : (
+              <>🚀 Calculate and Save</>
+            )}
+          </button>
+          
           {decision && (
-            <p
-              className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
+            <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
+              <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
                 decision === "VERY SOLID"
-                  ? "bg-green-500"
+                  ? "bg-gradient-to-r from-green-400 to-green-600"
                   : decision === "SOLID"
-                  ? "bg-yellow-500"
-                  : "bg-red-500"
-              }`}
-            >
-              {decision}
-            </p>
+                  ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                  : "bg-gradient-to-r from-red-400 to-red-600"
+              }`}>
+                {decision}
+              </div>
+            </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

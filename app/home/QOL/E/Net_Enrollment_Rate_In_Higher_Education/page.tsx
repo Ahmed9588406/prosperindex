@@ -9,7 +9,9 @@ function HigherEducationEnrollmentCalculator() {
   const { city, country, cityName } = useCity();
   const [enrolledPopulation, setEnrolledPopulation] = useState<string>(""); // Population enrolled in tertiary education
   const [tertiaryAgePopulation, setTertiaryAgePopulation] = useState<string>(""); // People in the tertiary education age range
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [enrollmentRate, setEnrollmentRate] = useState<number | null>(null); // Enrollment rate as a number
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [standardizedRate, setStandardizedRate] = useState<number | null>(null); // Standardized enrollment rate
   const [decision, setDecision] = useState<string | null>(null); // Qualitative decision
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
@@ -135,87 +137,98 @@ function HigherEducationEnrollmentCalculator() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-bold mb-4">
-        Net Enrollment Rate in Higher Education
-      </h1>
-
-      {/* Display selected city and country */}
-      {city && country && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-gray-600">Calculating for:</p>
-          <p className="text-lg font-semibold text-blue-800">
-            {cityName || `${city}, ${country}`}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            City: {city} | Country: {country}
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-6">
+      <div className="max-w-2xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 to-green-600 p-6 text-white">
+          <h2 className="text-3xl font-bold flex items-center">
+            🎓 Net Enrollment Rate in Higher Education
+          </h2>
+          <p className="mt-2 text-blue-100">Assess and save your city&apos;s higher education enrollment data</p>
         </div>
-      )}
+        
+        <div className="p-8">
+          {/* Display selected city and country */}
+          {city && country && (
+            <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+              <p className="text-sm text-gray-600 flex items-center">
+                📍 Calculating for:
+              </p>
+              <p className="text-lg font-semibold text-blue-800">
+                {cityName || `${city}, ${country}`}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                City: {city} | Country: {country}
+              </p>
+            </div>
+          )}
 
-      {!city || !country && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800">
-            ⚠️ Please select a city from the cities page first
-          </p>
-        </div>
-      )}
+          {!city || !country && (
+            <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+              <p className="text-sm text-yellow-800 flex items-center">
+                ⚠️ Please select a city from the cities page first
+              </p>
+            </div>
+          )}
 
-      <div className="mb-4">
-        <label className="block mb-2 font-semibold">
-          Population enrolled in tertiary education:
-        </label>
-        <input
-          type="number"
-          value={enrolledPopulation}
-          onChange={(e) => handleEnrolledPopulationChange(e.target.value)}
-          className="border rounded p-2 w-full"
-          placeholder="Enter number of enrolled people"
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block mb-2 font-semibold">
-          People that belong to the tertiary education age range:
-        </label>
-        <input
-          type="number"
-          value={tertiaryAgePopulation}
-          onChange={(e) => handleTertiaryAgePopulationChange(e.target.value)}
-          className="border rounded p-2 w-full"
-          placeholder="Enter number of people in the age range"
-        />
-      </div>
-      <button
-        onClick={calculateEnrollmentRate}
-        disabled={isSubmitting || !city || !country}
-        className={`p-2 bg-blue-500 text-white rounded w-full hover:bg-blue-600 transition ${
-          isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
-      >
-        {isSubmitting ? 'Calculating and Saving...' : 'Calculate Enrollment Rate'}
-      </button>
-      {enrollmentRate !== null && (
-        <div className="mt-4">
-          <p className="text-xl font-bold">Enrollment Rate: {enrollmentRate.toFixed(2)}%</p>
-          <p className="text-xl font-bold">Standardized Rate: {standardizedRate?.toFixed(2)}</p>
+          <div className="mb-6">
+            <label className="block mb-3 font-semibold text-gray-700 flex items-center">
+              🎓 Population enrolled in tertiary education:
+            </label>
+            <input
+              type="number"
+              value={enrolledPopulation}
+              onChange={(e) => handleEnrolledPopulationChange(e.target.value)}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="Enter number of enrolled people"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block mb-3 font-semibold text-gray-700 flex items-center">
+              👥 People that belong to the tertiary education age range:
+            </label>
+            <input
+              type="number"
+              value={tertiaryAgePopulation}
+              onChange={(e) => handleTertiaryAgePopulationChange(e.target.value)}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="Enter number of people in the age range"
+            />
+          </div>
+          
+          <button
+            onClick={calculateEnrollmentRate}
+            disabled={isSubmitting || !city || !country}
+            className={`w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-green-600 transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center`}
+          >
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Calculating and Saving...
+              </>
+            ) : (
+              <>🚀 Calculate and Save</>
+            )}
+          </button>
+          
           {decision && (
-            <p className="text-xl font-bold">
-              Decision:{" "}
-              <span
-                className={`${
-                  decision === "VERY SOLID"
-                    ? "text-green-600"
-                    : decision === "SOLID"
-                    ? "text-yellow-600"
-                    : "text-red-600"
-                }`}
-              >
+            <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
+              <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
+                decision === "VERY SOLID"
+                  ? "bg-gradient-to-r from-green-400 to-green-600"
+                  : decision === "SOLID"
+                  ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                  : "bg-gradient-to-r from-red-400 to-red-600"
+              }`}>
                 {decision}
-              </span>
-            </p>
+              </div>
+            </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

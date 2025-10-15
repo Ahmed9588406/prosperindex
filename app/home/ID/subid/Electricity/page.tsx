@@ -9,7 +9,9 @@ const { user, isLoaded } = useUser();
 const { city, country, cityName } = useCity();
 const [improvedElectricityHouseholds, setImprovedElectricityHouseholds] = useState("");
 const [totalHouseholds, setTotalHouseholds] = useState("");
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const [result, setResult] = useState<string | null>(null);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const [electricityS, setElectricityS] = useState<number | null>(null);
 const [decision, setDecision] = useState<string | null>(null);
 const [isSubmitting, setIsSubmitting] = useState(false);
@@ -112,15 +114,21 @@ if (!isLoaded) {
 return <div>Loading...</div>;
 }
 return (
-<div className="max-w-4xl mx-auto p-5 bg-white shadow-md rounded-lg">
-<h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
-Calculate Electricity Access
-</h1>
-
+<div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-6">
+<div className="max-w-2xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
+<div className="bg-gradient-to-r from-blue-600 to-green-600 p-6 text-white">
+<h2 className="text-3xl font-bold flex items-center">
+⚡ Electricity Access
+</h2>
+<p className="mt-2 text-blue-100">Assess and save your city&apos;s electricity access data</p>
+</div>
+<div className="p-8">
 {/* Display selected city and country */}
 {city && country && (
-<div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-<p className="text-sm text-gray-600">Calculating for:</p>
+<div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+<p className="text-sm text-gray-600 flex items-center">
+📍 Calculating for:
+</p>
 <p className="text-lg font-semibold text-blue-800">
 {cityName || `${city}, ${country}`}
 </p>
@@ -130,67 +138,73 @@ City: {city} | Country: {country}
 </div>
 )}
 
-{!city || (!country && (
-<div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-<p className="text-sm text-yellow-800">
+{!city || !country && (
+<div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+<p className="text-sm text-yellow-800 flex items-center">
 ⚠️ Please select a city from the cities page first
 </p>
 </div>
-))}
+)}
 
-<div className="mb-4">
-<label className="block text-gray-700 text-sm font-bold mb-2">
-Number of Households with Electricity Access:
+<div className="mb-6">
+<label className="block mb-3 font-semibold text-gray-700 flex items-center">
+⚡ Number of Households with Electricity Access:
+</label>
 <input
-className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+className="shadow appearance-none border border-gray-300 rounded-lg w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
 type="number"
 value={improvedElectricityHouseholds}
 onChange={(e) => handleImprovedElectricityChange(e.target.value)}
 required
 />
-</label>
 </div>
+
 <div className="mb-6">
-<label className="block text-gray-700 text-sm font-bold mb-2">
-Total Households:
+<label className="block mb-3 font-semibold text-gray-700 flex items-center">
+🏠 Total Households:
+</label>
 <input
-className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+className="shadow appearance-none border border-gray-300 rounded-lg w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
 type="number"
 value={totalHouseholds}
 onChange={(e) => handleTotalChange(e.target.value)}
 required
 />
-</label>
 </div>
+
 <button
-className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:bg-gray-400"
 onClick={calculateElectricity}
 disabled={isSubmitting || !city || !country}
+className={`w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-green-600 transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center`}
 >
-{isSubmitting ? 'Saving...' : 'Calculate'}
-</button>
-{result !== null && (
-<div className="mt-4 p-4 bg-gray-100 rounded">
-<p className="text-lg">Electricity Access: {result}%</p>
-<p className="text-sm text-gray-600">Electricity Access (S):</p>
-<ul className="list-disc pl-5">
-<li>Electricity Access Standardized: {electricityS?.toFixed(2)}%</li>
-</ul>
-{decision && (
-<p
-className={`mt-4 p-2 text-center font-bold text-white rounded-md ${
-decision === "VERY SOLID"
-? "bg-green-500"
-: decision === "SOLID"
-? "bg-yellow-500"
-: "bg-red-500"
-}`}
->
-{decision}
-</p>
+{isSubmitting ? (
+<>
+<svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+</svg>
+Calculating and Saving...
+</>
+) : (
+<>🚀 Calculate and Save</>
 )}
+</button>
+
+{decision && (
+<div className="mt-8 p-6 bg-gray-50 rounded-lg border">
+<div className={`p-4 text-center font-bold text-white rounded-lg transition ${
+decision === "VERY SOLID"
+? "bg-gradient-to-r from-green-400 to-green-600"
+: decision === "SOLID"
+? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+: "bg-gradient-to-r from-red-400 to-red-600"
+}`}>
+{decision}
+</div>
 </div>
 )}
+</div>
+</div>
 </div>
 );
 }
