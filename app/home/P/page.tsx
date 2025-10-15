@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import Image from "next/image";
 
 function CardSlider() {
   const router = useRouter();
@@ -27,7 +28,7 @@ function CardSlider() {
           >
             <div className="flex flex-col items-center p-6">
                 <div className="w-16 h-16 bg-blue-100 rounded-full p-3 mb-4 shadow-lg transform transition-all duration-300 group-hover:shadow-xl group-hover:bg-blue-200">
-                  <img 
+                  <Image 
                   src="/assets/economic_strength.png" 
                   alt="Economic Strength" 
                   className="w-full h-full object-contain filter drop-shadow-md group-hover:scale-110 transition-transform duration-300"
@@ -44,7 +45,7 @@ function CardSlider() {
           >
             <div className="flex flex-col items-center p-6">
                 <div className="w-16 h-16 bg-blue-100 rounded-full p-3 mb-4 shadow-lg transform transition-all duration-300 group-hover:shadow-xl group-hover:bg-blue-200">
-                <img 
+                <Image 
                 src="/assets/economic_aggregation.png" 
                 alt="Economic Agglomeration" 
                 className="w-full h-full object-contain rounded-full filter drop-shadow-md group-hover:scale-110 transition-transform duration-300"
@@ -61,7 +62,7 @@ function CardSlider() {
           >
             <div className="flex flex-col items-center p-6">
               <div className="w-16 h-16 bg-blue-100 rounded-full p-3 mb-4 shadow-lg transform transition-all duration-300 group-hover:shadow-xl group-hover:bg-blue-200">
-                <img 
+                <Image 
                 src="/assets/Employment-Logo-PNG-HD-Quality.png" 
                 alt="Employment" 
                 className="w-full h-full object-contain filter drop-shadow-md group-hover:scale-110 transition-transform duration-300"

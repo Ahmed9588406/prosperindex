@@ -330,11 +330,14 @@ function ComparisonContent() {
       const response = await fetch(`/api/calculation-history/compare?cities=${citiesParam}`);
       if (response.ok) {
         const data: CityData[] = await response.json();
-        // Ensure data has id field from Prisma
-        const transformedData = data.map((item: CityData) => ({
-          ...item,
-          id: item.id,
-        }));
+        // Calculate all indexes and add comments
+        const transformedData = data.map((item: CityData) => {
+          calculateAllIndexes(item);
+          return {
+            ...item,
+            id: item.id,
+          };
+        });
         setComparisonData(transformedData);
       }
     } catch (error) {
@@ -379,7 +382,11 @@ function ComparisonContent() {
       const response = await fetch(`/api/calculation-history/compare?cities=${comparison.cities.join(',')}`);
       if (response.ok) {
         const data: CityData[] = await response.json();
-        setComparisonData(data);
+        const transformedData = data.map((item: CityData) => {
+          calculateAllIndexes(item);
+          return item;
+        });
+        setComparisonData(transformedData);
       }
     } catch (error) {
       console.error('Error loading comparison:', error);
@@ -588,6 +595,7 @@ function ComparisonContent() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {comparisonData.map((city, index) => {
                             const value = city[category.mainIndex] as number | undefined;
+                            const comment = getComment(value || '-');
                             const comparison = index > 0 ? getComparison(value, comparisonData[0][category.mainIndex] as number) : null;
                             const ComparisonIcon = comparison?.icon;
 
@@ -596,7 +604,7 @@ function ComparisonContent() {
                                 <div className="text-white font-medium mb-2 text-sm">
                                   {city.city}, {city.country}
                                 </div>
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between mb-2">
                                   <div className="text-3xl font-bold text-white">
                                     {value?.toFixed(2) || 'N/A'}
                                   </div>
@@ -607,6 +615,11 @@ function ComparisonContent() {
                                     </div>
                                   )}
                                 </div>
+                                {comment !== '-' && (
+                                  <div className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getCommentColor(comment)} mb-2`}>
+                                    {comment}
+                                  </div>
+                                )}
                                 <div className="mt-2 h-2 bg-white/10 rounded-full overflow-hidden">
                                   <div
                                     className={`h-full ${category.color}`}
@@ -716,3 +729,124 @@ export default function ComparisonPage() {
     </Suspense>
   );
 }
+
+const getComment = (score: number | string): string => {
+  if (score === '-' || typeof score !== 'number') return '-';
+  
+  if (score >= 80) return "VERY SOLID";
+  else if (score >= 70) return "SOLID";
+  else if (score >= 60) return "MODERATELY SOLID";
+  else if (score >= 50) return "MODERATELY WEAK";
+  else if (score >= 40) return "WEAK";
+  else return "VERY WEAK";
+};
+
+const getCommentColor = (comment: string): string => {
+  switch (comment) {
+    case "VERY SOLID": return "bg-green-500/20 text-green-300 border-green-500/30";
+    case "SOLID": return "bg-blue-500/20 text-blue-300 border-blue-500/30";
+    case "MODERATELY SOLID": return "bg-cyan-500/20 text-cyan-300 border-cyan-500/30";
+    case "MODERATELY WEAK": return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
+    case "WEAK": return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+    case "VERY WEAK": return "bg-red-500/20 text-red-300 border-red-500/30";
+    default: return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+  }
+};
+
+const calculateAverage = (data: CityData, fields: string[]): number | string => {
+  let sum = 0;
+  let count = 0;
+  
+  fields.forEach(field => {
+    const value = data[field];
+    if (typeof value === 'number' && !isNaN(value)) {
+      sum += value;
+      count++;
+    }
+  });
+  
+  if (count === 0) return '-';
+  return Number((sum / count).toFixed(2));
+};
+
+const calculateAllIndexes = (data: CityData) => {
+  // Calculate all sub-indexes
+  const houseInfra = calculateAverage(data, ["improved_shelter", "improved_water", "improved_sanitation", "sufficient_living", "population", "electricity"]);
+  if (typeof houseInfra === 'number') data.house_Infrastructure = houseInfra;
+
+  const economicStrength = calculateAverage(data, ["city_product_per_capita", "old_age_dependency_ratio", "mean_household_income"]);
+  if (typeof economicStrength === 'number') data.economic_strength = economicStrength;
+
+  const economicAgglomeration = calculateAverage(data, ["economic_density", "economic_specialization"]);
+  if (typeof economicAgglomeration === 'number') data.economic_agglomeration = economicAgglomeration;
+
+  const employment = calculateAverage(data, ["unemployment_rate", "employment_to_population_ratio", "informal_employment"]);
+  if (typeof employment === 'number') data.employment = employment;
+
+  const socialInfra = calculateAverage(data, ["physician_density", "number_of_public_libraries"]);
+  if (typeof socialInfra === 'number') data.social_infrastructure = socialInfra;
+
+  const urbanMobility = calculateAverage(data, ["use_of_public_transport", "average_daily_travel_time", "length_of_mass_transport_network", "traffic_fatalities", "affordability_of_transport"]);
+  if (typeof urbanMobility === 'number') data.urban_mobility = urbanMobility;
+
+  const urbanForm = calculateAverage(data, ["street_intersection_density", "street_density", "land_allocated_to_streets"]);
+  if (typeof urbanForm === 'number') data.urban_form = urbanForm;
+
+  const health = calculateAverage(data, ["life_expectancy_at_birth", "under_five_mortality_rate", "vaccination_coverage", "maternal_mortality"]);
+  if (typeof health === 'number') data.health = health;
+
+  const education = calculateAverage(data, ["literacy_rate", "mean_years_of_schooling", "early_childhood_education", "net_enrollment_rate_in_higher_education"]);
+  if (typeof education === 'number') data.education = education;
+
+  const safety = calculateAverage(data, ["homicide_rate", "theft_rate"]);
+  if (typeof safety === 'number') data.safety_and_security = safety;
+
+  const publicSpace = calculateAverage(data, ["accessibility_to_open_public_areas", "green_area_per_capita"]);
+  if (typeof publicSpace === 'number') data.public_space = publicSpace;
+
+  const economicEquity = calculateAverage(data, ["gini_coefficient", "poverty_rate"]);
+  if (typeof economicEquity === 'number') data.economic_equity = economicEquity;
+
+  const socialInclusion = calculateAverage(data, ["slums_households", "youth_unemployment"]);
+  if (typeof socialInclusion === 'number') data.social_inclusion = socialInclusion;
+
+  const genderInclusion = calculateAverage(data, ["equitable_secondary_school_enrollment", "women_in_local_government", "women_in_local_work_force"]);
+  if (typeof genderInclusion === 'number') data.gender_inclusion = genderInclusion;
+
+  const urbanDiversity = calculateAverage(data, ["land_use_mix"]);
+  if (typeof urbanDiversity === 'number') data.urban_diversity = urbanDiversity;
+
+  const airQuality = calculateAverage(data, ["number_of_monitoring_stations", "pm25_concentration", "co2_emissions"]);
+  if (typeof airQuality === 'number') data.air_quality = airQuality;
+
+  const wasteManagement = calculateAverage(data, ["solid_waste_collection", "waste_water_treatment", "solid_waste_recycling_share"]);
+  if (typeof wasteManagement === 'number') data.waste_management = wasteManagement;
+
+  const sustainableEnergy = calculateAverage(data, ["share_of_renewable_energy"]);
+  if (typeof sustainableEnergy === 'number') data.sustainable_energy = sustainableEnergy;
+
+  const participation = calculateAverage(data, ["voter_turnout", "access_to_public_information", "civic_participation"]);
+  if (typeof participation === 'number') data.participation = participation;
+
+  const municipalFinancing = calculateAverage(data, ["own_revenue_collection", "days_to_start_a_business", "subnational_debt", "local_expenditure_efficiency"]);
+  if (typeof municipalFinancing === 'number') data.municipal_financing_and_institutional_capacity = municipalFinancing;
+
+  const governance = calculateAverage(data, ["land_use_efficiency"]);
+  if (typeof governance === 'number') data.governance_of_urbanization = governance;
+
+  const ict = calculateAverage(data, ["internet_access", "home_computer_access", "average_broadband_speed"]);
+  if (typeof ict === 'number') data.ict = ict;
+
+  // Calculate CPI
+  const cpiFields = [
+    "house_Infrastructure", "economic_agglomeration", "economic_strength", "employment",
+    "social_infrastructure", "urban_mobility", "urban_form", "health", "education",
+    "safety_and_security", "public_space", "economic_equity", "social_inclusion",
+    "gender_inclusion", "urban_diversity", "air_quality", "waste_management",
+    "sustainable_energy", "participation", "municipal_financing_and_institutional_capacity",
+    "governance_of_urbanization", "ict"
+  ];
+
+  const cpi = calculateAverage(data, cpiFields);
+  if (typeof cpi === 'number') data.cpi = cpi;
+};
