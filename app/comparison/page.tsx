@@ -680,6 +680,7 @@ function ComparisonContent() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                   {comparisonData.map((city, index) => {
                                     const value = city[subMetric.key] as number | undefined;
+                                    const comment = getComment(value || '-');
                                     const comparison = index > 0 ? getComparison(value, comparisonData[0][subMetric.key] as number) : null;
                                     const ComparisonIcon = comparison?.icon;
 
@@ -688,7 +689,7 @@ function ComparisonContent() {
                                         <div className="text-xs text-gray-400 mb-1">
                                           {city.city}
                                         </div>
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex items-center justify-between mb-2">
                                           <div className="text-lg font-semibold text-white">
                                             {value?.toFixed(2) || 'N/A'}
                                           </div>
@@ -699,6 +700,11 @@ function ComparisonContent() {
                                             </div>
                                           )}
                                         </div>
+                                        {comment !== '-' && (
+                                          <div className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold border ${getCommentColor(comment)}`}>
+                                            {comment}
+                                          </div>
+                                        )}
                                       </div>
                                     );
                                   })}

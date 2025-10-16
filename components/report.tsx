@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useRef } from 'react';
-import { Download, BarChart3, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Download, BarChart3, TrendingUp, TrendingDown, Minus, Loader2 } from 'lucide-react';
 import { CPIGauge } from './charts';
 
 interface CityData {
@@ -30,6 +30,7 @@ interface ReportProps {
 
 export default function Report({ comparisonData, metricCategories }: ReportProps) {
   const reportRef = useRef<HTMLDivElement>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const getComparison = (value1?: number, value2?: number) => {
     if (!value1 || !value2) return null;
@@ -74,43 +75,52 @@ export default function Report({ comparisonData, metricCategories }: ReportProps
   const downloadPDF = async () => {
     if (!reportRef.current) return;
 
-    // Dynamic imports for client-side only
-    const html2canvas = (await import('html2canvas')).default;
-    const jsPDF = (await import('jspdf')).default;
+    setIsGenerating(true);
+    
+    try {
+      // Dynamic imports for client-side only
+      const html2canvas = (await import('html2canvas')).default;
+      const jsPDF = (await import('jspdf')).default;
 
-    const element = reportRef.current;
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#0f172a'
-    });
+      const element = reportRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#0f172a'
+      });
 
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
 
-    const imgWidth = 210; // A4 width in mm
-    const pageHeight = 297; // A4 height in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
 
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
-    }
 
-    const fileName = `city-comparison-${new Date().toISOString().split('T')[0]}.pdf`;
-    pdf.save(fileName);
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const fileName = `city-comparison-${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   if (comparisonData.length < 2) {
@@ -123,12 +133,35 @@ export default function Report({ comparisonData, metricCategories }: ReportProps
       <div className="flex justify-end">
         <button
           onClick={downloadPDF}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition shadow-lg"
+          disabled={isGenerating}
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg flex items-center gap-2 transition shadow-lg"
         >
-          <Download className="w-5 h-5" />
-          Download PDF Report
+          {isGenerating ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Generating PDF...
+            </>
+          ) : (
+            <>
+              <Download className="w-5 h-5" />
+              Download PDF Report
+            </>
+          )}
         </button>
       </div>
+
+      {/* Processing Overlay */}
+      {isGenerating && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border border-white/20 rounded-2xl p-8 flex flex-col items-center gap-4 shadow-2xl">
+            <Loader2 className="w-16 h-16 text-purple-400 animate-spin" />
+            <div className="text-center">
+              <h3 className="text-xl font-semibold text-white mb-2">Generating PDF Report</h3>
+              <p className="text-gray-300">Please wait while we create your comparison report...</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Report Content */}
       <div ref={reportRef} className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 space-y-8">
@@ -246,6 +279,7 @@ export default function Report({ comparisonData, metricCategories }: ReportProps
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {comparisonData.map((city, index) => {
                         const value = city[subMetric.key] as number | undefined;
+                        const comment = getComment(value || '-');
                         const comparison = index > 0 ? getComparison(value, comparisonData[0][subMetric.key] as number) : null;
                         const ComparisonIcon = comparison?.icon;
 
@@ -254,7 +288,7 @@ export default function Report({ comparisonData, metricCategories }: ReportProps
                             <div className="text-xs text-gray-400 mb-1">
                               {city.city}
                             </div>
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mb-2">
                               <div className="text-lg font-semibold text-white">
                                 {value?.toFixed(2) || 'N/A'}
                               </div>
@@ -265,6 +299,11 @@ export default function Report({ comparisonData, metricCategories }: ReportProps
                                 </div>
                               )}
                             </div>
+                            {comment !== '-' && (
+                              <div className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold border ${getCommentColor(comment)}`}>
+                                {comment}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
