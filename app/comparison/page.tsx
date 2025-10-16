@@ -4,6 +4,8 @@ import { ArrowLeft, Save, Trash2, BarChart3, TrendingUp, TrendingDown, Minus, Ch
 import Link from 'next/link';
 import { useCalculations } from '../context/CalculationsContext';
 import { useSearchParams } from 'next/navigation';
+import { CPIGauge } from '@/components/charts';
+import Report from '@/components/report';
 
 interface CityData {
   id: string;
@@ -568,110 +570,148 @@ function ComparisonContent() {
           {/* Comparison Results - Main Content */}
           <div className="lg:col-span-2">
             {comparisonData.length >= 2 ? (
-              <div className="space-y-4">
-                {metricCategories.map((category) => {
-                  const isExpanded = expandedCategories.has(category.title);
-                  
-                  return (
-                    <div key={category.title} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
-                      {/* Category Header */}
-                      <button
-                        onClick={() => toggleCategory(category.title)}
-                        className="w-full p-6 flex items-center justify-between hover:bg-white/5 transition"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-2 h-12 rounded-full ${category.color}`} />
-                          <h3 className="text-xl font-semibold text-white">{category.title}</h3>
-                        </div>
-                        {isExpanded ? (
-                          <ChevronUp className="w-6 h-6 text-white" />
-                        ) : (
-                          <ChevronDown className="w-6 h-6 text-white" />
-                        )}
-                      </button>
+              <>
+                {/* PDF Report Component */}
+                <Report 
+                  comparisonData={comparisonData}
+                  metricCategories={metricCategories}
+                />
 
-                      {/* Main Index Comparison */}
-                      <div className="px-6 pb-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {comparisonData.map((city, index) => {
-                            const value = city[category.mainIndex] as number | undefined;
-                            const comment = getComment(value || '-');
-                            const comparison = index > 0 ? getComparison(value, comparisonData[0][category.mainIndex] as number) : null;
-                            const ComparisonIcon = comparison?.icon;
+                <div className="space-y-4 mt-6">
+                  {/* CPI Gauges Section */}
+                  <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8">
+                    <h3 className="text-2xl font-semibold text-white mb-8 flex items-center gap-3">
+                      <BarChart3 className="w-6 h-6" />
+                      City Prosperity Index Overview
+                    </h3>
+                    <div className={`grid ${comparisonData.length === 2 ? 'grid-cols-2' : comparisonData.length === 3 ? 'grid-cols-3' : 'grid-cols-2 lg:grid-cols-4'} gap-8 justify-items-center`}>
+                      {comparisonData.map((city) => {
+                        const cpiValue = city.cpi as number | undefined;
+                        return (
+                          <div key={city.id} className="flex flex-col items-center">
+                            <h4 className="text-base font-semibold text-white mb-4 text-center">
+                              {city.city}, {city.country}
+                            </h4>
+                            <div className="bg-white rounded-xl p-6 shadow-xl">
+                              <CPIGauge 
+                                value={cpiValue || 0} 
+                                width={300}
+                                height={550}
+                                showLabels={true}
+                                animated={true}
+                                size="medium"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-                            return (
-                              <div key={city.id} className="bg-white/5 rounded-lg p-4">
-                                <div className="text-white font-medium mb-2 text-sm">
-                                  {city.city}, {city.country}
-                                </div>
-                                <div className="flex items-center justify-between mb-2">
-                                  <div className="text-3xl font-bold text-white">
-                                    {value?.toFixed(2) || 'N/A'}
+                  {metricCategories.map((category) => {
+                    const isExpanded = expandedCategories.has(category.title);
+                    
+                    return (
+                      <div key={category.title} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden">
+                        {/* Category Header */}
+                        <button
+                          onClick={() => toggleCategory(category.title)}
+                          className="w-full p-6 flex items-center justify-between hover:bg-white/5 transition"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className={`w-2 h-12 rounded-full ${category.color}`} />
+                            <h3 className="text-xl font-semibold text-white">{category.title}</h3>
+                          </div>
+                          {isExpanded ? (
+                            <ChevronUp className="w-6 h-6 text-white" />
+                          ) : (
+                            <ChevronDown className="w-6 h-6 text-white" />
+                          )}
+                        </button>
+
+                        {/* Main Index Comparison */}
+                        <div className="px-6 pb-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {comparisonData.map((city, index) => {
+                              const value = city[category.mainIndex] as number | undefined;
+                              const comment = getComment(value || '-');
+                              const comparison = index > 0 ? getComparison(value, comparisonData[0][category.mainIndex] as number) : null;
+                              const ComparisonIcon = comparison?.icon;
+
+                              return (
+                                <div key={city.id} className="bg-white/5 rounded-lg p-4">
+                                  <div className="text-white font-medium mb-2 text-sm">
+                                    {city.city}, {city.country}
                                   </div>
-                                  {comparison && ComparisonIcon && (
-                                    <div className={`flex items-center gap-1 ${comparison.color}`}>
-                                      <ComparisonIcon className="w-5 h-5" />
-                                      <span className="text-sm font-medium">{comparison.text}</span>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="text-3xl font-bold text-white">
+                                      {value?.toFixed(2) || 'N/A'}
+                                    </div>
+                                    {comparison && ComparisonIcon && (
+                                      <div className={`flex items-center gap-1 ${comparison.color}`}>
+                                        <ComparisonIcon className="w-5 h-5" />
+                                        <span className="text-sm font-medium">{comparison.text}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  {comment !== '-' && (
+                                    <div className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getCommentColor(comment)} mb-2`}>
+                                      {comment}
                                     </div>
                                   )}
-                                </div>
-                                {comment !== '-' && (
-                                  <div className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getCommentColor(comment)} mb-2`}>
-                                    {comment}
+                                  <div className="mt-2 h-2 bg-white/10 rounded-full overflow-hidden">
+                                    <div
+                                      className={`h-full ${category.color}`}
+                                      style={{ width: `${Math.min((value || 0) * 10, 100)}%` }}
+                                    />
                                   </div>
-                                )}
-                                <div className="mt-2 h-2 bg-white/10 rounded-full overflow-hidden">
-                                  <div
-                                    className={`h-full ${category.color}`}
-                                    style={{ width: `${Math.min((value || 0) * 10, 100)}%` }}
-                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Sub-Metrics */}
+                        {isExpanded && category.subMetrics.length > 0 && (
+                          <div className="px-6 pb-6 space-y-4 border-t border-white/10 pt-4">
+                            {category.subMetrics.map((subMetric) => (
+                              <div key={subMetric.key} className="bg-white/5 rounded-lg p-4">
+                                <h4 className="text-sm font-medium text-gray-300 mb-3">{subMetric.label}</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  {comparisonData.map((city, index) => {
+                                    const value = city[subMetric.key] as number | undefined;
+                                    const comparison = index > 0 ? getComparison(value, comparisonData[0][subMetric.key] as number) : null;
+                                    const ComparisonIcon = comparison?.icon;
+
+                                    return (
+                                      <div key={city.id} className="bg-white/5 rounded-lg p-3">
+                                        <div className="text-xs text-gray-400 mb-1">
+                                          {city.city}
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                          <div className="text-lg font-semibold text-white">
+                                            {value?.toFixed(2) || 'N/A'}
+                                          </div>
+                                          {comparison && ComparisonIcon && (
+                                            <div className={`flex items-center gap-1 ${comparison.color}`}>
+                                              <ComparisonIcon className="w-4 h-4" />
+                                              <span className="text-xs">{comparison.text}</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
                                 </div>
                               </div>
-                            );
-                          })}
-                        </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-
-                      {/* Sub-Metrics */}
-                      {isExpanded && category.subMetrics.length > 0 && (
-                        <div className="px-6 pb-6 space-y-4 border-t border-white/10 pt-4">
-                          {category.subMetrics.map((subMetric) => (
-                            <div key={subMetric.key} className="bg-white/5 rounded-lg p-4">
-                              <h4 className="text-sm font-medium text-gray-300 mb-3">{subMetric.label}</h4>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {comparisonData.map((city, index) => {
-                                  const value = city[subMetric.key] as number | undefined;
-                                  const comparison = index > 0 ? getComparison(value, comparisonData[0][subMetric.key] as number) : null;
-                                  const ComparisonIcon = comparison?.icon;
-
-                                  return (
-                                    <div key={city.id} className="bg-white/5 rounded-lg p-3">
-                                      <div className="text-xs text-gray-400 mb-1">
-                                        {city.city}
-                                      </div>
-                                      <div className="flex items-center justify-between">
-                                        <div className="text-lg font-semibold text-white">
-                                          {value?.toFixed(2) || 'N/A'}
-                                        </div>
-                                        {comparison && ComparisonIcon && (
-                                          <div className={`flex items-center gap-1 ${comparison.color}`}>
-                                            <ComparisonIcon className="w-4 h-4" />
-                                            <span className="text-xs">{comparison.text}</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              </>
             ) : (
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-12 text-center">
                 <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />

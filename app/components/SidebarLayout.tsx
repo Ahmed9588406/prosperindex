@@ -9,7 +9,7 @@ import {
 } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from "next/link";
-import { Menu, X } from 'lucide-react';
+import { Menu, X, History } from 'lucide-react';
 import CategoryNavigation from '../categories/CategoryNavigation';
 
 type Category = {
@@ -191,6 +191,81 @@ export default function SidebarLayout({ categories, children }: SidebarLayoutPro
         .mobile-menu-open .hamburger-icon span:nth-child(3) {
           transform: rotate(-45deg) translate(7px, -7px);
         }
+
+        .history-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 20px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .history-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          transition: left 0.5s;
+        }
+
+        .history-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .history-button:hover::before {
+          left: 100%;
+        }
+
+        .history-button:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .history-icon {
+          width: 18px;
+          height: 18px;
+          animation: rotate 2s linear infinite;
+          animation-play-state: paused;
+        }
+
+        .history-button:hover .history-icon {
+          animation-play-state: running;
+        }
+
+        @keyframes rotate {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        @media (max-width: 768px) {
+          .history-button {
+            padding: 8px 16px;
+            font-size: 13px;
+          }
+
+          .history-icon {
+            width: 16px;
+            height: 16px;
+          }
+        }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -282,7 +357,13 @@ export default function SidebarLayout({ categories, children }: SidebarLayoutPro
                 />
               </Link>
             </div>
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Link href="/history">
+                <button className="history-button">
+                  <History className="history-icon" />
+                  <span>History</span>
+                </button>
+              </Link>
               <SignedOut>
                 <SignInButton />
               </SignedOut>
