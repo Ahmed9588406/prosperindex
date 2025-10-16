@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useCalculations } from '../context/CalculationsContext';
 import CalculationCard from '@/components/CalculationCard';
 
+
+
 export default function HistoryPage() {
   const router = useRouter();
   const { calculations, loading, deleteCalculation, refreshCalculations } = useCalculations();
