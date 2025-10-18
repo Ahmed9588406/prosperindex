@@ -3,6 +3,21 @@ import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
 import { useCity } from '../../../../context/CityContext';
 import toast from 'react-hot-toast';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+
+const COLORS = ["#6ee7b7", "#e6e6e6"];
 
 function VaccinationCoverageCalculator() {
   const { user, isLoaded } = useUser();
@@ -11,10 +26,15 @@ function VaccinationCoverageCalculator() {
   const [eligiblePopulation, setEligiblePopulation] = useState<string>("");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [vaccinationCoverage, setVaccinationCoverage] = useState<number | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
+
+  // New states for raw vaccination coverage and standardized score (for display and charts)
+  const [actualVaccination, setActualVaccination] = useState<string | null>(null);
+  const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
+
+  // New state to toggle the summary/help panel
+  const [showSummary, setShowSummary] = useState(false);
 
   const MIN_COVERAGE = 50; // Minimum benchmark
   const MAX_COVERAGE = 100; // Maximum benchmark
@@ -96,11 +116,16 @@ function VaccinationCoverageCalculator() {
     const evaluationComment = getComment(standardized);
     setDecision(evaluationComment);
 
+    // Set new states for display and charts
+    setActualVaccination(coverage.toFixed(2));
+    setStandardizedScore(parseFloat(standardized.toFixed(2)));
+
     // Prepare data to send
     const postData = {
       city,
       country,
       vaccination_coverage: coverage,
+      vaccination_coverage_standardized: parseFloat(standardized.toFixed(2)),
       vaccination_coverage_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
     };
@@ -131,9 +156,16 @@ function VaccinationCoverageCalculator() {
     }
   };
 
+  // Prepare pie data (standardized value + remainder)
+  const standardizedValue = standardizedScore !== null ? standardizedScore : 0;
+  const pieData = [
+    { name: 'Standardized', value: Number(standardizedValue.toFixed(2)) },
+    { name: 'Remaining', value: Number((100 - standardizedValue).toFixed(2)) }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
+      <div className="max-w-3xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-green-600 p-6 text-white">
           <h2 className="text-3xl font-bold flex items-center">
             💉 Vaccination Coverage
@@ -142,6 +174,46 @@ function VaccinationCoverageCalculator() {
         </div>
         
         <div className="p-8">
+          {/* Summary / About this index section (collapsible) */}
+          <div className="mb-4">
+            <button
+              onClick={() => setShowSummary(!showSummary)}
+              className="text-left w-full p-3 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition flex justify-between items-center"
+              aria-expanded={showSummary}
+              aria-controls="summary-panel"
+            >
+              <span className="font-semibold">What is this index?</span>
+              <span className="text-sm text-gray-600">{showSummary ? 'Hide' : 'Show'}</span>
+            </button>
+
+            {showSummary && (
+              <div id="summary-panel" className="mt-3 p-4 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-700">
+                <p className="mb-2">
+                  Vaccination Coverage measures the percentage of the eligible population vaccinated according to national policies.
+                  This tool calculates the raw coverage rate from the inputs you provide and converts it into a standardized 0–100 score using predefined benchmarks.
+                </p>
+                <p className="font-mono mb-2">Vaccination Coverage (raw) = (Immunized / Eligible) * 100%</p>
+                <p className="mb-2">
+                  Standardized score maps coverage to 100..0 across benchmarks (MIN..MAX) so higher coverage → higher score.
+                </p>
+
+                <h4 className="font-semibold mt-2 mb-1">What to enter</h4>
+                <ul className="list-disc list-inside mb-2">
+                  <li>Enter the number of people immunized according to national policies.</li>
+                  <li>Enter the total eligible population (must be greater than zero).</li>
+                  <li>Both fields are required for calculation.</li>
+                </ul>
+
+                <h4 className="font-semibold mt-2 mb-1">Tips for meaningful results</h4>
+                <ul className="list-disc list-inside">
+                  <li>Ensure data is sourced consistently (e.g., from the same year and definition).</li>
+                  <li>For comparisons, use data from reliable sources like health ministries.</li>
+                  <li>You can save the result to your calculation history (requires sign in and selected city).</li>
+                </ul>
+              </div>
+            )}
+          </div>
+
           {/* Display selected city and country */}
           {city && country && (
             <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
@@ -209,16 +281,72 @@ function VaccinationCoverageCalculator() {
             )}
           </button>
           
-          {decision && (
+          {decision && actualVaccination && standardizedScore !== null && (
             <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
-              <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
-                decision === "VERY SOLID"
-                  ? "bg-gradient-to-r from-green-400 to-green-600"
-                  : decision === "SOLID"
-                  ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
-                  : "bg-gradient-to-r from-red-400 to-red-600"
-              }`}>
-                {decision}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-lg">Actual Vaccination Coverage</h3>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {actualVaccination}%
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg">Standardized Vaccination Score</h3>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {standardizedScore !== null ? `${standardizedScore.toFixed(2)}%` : ''}
+                    </p>
+                  </div>
+                </div>
+
+                <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
+                  decision === "VERY SOLID"
+                    ? "bg-gradient-to-r from-green-400 to-green-600"
+                    : decision === "SOLID"
+                    ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                    : "bg-gradient-to-r from-red-400 to-red-600"
+                }`}>
+                  {decision}
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="w-full h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={[
+                        { name: 'Standardized', value: standardizedScore ?? 0 }
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 100]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="value" fill={COLORS[0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="w-full h-64 flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={2}
+                          label={(entry) => `${entry.name}: ${entry.value}%`}
+                        >
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
             </div>
           )}

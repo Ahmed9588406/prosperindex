@@ -61,7 +61,7 @@ const handlePostRequest = async (req: Request) => {
     } catch (dbError) {
       console.error('Database error:', dbError);
       return NextResponse.json(
-        { error: "Database operation failed", details: dbError },
+        { error: "Database operation failed", details: dbError instanceof Error ? dbError.message : String(dbError) },
         { status: 500 }
       );
     }

@@ -238,12 +238,12 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "improved_shelter",
-      "improved_water",
-      "improved_sanitation",
-      "sufficient_living",
-      "population",
-      "electricity"
+      "improved_shelter_standardized",
+      "improved_water_standardized",
+      "improved_sanitation_standardized",
+      "sufficient_living_standardized",
+      "population_standardized",
+      "electricity_standardized"
     ];
     
     let sum = 0;
@@ -272,9 +272,9 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "city_product_per_capita",
-      "old_age_dependency_ratio",
-      "mean_household_income"
+      "city_product_per_capita_standardized",
+      "old_age_dependency_ratio_standardized",
+      "mean_household_income_standardized"
     ];
     
     let sum = 0;
@@ -303,8 +303,8 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "economic_density",
-      "economic_specialization"
+      "economic_density_standardized",
+      "economic_specialization_standardized"
     ];
     
     let sum = 0;
@@ -333,9 +333,9 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "unemployment_rate",
-      "employment_to_population_ratio",
-      "informal_employment"
+      "unemployment_rate_standardized",
+      "employment_to_population_ratio_standardized",
+      "informal_employment_standardized"
     ];
     
     let sum = 0;
@@ -364,8 +364,8 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "physician_density",
-      "number_of_public_libraries"
+      "physician_density_standardized",
+      "number_of_public_libraries_standardized"
     ];
     
     let sum = 0;
@@ -394,11 +394,11 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "use_of_public_transport",
-      "average_daily_travel_time",
-      "length_of_mass_transport_network",
-      "traffic_fatalities",
-      "affordability_of_transport"
+      "use_of_public_transport_standardized",
+      "average_daily_travel_time_standardized",
+      "length_of_mass_transport_network_standardized",
+      "traffic_fatalities_standardized",
+      "affordability_of_transport_standardized"
     ];
     
     let sum = 0;
@@ -427,9 +427,9 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "street_intersection_density",
-      "street_density",
-      "land_allocated_to_streets"
+      "street_intersection_density_standardized",
+      "street_density_standardized",
+      "land_allocated_to_streets_standardized"
     ];
     
     let sum = 0;
@@ -458,10 +458,10 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "life_expectancy_at_birth",
-      "under_five_mortality_rate",
-      "vaccination_coverage",
-      "maternal_mortality"
+      "life_expectancy_at_birth_standardized",
+      "under_five_mortality_rate_standardized",
+      "vaccination_coverage_standardized",
+      "maternal_mortality_standardized"
     ];
     
     let sum = 0;
@@ -490,10 +490,10 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "literacy_rate",
-      "mean_years_of_schooling",
-      "early_childhood_education",
-      "net_enrollment_rate_in_higher_education"
+      "literacy_rate_standardized",
+      "mean_years_of_schooling_standardized",
+      "early_childhood_education_standardized",
+      "net_enrollment_rate_in_higher_education_standardized"
     ];
     
     let sum = 0;
@@ -522,8 +522,8 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "homicide_rate",
-      "theft_rate"
+      "homicide_rate_standardized",
+      "theft_rate_standardized"
     ];
     
     let sum = 0;
@@ -552,8 +552,8 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "accessibility_to_open_public_areas",
-      "green_area_per_capita"
+      "accessibility_to_open_public_areas_standardized",
+      "green_area_per_capita_standardized"
     ];
     
     let sum = 0;
@@ -582,8 +582,8 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "gini_coefficient",
-      "poverty_rate"
+      "gini_coefficient_standardized",
+      "poverty_rate_standardized"
     ];
     
     let sum = 0;
@@ -612,8 +612,8 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "slums_households",
-      "youth_unemployment"
+      "slums_households_standardized",
+      "youth_unemployment_standardized"
     ];
     
     let sum = 0;
@@ -642,9 +642,9 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "equitable_secondary_school_enrollment",
-      "women_in_local_government",
-      "women_in_local_work_force"
+      "equitable_secondary_school_enrollment_standardized",
+      "women_in_local_government_standardized",
+      "women_in_local_work_force_standardized"
     ];
     
     let sum = 0;
@@ -673,7 +673,7 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "land_use_mix"
+      "land_use_mix_standardized"
     ];
     
     let sum = 0;
@@ -702,9 +702,9 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "number_of_monitoring_stations",
-      "pm25_concentration",
-      "co2_emissions"
+      "number_of_monitoring_stations_standardized",
+      "pm25_concentration_standardized",
+      "co2_emissions_standardized"
     ];
     
     let sum = 0;
@@ -733,9 +733,9 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "solid_waste_collection",
-      "waste_water_treatment",
-      "solid_waste_recycling_share"
+      "solid_waste_collection_standardized",
+      "waste_water_treatment_standardized",
+      "solid_waste_recycling_share_standardized"
     ];
     
     let sum = 0;
@@ -764,7 +764,7 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "share_of_renewable_energy"
+      "share_of_renewable_energy_standardized"
     ];
     
     let sum = 0;
@@ -793,9 +793,9 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "voter_turnout",
-      "access_to_public_information",
-      "civic_participation"
+      "voter_turnout_standardized",
+      "access_to_public_information_standardized",
+      "civic_participation_standardized"
     ];
     
     let sum = 0;
@@ -824,10 +824,10 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "own_revenue_collection",
-      "days_to_start_a_business",
-      "subnational_debt",
-      "local_expenditure_efficiency"
+      "own_revenue_collection_standardized",
+      "days_to_start_a_business_standardized",
+      "subnational_debt_standardized",
+      "local_expenditure_efficiency_standardized"
     ];
     
     let sum = 0;
@@ -856,7 +856,7 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "land_use_efficiency"
+      "land_use_efficiency_standardized"
     ];
     
     let sum = 0;
@@ -885,9 +885,9 @@ export default function ContentTable() {
     if (!data) return '-';
     
     const fields = [
-      "internet_access",
-      "home_computer_access",
-      "average_broadband_speed"
+      "internet_access_standardized",
+      "home_computer_access_standardized",
+      "average_broadband_speed_standardized"
     ];
     
     let sum = 0;
@@ -915,35 +915,98 @@ export default function ContentTable() {
   const calculateCPI = useCallback((data: CalculationData | null) => {
     if (!data) return '-';
     
-    const fields = [
-      "house_Infrastructure",
-      "economic_agglomeration",
-      "economic_strength",
-      "employment",
-      "social_infrastructure",
-      "urban_mobility",
-      "urban_form",
-      "health",
-      "education",
-      "safety_and_security",
-      "public_space",
-      "economic_equity", 
-      "social_inclusion",
-      "gender_inclusion",
-      "urban_diversity",
-      "air_quality",
-      "waste_management",
-      "sustainable_energy",
-      "participation",
-      "municipal_financing_and_institutional_capacity",
-      "governance_of_urbanization",
-      "ict"
+    // List of all standardized sub-index fields across all categories
+    const allStandardizedFields = [
+      // House Infrastructure
+      "improved_shelter_standardized",
+      "improved_water_standardized",
+      "improved_sanitation_standardized",
+      "sufficient_living_standardized",
+      "population_standardized",
+      "electricity_standardized",
+      // Economic Strength
+      "city_product_per_capita_standardized",
+      "old_age_dependency_ratio_standardized",
+      "mean_household_income_standardized",
+      // Economic Agglomeration
+      "economic_density_standardized",
+      "economic_specialization_standardized",
+      // Employment
+      "unemployment_rate_standardized",
+      "employment_to_population_ratio_standardized",
+      "informal_employment_standardized",
+      // Social Infrastructure
+      "physician_density_standardized",
+      "number_of_public_libraries_standardized",
+      // Urban Mobility
+      "use_of_public_transport_standardized",
+      "average_daily_travel_time_standardized",
+      "length_of_mass_transport_network_standardized",
+      "traffic_fatalities_standardized",
+      "affordability_of_transport_standardized",
+      // Urban Form
+      "street_intersection_density_standardized",
+      "street_density_standardized",
+      "land_allocated_to_streets_standardized",
+      // Health
+      "life_expectancy_at_birth_standardized",
+      "under_five_mortality_rate_standardized",
+      "vaccination_coverage_standardized",
+      "maternal_mortality_standardized",
+      // Education
+      "literacy_rate_standardized",
+      "mean_years_of_schooling_standardized",
+      "early_childhood_education_standardized",
+      "net_enrollment_rate_in_higher_education_standardized",
+      // Safety and Security
+      "homicide_rate_standardized",
+      "theft_rate_standardized",
+      // Public Space
+      "accessibility_to_open_public_areas_standardized",
+      "green_area_per_capita_standardized",
+      // Economic Equity
+      "gini_coefficient_standardized",
+      "poverty_rate_standardized",
+      // Social Inclusion
+      "slums_households_standardized",
+      "youth_unemployment_standardized",
+      // Gender Inclusion
+      "equitable_secondary_school_enrollment_standardized",
+      "women_in_local_government_standardized",
+      "women_in_local_work_force_standardized",
+      // Urban Diversity
+      "land_use_mix_standardized",
+      // Air Quality
+      "number_of_monitoring_stations_standardized",
+      "pm25_concentration_standardized",
+      "co2_emissions_standardized",
+      // Waste Management
+      "solid_waste_collection_standardized",
+      "waste_water_treatment_standardized",
+      "solid_waste_recycling_share_standardized",
+      // Sustainable Energy
+      "share_of_renewable_energy_standardized",
+      // Participation
+      "voter_turnout_standardized",
+      "access_to_public_information_standardized",
+      "civic_participation_standardized",
+      // Municipal Financing
+      "own_revenue_collection_standardized",
+      "days_to_start_a_business_standardized",
+      "subnational_debt_standardized",
+      "local_expenditure_efficiency_standardized",
+      // Governance
+      "land_use_efficiency_standardized",
+      // ICT
+      "internet_access_standardized",
+      "home_computer_access_standardized",
+      "average_broadband_speed_standardized"
     ];
     
     let sum = 0;
     let count = 0;
     
-    fields.forEach(field => {
+    allStandardizedFields.forEach(field => {
       const value = data[field];
       if (typeof value === 'number' && !isNaN(value)) {
         sum += value;
@@ -1102,14 +1165,24 @@ export default function ContentTable() {
   ]);
 
   const formatValue = (value: string | number | null | undefined) => {
-      if (value === null || value === undefined) return '-';
-      const numValue = typeof value === 'string' ? parseFloat(value) : value;
-      return typeof numValue === 'number' && !isNaN(numValue) ? numValue.toFixed(2) : '-';
-    };
+    if (value === null || value === undefined) return '-';
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    return typeof numValue === 'number' && !isNaN(numValue) ? numValue.toFixed(2) : '-';
+  };
+
+  const formatPercentage = (value: string | number | null | undefined) => {
+    if (value === null || value === undefined) return '-';
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    return typeof numValue === 'number' && !isNaN(numValue) ? (numValue * 100).toFixed(2) + '%' : '-';
+  };
+
+  const formatPercentageDisplay = (value: string | number | null | undefined) => {
+    return formatValue(value) + '%';
+  };
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    const tableColumn = ["Category", "Fields", "Description", "Value", "Evaluation"];
+    const tableColumn = ["Category", "Fields", "Description", "Value", "Standardized", "Evaluation"];
     const tableRows: (string | number | null)[][] = [];
 
     // Add circular logo and title to first page only
@@ -1122,11 +1195,20 @@ export default function ContentTable() {
 
     categories.forEach(category => {
       category.fields.forEach(field => {
+        let standardizedKey = `${field.name}_standardized`;
+        if (field.name === 'poverty_rate') {
+          standardizedKey = 'poverty_rate_standardized_score';
+        }
+        if (field.name === 'gini_coefficient') {
+          standardizedKey = 'gini_standardized_score';
+        }
+        const standardizedValue = field.name === 'cpi' ? '-' : (calculationData ? formatPercentageDisplay(calculationData[standardizedKey]) : '-');
         const rowData = [
           category.name,
           field.name,
           field.description,
           calculationData ? formatValue(calculationData[field.name]) : '-',
+          standardizedValue,
           calculationData ? calculationData[`${field.name}_comment`] || '-' : '-'
         ];
         tableRows.push(rowData);
@@ -1157,13 +1239,17 @@ export default function ContentTable() {
 
   const exportToExcel = () => {
     const worksheetData = categories.map(category => 
-      category.fields.map(field => ({
-        Category: category.name,
-        Fields: field.name,
-        Description: field.description,
-        Value: calculationData ? formatValue(calculationData[field.name]) : '-',
-        Evaluation: calculationData ? calculationData[`${field.name}_comment`] || '-' : '-'
-      }))
+      category.fields.map(field => {
+        const standardizedValue = field.name === 'cpi' ? '-' : (calculationData ? formatPercentageDisplay(calculationData[`${field.name}_standardized`]) : '-');
+        return {
+          Category: category.name,
+          Fields: field.name,
+          Description: field.description,
+          Value: calculationData ? formatValue(calculationData[field.name]) : '-',
+          Standardized: standardizedValue,
+          Evaluation: calculationData ? calculationData[`${field.name}_comment`] || '-' : '-'
+        };
+      })
     ).flat();
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
@@ -1242,6 +1328,9 @@ export default function ContentTable() {
                 Value
               </th>
               <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                Standardized
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
                 Evaluation
               </th>
             </tr>
@@ -1251,6 +1340,14 @@ export default function ContentTable() {
               <React.Fragment key={category.name}>
                 {category.fields.map((field, fieldIndex) => {
                   const isCPI = category.name === "Overall CPI";
+                  let standardizedKey = `${field.name}_standardized`;
+                  if (field.name === 'poverty_rate') {
+                    standardizedKey = 'poverty_rate_standardized_score';
+                  }
+                  if (field.name === 'gini_coefficient') {
+                    standardizedKey = 'gini_standardized_score';
+                  }
+                  const standardizedValue = field.name === 'cpi' ? '-' : (calculationData ? formatPercentageDisplay(calculationData[standardizedKey]) : '-');
                   return (
                     <tr 
                       key={`${category.name}-${field.name}`}
@@ -1294,6 +1391,13 @@ export default function ContentTable() {
                           : "text-gray-500"
                       }`}>
                         {calculationData ? formatValue(calculationData[field.name]) : '-'}
+                      </td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${
+                        isCPI
+                          ? "text-blue-800 font-bold text-lg bg-blue-50 rounded-lg shadow-inner"
+                          : "text-gray-500"
+                      }`}>
+                        {standardizedValue}
                       </td>
                       <td className={`px-6 py-4 whitespace-nowrap text-sm ${
                         isCPI

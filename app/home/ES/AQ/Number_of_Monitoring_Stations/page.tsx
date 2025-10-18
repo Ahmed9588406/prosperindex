@@ -4,17 +4,18 @@ import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
 import { useCity } from "../../../../context/CityContext";
 import toast from "react-hot-toast";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const PM10MonitoringStations: React.FC = () => {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
-  const [population, setPopulation] = useState<number | string>(""); // Input: Population
-  const [pm10Level, setPm10Level] = useState<string>(""); // Input: PM10 Level
-  const [numStations, setNumStations] = useState<number | string>(""); // Input: Number of monitoring stations
-  const [comment, setComment] = useState<string | null>(null); // Comment based on score
-  const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
+  const [population, setPopulation] = useState<number | string>("");
+  const [pm10Level, setPm10Level] = useState<string>("");
+  const [numStations, setNumStations] = useState<number | string>("");
+  const [comment, setComment] = useState<string | null>(null);
+  const [score, setScore] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load saved inputs on component mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedPopulation = localStorage.getItem("population");
@@ -27,7 +28,6 @@ const PM10MonitoringStations: React.FC = () => {
     }
   }, []);
 
-  // Save inputs to localStorage on change
   const handlePopulationChange = (value: string) => {
     setPopulation(value);
     if (typeof window !== "undefined") {
@@ -49,7 +49,6 @@ const PM10MonitoringStations: React.FC = () => {
     }
   };
 
-  // Validate inputs
   const validateInputs = () => {
     if (!population || !pm10Level || !numStations) {
       alert("Please fill in all fields.");
@@ -77,7 +76,6 @@ const PM10MonitoringStations: React.FC = () => {
     return true;
   };
 
-  // Function to get comment based on standardized score
   const getComment = (score: number) => {
     if (score >= 80) return "VERY SOLID";
     else if (score >= 70) return "SOLID";
@@ -87,14 +85,12 @@ const PM10MonitoringStations: React.FC = () => {
     else return "VERY WEAK";
   };
 
-  // Calculate standardized score
   const calculateMonitoringStations = () => {
     if (!validateInputs()) return null;
 
     const populationNum = parseFloat(population.toString());
     const stationsNum = parseFloat(numStations.toString());
 
-    // Determine the maximum number of monitoring stations based on PM10 level
     let max = 0;
 
     switch (pm10Level) {
@@ -112,9 +108,8 @@ const PM10MonitoringStations: React.FC = () => {
         return null;
     }
 
-    const min = 0; // Minimum benchmark is always 0
+    const min = 0;
 
-    // Calculate standardized score
     let standardizedValue = 0;
 
     if (stationsNum >= max) {
@@ -126,14 +121,12 @@ const PM10MonitoringStations: React.FC = () => {
     }
 
     const scoreNum = standardizedValue.toFixed(2);
-    console.log('Standardized Score:', scoreNum); // Log the score to the console
     const calculatedComment = getComment(parseFloat(scoreNum));
-    setComment(calculatedComment); // Set comment immediately after calculating score
-    console.log('Calculated Comment:', calculatedComment);
+    setComment(calculatedComment);
+    setScore(scoreNum);
     return { scoreNum, calculatedComment };
   };
 
-  // Handle calculation and saving data
   const handleCalculateAndSave = async () => {
     if (!user) {
       toast.error("Please sign in to save calculations.");
@@ -148,7 +141,7 @@ const PM10MonitoringStations: React.FC = () => {
     const calculationResult = calculateMonitoringStations();
     if (calculationResult === null) return;
 
-    const {calculatedComment } = calculationResult;
+    const { scoreNum, calculatedComment } = calculationResult;
     const stationsNum = parseFloat(numStations.toString());
 
     try {
@@ -158,11 +151,11 @@ const PM10MonitoringStations: React.FC = () => {
         city,
         country,
         number_of_monitoring_stations: stationsNum || 0,
+        number_of_monitoring_stations_standardized: parseFloat(scoreNum), // Add the standardized score
         number_of_monitoring_stations_comment: calculatedComment || "",
         userId: user.id
       };
 
-      // Validate postData before sending
       if (!postData.userId || postData.number_of_monitoring_stations === null) {
         throw new Error("Invalid data for submission");
       }
@@ -203,9 +196,28 @@ const PM10MonitoringStations: React.FC = () => {
           </h2>
           <p className="mt-2 text-blue-100">Assess and save your city&#39;s monitoring stations data</p>
         </div>
-        
+
         <div className="p-8">
-          {/* Display selected city and country */}
+          {/* Summary Section */}
+          <div className="mb-6 p-4 bg-green-100 border-l-4 border-green-400 rounded-r-lg">
+            <h3 className="text-lg font-semibold mb-2">About the Monitoring Stations Index</h3>
+            <p className="text-sm text-gray-700 mb-1">
+              This index evaluates the adequacy of PM10 monitoring stations in your city relative to its population size and average PM10 pollution level.
+            </p>
+            <p className="text-sm text-gray-700 mb-2">
+              The score ranges from 0 to 100, where 100 means the number of stations meets or exceeds recommended benchmarks, and lower scores indicate fewer stations than recommended.
+            </p>
+            <p className="text-sm text-gray-700 mb-3">
+              The recommended maximum number of stations is scaled by population and pollution severity: higher pollution requires more stations per capita.
+            </p>
+            <p className="text-sm text-gray-700 mb-2">
+              Please enter your city’s population, select the average PM10 air pollution level, and enter the current number of monitoring stations.
+            </p>
+            <p className="text-sm text-gray-700">
+              Ensure all inputs are valid for an accurate assessment.
+            </p>
+          </div>
+
           {city && country && (
             <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
               <p className="text-sm text-gray-600 flex items-center">
@@ -275,7 +287,7 @@ const PM10MonitoringStations: React.FC = () => {
               aria-label="Enter number of monitoring stations"
             />
           </div>
-          
+
           <button
             onClick={handleCalculateAndSave}
             disabled={isSubmitting || !city || !country}
@@ -294,9 +306,23 @@ const PM10MonitoringStations: React.FC = () => {
               <>🚀 Calculate and Save</>
             )}
           </button>
-          
-          {comment && (
+
+          {comment && score && (
             <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
+              <p className="text-center font-semibold text-gray-800 mb-2">Number of Monitoring Stations: {numStations}</p>
+              <p className="text-center font-semibold text-gray-800 mb-4">Standardized Score: {score}%</p>
+              <div className="mb-6">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={[{ name: 'Monitoring Score', score: parseFloat(score) }]}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="score" fill="#2196F3" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
               <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
                 comment === "VERY SOLID"
                   ? "bg-gradient-to-r from-green-400 to-green-600"
