@@ -593,6 +593,7 @@ export default function CalculationDetailsPage() {
     { subject: 'Equity & Inclusion', value: typeof calculation.equity_social_inclusion === 'number' ? calculation.equity_social_inclusion : 0, display: calculation.equity_social_inclusion_display ?? '0.00%' },
     { subject: 'Env Sustainability', value: typeof calculation.environmental_sustainability === 'number' ? calculation.environmental_sustainability : 0, display: calculation.environmental_sustainability_display ?? '0.00%' },
     { subject: 'Urban Governance', value: typeof calculation.urban_governance_legislation === 'number' ? calculation.urban_governance_legislation : 0, display: calculation.urban_governance_legislation_display ?? '0.00%' },
+    { subject: 'CPI', value: typeof calculation.cpi === 'number' ? calculation.cpi : 0, display: calculation.cpi_display ?? '0.00%' },
   ];
 
   return (
