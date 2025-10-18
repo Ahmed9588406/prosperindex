@@ -3,91 +3,178 @@ import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
 import { useCity } from "../../../../context/CityContext";
 import toast from "react-hot-toast";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+
+const COLORS = ["#6ee7b7", "#e6e6e6"];
 
 const LandUseMix: React.FC = () => {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
-  const [landUseData, setLandUseData] = useState<number[][]>([]); // Array of p_i values for each cell
-  const [numCells, setNumCells] = useState<string>(""); // Total number of cells as a string to allow empty input
+  const [landUseData, setLandUseData] = useState<number[][]>([]);
+  const [numCategories, setNumCategories] = useState<string>("5");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [averageIndex, setAverageIndex] = useState<number | null>(null); // Average Land Use Mix index
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [standardizedScore, setStandardizedScore] = useState<string | null>(null); // Standardized score
-  const [comment, setComment] = useState<string | null>(null); // Comment based on score
-  const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
-
-  // Constants
-  const MAX_INDEX = 1.61; // ln(5) for 5 categories
-  //const MIN_INDEX = 0;
+  const [averageIndex, setAverageIndex] = useState<number | null>(null);
+  const [comment, setComment] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [actualLandUseMix, setActualLandUseMix] = useState<string | null>(null);
+  const [standardizedScore, setStandardizedScore] = useState<string | null>(null);
+  const [showSummary, setShowSummary] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   // Function to get comment based on standardized score
   const getComment = (score: number) => {
-    if (score >= 80) return "VERY SOLID";
-    else if (score >= 70) return "SOLID";
-    else if (score >= 60) return "MODERATELY SOLID";
-    else if (score >= 50) return "MODERATELY WEAK";
-    else if (score >= 40) return "WEAK";
-    else return "VERY WEAK";
+    if (score >= 80) return "VERY HIGH DIVERSITY";
+    else if (score >= 70) return "HIGH DIVERSITY";
+    else if (score >= 60) return "MODERATE-HIGH DIVERSITY";
+    else if (score >= 50) return "MODERATE DIVERSITY";
+    else if (score >= 40) return "MODERATE-LOW DIVERSITY";
+    else if (score >= 30) return "LOW DIVERSITY";
+    else return "VERY LOW DIVERSITY";
   };
 
   // Function to calculate Shannon-Wiener Diversity Index
   const calculateShannonWienerIndex = (piValues: number[]) => {
-    // Shannon-Wiener Diversity Index formula: -Σ (p_i * ln(p_i))
-    return -piValues
-      .filter((pi) => pi > 0) // Avoid ln(0)
-      .reduce((sum, pi) => sum + pi * Math.log(pi), 0);
+    // Filter out zero or negative values to avoid ln(0) or ln(negative)
+    const validValues = piValues.filter((pi) => pi > 0);
+    
+    if (validValues.length === 0) return 0;
+    
+    // Shannon-Wiener Diversity Index: H = -Σ(pi * ln(pi))
+    return -validValues.reduce((sum, pi) => sum + pi * Math.log(pi), 0);
+  };
+
+  // Validate input data
+  const validateLandUseData = (data: number[][]): string[] => {
+    const errors: string[] = [];
+    
+    if (data.length === 0) {
+      errors.push("No land use data provided");
+      return errors;
+    }
+
+    data.forEach((cell, index) => {
+      // Check if cell has values
+      if (cell.length === 0 || cell.every(val => isNaN(val))) {
+        errors.push(`Cell ${index + 1}: No valid values`);
+        return;
+      }
+
+      // Check for negative values
+      if (cell.some(val => val < 0)) {
+        errors.push(`Cell ${index + 1}: Contains negative values`);
+      }
+
+      // Check if proportions sum to approximately 1 (with tolerance for rounding)
+      const sum = cell.reduce((acc, val) => acc + val, 0);
+      if (Math.abs(sum - 1.0) > 0.01) {
+        errors.push(`Cell ${index + 1}: Proportions sum to ${sum.toFixed(3)}, should sum to 1.0`);
+      }
+
+      // Check if any value exceeds 1
+      if (cell.some(val => val > 1)) {
+        errors.push(`Cell ${index + 1}: Contains values greater than 1`);
+      }
+    });
+
+    return errors;
   };
 
   // Function to calculate standardized land use mix score
   const calculateStandardizedLandUseMix = () => {
-    const numCellsValue = parseInt(numCells, 10);
-    if (isNaN(numCellsValue) || numCellsValue <= 0 || landUseData.length === 0) {
-      toast.error("Ensure that land use data and a valid number of cells are provided.");
+    const numCategoriesValue = parseInt(numCategories, 10);
+    
+    if (isNaN(numCategoriesValue) || numCategoriesValue <= 0) {
+      toast.error("Please enter a valid number of land use categories (must be > 0)");
       return null;
     }
+
+    if (landUseData.length === 0) {
+      toast.error("Please enter land use data");
+      return null;
+    }
+
+    // Validate data
+    const errors = validateLandUseData(landUseData);
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      toast.error("Please fix validation errors before calculating");
+      return null;
+    }
+    
+    setValidationErrors([]);
+
+    // Calculate maximum possible diversity for the given number of categories
+    const MAX_INDEX = Math.log(numCategoriesValue);
 
     // Calculate Shannon-Wiener Diversity Index for each cell
     const indices = landUseData.map((cellAreas) => calculateShannonWienerIndex(cellAreas));
 
-    // Calculate average index
-    const average =
-      indices.reduce((sum, index) => sum + index, 0) / indices.length;
+    // Calculate average index across all cells
+    const average = indices.reduce((sum, index) => sum + index, 0) / indices.length;
     setAverageIndex(average);
 
-    // Standardized formula
-    const standardizedValue = 100 * (average / MAX_INDEX);
+    // Standardize to 0-100 scale: (H / Hmax) * 100
+    const standardizedValue = (average / MAX_INDEX) * 100;
 
-    console.log('Standardized Score:', standardizedValue.toFixed(2)); // Log the score to the console
-    const calculatedComment = getComment(parseFloat(standardizedValue.toFixed(2)));
-    setComment(calculatedComment); // Set comment based on score
-    console.log('Calculated Comment:', calculatedComment);
-    return { average, standardizedValue, calculatedComment };
+    // Ensure standardized value doesn't exceed 100 due to rounding
+    const finalStandardizedValue = Math.min(standardizedValue, 100);
+
+    console.log('Average Shannon-Wiener Index:', average.toFixed(4));
+    console.log('Maximum Possible Index:', MAX_INDEX.toFixed(4));
+    console.log('Standardized Score:', finalStandardizedValue.toFixed(2));
+    
+    const calculatedComment = getComment(parseFloat(finalStandardizedValue.toFixed(2)));
+    setComment(calculatedComment);
+
+    // Set display values
+    setActualLandUseMix(average.toFixed(4));
+    setStandardizedScore(finalStandardizedValue.toFixed(2));
+
+    return { average, standardizedValue: finalStandardizedValue, calculatedComment, maxIndex: MAX_INDEX };
   };
 
   // Load saved inputs on component mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedLandUse = localStorage.getItem("landUseData");
-      const savedNumCells = localStorage.getItem("numCells");
+    const savedLandUse = localStorage.getItem("landUseData");
+    const savedNumCategories = localStorage.getItem("numCategories");
+    const savedActual = localStorage.getItem("actualLandUseMix");
+    const savedStandardized = localStorage.getItem("standardizedScore");
+    const savedComment = localStorage.getItem("comment");
 
-      if (savedLandUse) setLandUseData(JSON.parse(savedLandUse));
-      if (savedNumCells) setNumCells(savedNumCells);
+    if (savedLandUse) {
+      try {
+        setLandUseData(JSON.parse(savedLandUse));
+      } catch (e) {
+        console.error("Error parsing saved land use data:", e);
+      }
     }
+    if (savedNumCategories) setNumCategories(savedNumCategories);
+    if (savedActual) setActualLandUseMix(savedActual);
+    if (savedStandardized) setStandardizedScore(savedStandardized);
+    if (savedComment) setComment(savedComment);
   }, []);
 
-  // Save inputs to localStorage on change
+  // Save inputs to memory on change
   const handleLandUseChange = (data: number[][]) => {
     setLandUseData(data);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("landUseData", JSON.stringify(data));
-    }
+    localStorage.setItem("landUseData", JSON.stringify(data));
   };
 
-  const handleNumCellsChange = (value: string) => {
-    setNumCells(value);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("numCells", value);
-    }
+  const handleNumCategoriesChange = (value: string) => {
+    setNumCategories(value);
+    localStorage.setItem("numCategories", value);
   };
 
   // Function to handle calculation and saving data
@@ -103,23 +190,29 @@ const LandUseMix: React.FC = () => {
     }
 
     const calculationResult = calculateStandardizedLandUseMix();
-    if (calculationResult === null) return; // Exit if calculation fails
+    if (calculationResult === null) return;
 
-    const { average, calculatedComment } = calculationResult;
+    const { average, standardizedValue, calculatedComment } = calculationResult;
+
+    // Save to localStorage
+    localStorage.setItem("actualLandUseMix", average.toFixed(4));
+    localStorage.setItem("standardizedScore", standardizedValue.toFixed(2));
+    localStorage.setItem("comment", calculatedComment);
 
     try {
-      setIsSubmitting(true); // Start loading
+      setIsSubmitting(true);
       console.log("Submitting data...");
 
       const postData = {
         city,
         country,
-        land_use_mix: average, // Post the average land use mix index
-        land_use_mix_comment: calculatedComment, // Use the calculated comment
+        land_use_mix: average,
+        land_use_mix_standardized: parseFloat(standardizedValue.toFixed(2)),
+        land_use_mix_comment: calculatedComment,
         userId: user.id,
       };
 
-      console.log("Post Data:", postData); // Debug: Log the post data
+      console.log("Post Data:", postData);
 
       const response = await fetch('/api/calculation-history', {
         method: 'POST',
@@ -129,14 +222,14 @@ const LandUseMix: React.FC = () => {
         body: JSON.stringify(postData),
       });
 
-      console.log("Response Status:", response.status); // Debug: Log the response status
+      console.log("Response Status:", response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const result = await response.json();
-      console.log("Result:", result); // Debug: Log the result
+      console.log("Result:", result);
 
       toast.success("Data calculated and saved successfully!");
     } catch (error: unknown) {
@@ -144,9 +237,16 @@ const LandUseMix: React.FC = () => {
       console.error('Error saving data:', errorMessage);
       toast.error("Failed to save data. Please try again.");
     } finally {
-      setIsSubmitting(false); // Stop loading
+      setIsSubmitting(false);
     }
   };
+
+  // Prepare pie data
+  const standardizedValue = standardizedScore ? parseFloat(standardizedScore) : 0;
+  const pieData = [
+    { name: 'Diversity Score', value: Number(standardizedValue.toFixed(2)) },
+    { name: 'Remaining', value: Number((100 - standardizedValue).toFixed(2)) }
+  ];
 
   if (!isLoaded) {
     return <div>Loading...</div>;
@@ -154,16 +254,71 @@ const LandUseMix: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
+      <div className="max-w-4xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-green-600 p-6 text-white">
           <h2 className="text-3xl font-bold flex items-center">
-            🏙️ Land Use Mix
+            🏙️ Land Use Mix Calculator
           </h2>
-          <p className="mt-2 text-blue-100">Assess and save your city&apos;s land use mix data</p>
+          <p className="mt-2 text-blue-100">Calculate Shannon-Wiener Diversity Index for urban land use</p>
         </div>
         
         <div className="p-8">
-          {/* Display selected city and country */}
+          {/* Summary section */}
+          <div className="mb-6">
+            <button
+              onClick={() => setShowSummary(!showSummary)}
+              className="text-left w-full p-3 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition flex justify-between items-center"
+              aria-expanded={showSummary}
+              aria-controls="summary-panel"
+            >
+              <span className="font-semibold">📖 What is the Shannon-Wiener Diversity Index?</span>
+              <span className="text-sm text-gray-600">{showSummary ? '▲ Hide' : '▼ Show'}</span>
+            </button>
+
+            {showSummary && (
+              <div id="summary-panel" className="mt-3 p-4 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-700">
+                <h4 className="font-semibold mb-2">About This Index</h4>
+                <p className="mb-3">
+                  The Shannon-Wiener Diversity Index (also called Shannon Entropy) measures the diversity of land uses in urban areas. 
+                  It&apos;s widely used in urban planning to assess how mixed or diverse land uses are within a given area.
+                </p>
+
+                <h4 className="font-semibold mb-2">Formula</h4>
+                <p className="font-mono bg-white p-2 rounded mb-3">
+                  H = -Σ(p<sub>i</sub> × ln(p<sub>i</sub>))
+                </p>
+                <p className="mb-3">
+                  Where p<sub>i</sub> is the proportion of each land use category, and the sum is over all categories with p<sub>i</sub> &gt; 0.
+                </p>
+
+                <h4 className="font-semibold mb-2">Standardization</h4>
+                <p className="mb-3">
+                  The raw index is standardized to a 0-100 scale using: <span className="font-mono">(H / H<sub>max</sub>) × 100</span><br/>
+                  Where H<sub>max</sub> = ln(number of categories)
+                </p>
+
+                <h4 className="font-semibold mb-2">How to Use</h4>
+                <ul className="list-disc list-inside mb-3 space-y-1">
+                  <li>Enter the number of land use categories (e.g., 5 for: residential, commercial, industrial, recreational, institutional)</li>
+                  <li>For each cell/grid unit, enter proportions separated by commas (e.g., 0.2,0.3,0.3,0.1,0.1)</li>
+                  <li>Each cell&apos;s proportions must sum to 1.0</li>
+                  <li>Use one line per cell</li>
+                  <li>The calculator will compute the average diversity across all cells</li>
+                </ul>
+
+                <h4 className="font-semibold mb-2">Example</h4>
+                <div className="bg-white p-3 rounded border">
+                  <p className="mb-1"><strong>Number of categories:</strong> 5</p>
+                  <p className="mb-1"><strong>Cell data:</strong></p>
+                  <pre className="text-xs">0.2,0.2,0.2,0.2,0.2  (perfectly mixed)
+0.6,0.1,0.1,0.1,0.1  (residential dominant)
+0.3,0.3,0.2,0.1,0.1  (moderate mix)</pre>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Display selected city */}
           {city && country && (
             <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
               <p className="text-sm text-gray-600 flex items-center">
@@ -186,34 +341,56 @@ const LandUseMix: React.FC = () => {
             </div>
           )}
 
-          <div className="mb-6">
-            <label className="block mb-3 font-semibold text-gray-700 flex items-center">
-              📊 Enter Land Use Data for Each Cell (comma-separated p_i values for each cell):
-            </label>
-            <textarea
-              rows={5}
-              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              onChange={(e) =>
-                handleLandUseChange(
-                  e.target.value.split("\n").map((line) =>
-                    line.split(",").map((val) => parseFloat(val.trim()))
-                  )
-                )
-              }
-            />
-          </div>
+          {/* Validation errors */}
+          {validationErrors.length > 0 && (
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+              <p className="font-semibold text-red-800 mb-2">❌ Validation Errors:</p>
+              <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                {validationErrors.map((error, idx) => (
+                  <li key={idx}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
+          {/* Number of categories input */}
           <div className="mb-6">
             <label className="block mb-3 font-semibold text-gray-700 flex items-center">
-              🔢 Total Number of Cells:
+              🔢 Number of Land Use Categories:
             </label>
             <input
-              type="text"
-              value={numCells}
-              onChange={(e) => handleNumCellsChange(e.target.value)}
+              type="number"
+              min="2"
+              value={numCategories}
+              onChange={(e) => handleNumCategoriesChange(e.target.value)}
               className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              placeholder="Enter a valid number"
+              placeholder="e.g., 5 for residential, commercial, industrial, recreational, institutional"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Common values: 5 (basic categories), 8 (EPA standard), or custom based on your data
+            </p>
+          </div>
+
+          {/* Land use data input */}
+          <div className="mb-6">
+            <label className="block mb-3 font-semibold text-gray-700 flex items-center">
+              📊 Enter Land Use Proportions for Each Cell:
+            </label>
+            <textarea
+              rows={6}
+              className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition font-mono text-sm"
+              onChange={(e) => {
+                const lines = e.target.value.split("\n").filter(line => line.trim());
+                const data = lines.map((line) =>
+                  line.split(",").map((val) => parseFloat(val.trim())).filter(val => !isNaN(val))
+                );
+                handleLandUseChange(data);
+              }}
+              placeholder="Enter one cell per line, comma-separated proportions&#10;Example:&#10;0.2,0.2,0.2,0.2,0.2&#10;0.4,0.3,0.2,0.05,0.05&#10;0.3,0.3,0.2,0.1,0.1"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              ⚠️ Each line represents one cell. Proportions must sum to 1.0 per cell.
+            </p>
           </div>
           
           <button
@@ -234,16 +411,93 @@ const LandUseMix: React.FC = () => {
             )}
           </button>
           
-          {comment && (
+          {/* Results display */}
+          {comment && actualLandUseMix && standardizedScore && (
             <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
-              <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
-                comment === "VERY SOLID"
-                  ? "bg-gradient-to-r from-green-400 to-green-600"
-                  : comment === "SOLID"
-                  ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
-                  : "bg-gradient-to-r from-red-400 to-red-600"
-              }`}>
-                {comment}
+              <h3 className="text-xl font-bold mb-4 text-gray-800">📈 Calculation Results</h3>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white p-4 rounded-lg border">
+                    <h4 className="text-sm text-gray-600 mb-1">Shannon-Wiener Index</h4>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {actualLandUseMix}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Raw diversity score
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-lg border">
+                    <h4 className="text-sm text-gray-600 mb-1">Standardized Score</h4>
+                    <p className="text-2xl font-bold text-green-600">
+                      {standardizedScore}%
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      0-100 scale
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-lg border">
+                    <h4 className="text-sm text-gray-600 mb-1">Max Possible</h4>
+                    <p className="text-2xl font-bold text-gray-600">
+                      {Math.log(parseInt(numCategories)).toFixed(4)}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      ln({numCategories}) categories
+                    </p>
+                  </div>
+                </div>
+
+                <div className={`p-4 text-center font-bold text-white rounded-lg text-lg ${
+                  parseFloat(standardizedScore) >= 70
+                    ? "bg-gradient-to-r from-green-500 to-green-600"
+                    : parseFloat(standardizedScore) >= 50
+                    ? "bg-gradient-to-r from-yellow-500 to-yellow-600"
+                    : "bg-gradient-to-r from-orange-500 to-red-600"
+                }`}>
+                  {comment}
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="w-full h-64">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2 text-center">Standardized Score</h4>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={[
+                        { name: 'Your Score', value: parseFloat(standardizedScore) }
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 100]} label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="value" fill={COLORS[0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="w-full h-64">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2 text-center">Diversity Distribution</h4>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={2}
+                          label={(entry) => `${entry.name}: ${entry.value}%`}
+                        >
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
             </div>
           )}

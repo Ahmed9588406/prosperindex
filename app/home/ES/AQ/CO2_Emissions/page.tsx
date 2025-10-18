@@ -3,17 +3,18 @@ import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
 import { useCity } from "../../../../context/CityContext";
 import toast from "react-hot-toast";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const CO2Emissions: React.FC = () => {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
-  const [co2Emissions, setCo2Emissions] = useState<number | string>(""); // Input: CO2 emissions
-  const [comment, setComment] = useState<string | null>(null); // Comment based on score
-  const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
-  const BENCHMARK = 0.39; // Benchmark value for CO2 emissions
-  const CRITICAL = 2.09; // Critical threshold for CO2 emissions
+  const [co2Emissions, setCo2Emissions] = useState<number | string>("");
+  const [comment, setComment] = useState<string | null>(null);
+  const [score, setScore] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const BENCHMARK = 0.39;
+  const CRITICAL = 2.09;
 
-  // Load saved inputs on component mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedCo2 = localStorage.getItem("co2Emissions");
@@ -21,7 +22,6 @@ const CO2Emissions: React.FC = () => {
     }
   }, []);
 
-  // Save inputs to localStorage on change
   const handleCo2Change = (value: string) => {
     setCo2Emissions(value);
     if (typeof window !== "undefined") {
@@ -29,14 +29,13 @@ const CO2Emissions: React.FC = () => {
     }
   };
 
-  // Function to calculate CO2 Score
   const calculateCO2Score = () => {
     if (!co2Emissions || parseFloat(co2Emissions.toString()) < 0) {
       toast.error("Please enter a valid CO₂ emissions value (greater than or equal to 0).");
       return null;
     }
     const co2Value = parseFloat(co2Emissions.toString());
-    const fifthRootEmissions = Math.pow(co2Value, 1 / 5); // Calculate the fifth root
+    const fifthRootEmissions = Math.pow(co2Value, 1 / 5);
     let standardizedValue = 0;
 
     if (fifthRootEmissions >= CRITICAL) {
@@ -50,14 +49,12 @@ const CO2Emissions: React.FC = () => {
     }
 
     const scoreNum = standardizedValue.toFixed(2);
-    console.log('Standardized Score:', scoreNum); // Log the score to the console
     const calculatedComment = getComment(parseFloat(scoreNum));
-    setComment(calculatedComment); // Set comment immediately after calculating score
-    console.log('Calculated Comment:', calculatedComment);
+    setComment(calculatedComment);
+    setScore(scoreNum);
     return { scoreNum, calculatedComment };
   };
 
-  // Function to get comment based on standardized score
   const getComment = (score: number) => {
     if (score >= 80) return "VERY SOLID";
     else if (score >= 70) return "SOLID";
@@ -67,7 +64,6 @@ const CO2Emissions: React.FC = () => {
     else return "VERY WEAK";
   };
 
-  // Function to handle calculation and posting data
   const handleCalculateAndSave = async () => {
     if (!user) {
       toast.error("Please sign in to save calculations.");
@@ -80,20 +76,19 @@ const CO2Emissions: React.FC = () => {
     }
 
     const calculationResult = calculateCO2Score();
-    if (calculationResult === null) return; // Exit if calculation fails
+    if (calculationResult === null) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { scoreNum, calculatedComment } = calculationResult;
     const co2Value = parseFloat(co2Emissions.toString());
 
     try {
       setIsSubmitting(true);
-
-      console.log('Before Posting:', 'Score:', scoreNum, 'Comment:', calculatedComment);
-
       const postData = {
         city,
         country,
-        co2_emissions: co2Value,
+        co2_emissions: co2Value, // Post the raw CO2 emissions
+        co2_emissions_standardized: parseFloat(scoreNum), // Post the standardized score
         co2_emissions_comment: calculatedComment, // Use the calculated comment
         userId: user.id
       };
@@ -107,9 +102,9 @@ const CO2Emissions: React.FC = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const result = await response.json();
       toast.success("Data calculated and saved successfully!");
-      console.log('Result:', result);
     } catch (error) {
       console.error('Error saving data:', error);
       toast.error("Failed to save data. Please try again.");
@@ -131,9 +126,25 @@ const CO2Emissions: React.FC = () => {
           </h2>
           <p className="mt-2 text-blue-100">Assess and save your city&apos;s CO₂ emissions data</p>
         </div>
-        
+
         <div className="p-8">
-          {/* Display selected city and country */}
+          {/* Summary Section */}
+          <div className="mb-6 p-4 bg-green-100 border-l-4 border-green-400 rounded-r-lg">
+            <h3 className="text-lg font-semibold mb-2">About the CO₂ Emissions Index</h3>
+            <p className="text-sm text-gray-700 mb-1">
+              This index provides a simplified environmental performance score based on the total CO₂ emissions input for your city. It uses a scaled mathematical transformation to assign a score from 0 (high emissions) to 100 (low emissions), helping highlight relative air quality impact.
+            </p>
+            <p className="text-sm text-gray-700 mb-3">
+              Official carbon intensity indices often normalize emissions relative to economic activity for detailed analysis. This index is a custom tool intended for easy interpretation and awareness.
+            </p>
+            <p className="text-sm text-gray-700 mb-2">
+              Enter your city&apos;s total CO₂ emissions in metric tonnes. The score reflects environmental performance, where higher scores mean better air quality.
+            </p>
+            <p className="text-sm text-gray-700">
+              Please enter a valid, non-negative number for accurate results.
+            </p>
+          </div>
+
           {city && country && (
             <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
               <p className="text-sm text-gray-600 flex items-center">
@@ -166,9 +177,10 @@ const CO2Emissions: React.FC = () => {
               onChange={(e) => handleCo2Change(e.target.value)}
               className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               placeholder="Enter CO₂ emissions"
+              min="0"
             />
           </div>
-          
+
           <button
             onClick={handleCalculateAndSave}
             disabled={isSubmitting || !city || !country}
@@ -186,9 +198,23 @@ const CO2Emissions: React.FC = () => {
               <>🚀 Calculate and Save</>
             )}
           </button>
-          
-          {comment && (
+
+          {comment && score && (
             <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
+              <p className="text-center font-semibold text-gray-800 mb-2">CO₂ Emissions: {co2Emissions} metric tonnes</p>
+              <p className="text-center font-semibold text-gray-800 mb-4">Standardized Score: {score}%</p>
+              <div className="mb-6">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={[{ name: 'CO₂ Score', score: parseFloat(score) }]}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="score" fill="#4CAF50" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
               <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
                 comment === "VERY SOLID"
                   ? "bg-gradient-to-r from-green-400 to-green-600"

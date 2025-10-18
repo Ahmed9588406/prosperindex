@@ -3,15 +3,34 @@ import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
 import { useCity } from "../../../../context/CityContext";
 import toast from "react-hot-toast";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+
+const COLORS = ["#6ee7b7", "#e6e6e6"];
 
 const PovertyRateStandardization: React.FC = () => {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
   const [povertyPopulation, setPovertyPopulation] = useState<number | string>(""); // Input: population below $1.25 PPP a day
   const [totalPopulation, setTotalPopulation] = useState<number | string>(""); // Input: total population
-  // Removed unused standardizedRate state
   const [comment, setComment] = useState<string | null>(null); // Comment based on score
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
+  const [showSummary, setShowSummary] = useState(false); // New state to toggle the summary/help panel
+
+  // New states for raw poverty rate and standardized score (for display and charts)
+  const [actualPovertyRate, setActualPovertyRate] = useState<string | null>(null);
+  const [standardizedScore, setStandardizedScore] = useState<string | null>(null);
 
   // Constants for benchmarks
   const MIN = 0.38; // ⁴√Min = 0.38
@@ -87,6 +106,11 @@ const PovertyRateStandardization: React.FC = () => {
     const calculatedComment = getComment(parseFloat(scoreNum));
     setComment(calculatedComment); // Set comment based on score
     console.log('Calculated Comment:', calculatedComment);
+
+    // Set new states for display and charts
+    setActualPovertyRate(povertyRate.toFixed(2));
+    setStandardizedScore(scoreNum);
+
     return { povertyRate, scoreNum, calculatedComment };
   };
 
@@ -105,7 +129,7 @@ const PovertyRateStandardization: React.FC = () => {
     const calculationResult = calculateStandardizedPovertyRate();
     if (calculationResult === null) return; // Exit if calculation fails
 
-    const { povertyRate, calculatedComment } = calculationResult;
+    const { povertyRate, scoreNum, calculatedComment } = calculationResult;
 
     try {
       setIsSubmitting(true); // Start loading
@@ -115,6 +139,7 @@ const PovertyRateStandardization: React.FC = () => {
         city,
         country,
         poverty_rate: povertyRate, // Post the poverty rate
+        poverty_rate_standardized_score: parseFloat(scoreNum), // Use correct schema field name and parse as float
         poverty_rate_comment: calculatedComment, // Use the calculated comment
         userId: user.id,
       };
@@ -152,9 +177,16 @@ const PovertyRateStandardization: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  // Prepare pie data (standardized value + remainder)
+  const standardizedValue = standardizedScore ? parseFloat(standardizedScore) : 0;
+  const pieData = [
+    { name: 'Standardized', value: Number(standardizedValue.toFixed(2)) },
+    { name: 'Remaining', value: Number((100 - standardizedValue).toFixed(2)) }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
+      <div className="max-w-3xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-green-600 p-6 text-white">
           <h2 className="text-3xl font-bold flex items-center">
             📉 Poverty Rate Standardization
@@ -163,6 +195,46 @@ const PovertyRateStandardization: React.FC = () => {
         </div>
         
         <div className="p-8">
+          {/* Summary / About this index section (collapsible) */}
+          <div className="mb-4">
+            <button
+              onClick={() => setShowSummary(!showSummary)}
+              className="text-left w-full p-3 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition flex justify-between items-center"
+              aria-expanded={showSummary}
+              aria-controls="summary-panel"
+            >
+              <span className="font-semibold">What is this index?</span>
+              <span className="text-sm text-gray-600">{showSummary ? 'Hide' : 'Show'}</span>
+            </button>
+
+            {showSummary && (
+              <div id="summary-panel" className="mt-3 p-4 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-700">
+                <p className="mb-2">
+                  The Poverty Rate measures the percentage of the population living below the $1.25 PPP (Purchasing Power Parity) poverty line.
+                  This tool calculates the raw poverty rate from the inputs you provide and converts it into a standardized 0–100 score using predefined benchmarks.
+                </p>
+                <p className="font-mono mb-2">Poverty Rate (raw) = (Population below $1.25 PPP / Total Population) * 100%</p>
+                <p className="mb-2">
+                  Standardized score maps the fourth root of the poverty rate to 100..0 across benchmarks (MIN..MAX) so lower poverty → higher score.
+                </p>
+
+                <h4 className="font-semibold mt-2 mb-1">What to enter</h4>
+                <ul className="list-disc list-inside mb-2">
+                  <li>Enter the population below $1.25 PPP a day (a non-negative number).</li>
+                  <li>Enter the total population (must be greater than zero).</li>
+                  <li>Both fields are required for calculation.</li>
+                </ul>
+
+                <h4 className="font-semibold mt-2 mb-1">Tips for meaningful results</h4>
+                <ul className="list-disc list-inside">
+                  <li>Ensure data is sourced consistently (e.g., from the same year and definition).</li>
+                  <li>For comparisons, use data from reliable sources like World Bank or national statistics.</li>
+                  <li>You can save the result to your calculation history (requires sign in and selected city).</li>
+                </ul>
+              </div>
+            )}
+          </div>
+
           {/* Display selected city and country */}
           {city && country && (
             <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
@@ -230,16 +302,72 @@ const PovertyRateStandardization: React.FC = () => {
             )}
           </button>
           
-          {comment && (
+          {comment && actualPovertyRate && standardizedScore && (
             <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
-              <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
-                comment === "VERY SOLID"
-                  ? "bg-gradient-to-r from-green-400 to-green-600"
-                  : comment === "SOLID"
-                  ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
-                  : "bg-gradient-to-r from-red-400 to-red-600"
-              }`}>
-                {comment}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-lg">Actual Poverty Rate</h3>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {actualPovertyRate}%
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg">Standardized Poverty Score</h3>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {standardizedScore}%
+                    </p>
+                  </div>
+                </div>
+
+                <div className={`p-3 text-center font-bold text-white rounded-md transition ${
+                  comment === "VERY SOLID"
+                    ? "bg-gradient-to-r from-green-400 to-green-600"
+                    : comment === "SOLID"
+                    ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                    : "bg-gradient-to-r from-red-400 to-red-600"
+                }`}>
+                  {comment}
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="w-full h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={[
+                        { name: 'Standardized', value: parseFloat(standardizedScore) }
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 100]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="value" fill={COLORS[0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="w-full h-64 flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={2}
+                          label={(entry) => `${entry.name}: ${entry.value}%`}
+                        >
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
             </div>
           )}

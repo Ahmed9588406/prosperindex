@@ -3,6 +3,21 @@ import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
 import { useCity } from '../../../../context/CityContext';
 import toast from 'react-hot-toast';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+
+const COLORS = ["#6ee7b7", "#e6e6e6"];
 
 interface LifeTableRow {
   age: string;
@@ -16,10 +31,15 @@ function LifeExpectancyCalculator() {
   const [data, setData] = useState<LifeTableRow[]>([{ age: "", lx: "", tx: "" }]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [lifeExpectancy, setLifeExpectancy] = useState<number | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [standardizedScore, setStandardizedScore] = useState<number | null>(null);
   const [decision, setDecision] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
+
+  // New states for raw life expectancy and standardized score (for display and charts)
+  const [actualLife, setActualLife] = useState<string | null>(null);
+  const [standardizedScore, setStandardizedScore] = useState<string | null>(null); // Changed to string | null
+
+  // New state to toggle the summary/help panel
+  const [showSummary, setShowSummary] = useState(false);
 
   const MIN_LIFE_EXPECTANCY = 49; // Minimum benchmark
   const MAX_LIFE_EXPECTANCY = 83.48; // Maximum benchmark
@@ -111,17 +131,22 @@ function LifeExpectancyCalculator() {
           ((e0 - MIN_LIFE_EXPECTANCY) / (MAX_LIFE_EXPECTANCY - MIN_LIFE_EXPECTANCY)) * 100
         )
       );
-    setStandardizedScore(standardized);
+    // store as a string
+    setStandardizedScore(standardized.toFixed(2));
 
     // Evaluate the decision based on the standardized score
     const evaluationComment = getComment(standardized);
     setDecision(evaluationComment);
+
+    // Set new states for display and charts
+    setActualLife(e0.toFixed(2));
 
     // Prepare data to send
     const postData = {
       city,
       country,
       life_expectancy_at_birth: e0,
+      life_expectancy_at_birth_standardized: parseFloat(standardized.toFixed(2)),
       life_expectancy_at_birth_comment: evaluationComment, // Renamed for consistency
       userId: user.id,
     };
@@ -152,9 +177,16 @@ function LifeExpectancyCalculator() {
     }
   };
 
+  // Prepare pie data (standardized value + remainder)
+  const standardizedValue = standardizedScore ? parseFloat(standardizedScore) : 0;
+  const pieData = [
+    { name: 'Standardized', value: Number(standardizedValue.toFixed(2)) },
+    { name: 'Remaining', value: Number((100 - standardizedValue).toFixed(2)) }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-6">
-      <div className="max-w-4xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
+      <div className="max-w-5xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-green-600 p-6 text-white">
           <h2 className="text-3xl font-bold flex items-center">
             🧬 Life Expectancy at Birth
@@ -163,6 +195,46 @@ function LifeExpectancyCalculator() {
         </div>
         
         <div className="p-8">
+          {/* Summary / About this index section (collapsible) */}
+          <div className="mb-4">
+            <button
+              onClick={() => setShowSummary(!showSummary)}
+              className="text-left w-full p-3 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition flex justify-between items-center"
+              aria-expanded={showSummary}
+              aria-controls="summary-panel"
+            >
+              <span className="font-semibold">What is this index?</span>
+              <span className="text-sm text-gray-600">{showSummary ? 'Hide' : 'Show'}</span>
+            </button>
+
+            {showSummary && (
+              <div id="summary-panel" className="mt-3 p-4 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-700">
+                <p className="mb-2">
+                  Life Expectancy at Birth measures the average number of years a newborn is expected to live, based on life table data.
+                  This tool calculates the raw life expectancy from the inputs you provide and converts it into a standardized 0–100 score using predefined benchmarks.
+                </p>
+                <p className="font-mono mb-2">Life Expectancy (raw) = (Total Years Lived / People Alive at Birth) years</p>
+                <p className="mb-2">
+                  Standardized score maps expectancy to 100..0 across benchmarks (MIN..MAX) so higher expectancy → higher score.
+                </p>
+
+                <h4 className="font-semibold mt-2 mb-1">What to enter</h4>
+                <ul className="list-disc list-inside mb-2">
+                  <li>Enter age bands, l_x (number alive at start of age), and T_x (total years lived by cohort).</li>
+                  <li>Use life table data for the population (e.g., from census or health statistics).</li>
+                  <li>All fields are required for calculation.</li>
+                </ul>
+
+                <h4 className="font-semibold mt-2 mb-1">Tips for meaningful results</h4>
+                <ul className="list-disc list-inside">
+                  <li>Ensure data is sourced consistently (e.g., from the same year and definition).</li>
+                  <li>For comparisons, use data from reliable sources like national health agencies.</li>
+                  <li>You can save the result to your calculation history (requires sign in and selected city).</li>
+                </ul>
+              </div>
+            )}
+          </div>
+
           {/* Display selected city and country */}
           {city && country && (
             <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
@@ -264,16 +336,72 @@ function LifeExpectancyCalculator() {
             )}
           </button>
           
-          {decision && (
+          {decision && actualLife && standardizedScore && (
             <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
-              <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
-                decision === "VERY SOLID"
-                  ? "bg-gradient-to-r from-green-400 to-green-600"
-                  : decision === "SOLID"
-                  ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
-                  : "bg-gradient-to-r from-red-400 to-red-600"
-              }`}>
-                {decision}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-lg">Actual Life Expectancy</h3>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {actualLife} years
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg">Standardized Life Score</h3>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {standardizedScore}%
+                    </p>
+                  </div>
+                </div>
+
+                <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
+                  decision === "VERY SOLID"
+                    ? "bg-gradient-to-r from-green-400 to-green-600"
+                    : decision === "SOLID"
+                    ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                    : "bg-gradient-to-r from-red-400 to-red-600"
+                }`}>
+                  {decision}
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="w-full h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={[
+                        { name: 'Standardized', value: parseFloat(standardizedScore || '0') }
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 100]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="value" fill={COLORS[0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="w-full h-64 flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={2}
+                          label={(entry) => `${entry.name}: ${entry.value}%`}
+                        >
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
             </div>
           )}

@@ -4,16 +4,17 @@ import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
 import { useCity } from "../../../../context/CityContext";
 import toast from "react-hot-toast";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const PM25Concentration: React.FC = () => {
   const { user, isLoaded } = useUser();
   const { city, country, cityName } = useCity();
-  const [pm25Concentration, setPm25Concentration] = useState<number | string>(""); // Input: PM2.5 concentration
-  const [comment, setComment] = useState<string | null>(null); // Comment based on score
-  const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
-  const BENCHMARK = 10; // Benchmark for PM2.5 concentration (X*)
+  const [pm25Concentration, setPm25Concentration] = useState<number | string>("");
+  const [comment, setComment] = useState<string | null>(null);
+  const [score, setScore] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const BENCHMARK = 10;
 
-  // Load saved inputs on component mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedPm25 = localStorage.getItem("pm25Concentration");
@@ -21,7 +22,6 @@ const PM25Concentration: React.FC = () => {
     }
   }, []);
 
-  // Save inputs to localStorage on change
   const handlePm25Change = (value: string) => {
     setPm25Concentration(value);
     if (typeof window !== "undefined") {
@@ -29,7 +29,6 @@ const PM25Concentration: React.FC = () => {
     }
   };
 
-  // Function to get comment based on standardized score
   const getComment = (score: number) => {
     if (score >= 80) return "VERY SOLID";
     else if (score >= 70) return "SOLID";
@@ -39,7 +38,6 @@ const PM25Concentration: React.FC = () => {
     else return "VERY WEAK";
   };
 
-  // Function to calculate PM2.5 score
   const calculatePM25Score = () => {
     if (!pm25Concentration || parseFloat(pm25Concentration.toString()) < 0) {
       toast.error("Please enter a valid PM2.5 concentration (greater than or equal to 0).");
@@ -48,26 +46,23 @@ const PM25Concentration: React.FC = () => {
 
     const pm25Value = parseFloat(pm25Concentration.toString());
 
-    // Standardization formula with absolute value
     let standardizedValue = 0;
 
     if (pm25Value >= 20) {
       standardizedValue = 0;
     } else if (pm25Value >= 10 && pm25Value < 20) {
-      standardizedValue = 100 * (1 - Math.abs((pm25Value - BENCHMARK) / 10));
+      standardizedValue = 100 * (1 - (pm25Value - BENCHMARK) / 10); // simplified without absolute value
     } else if (pm25Value <= 10) {
       standardizedValue = 100;
     }
 
     const scoreNum = standardizedValue.toFixed(2);
-    console.log('Standardized Score:', scoreNum); // Log the score to the console
     const calculatedComment = getComment(parseFloat(scoreNum));
-    setComment(calculatedComment); // Set comment immediately after calculating score
-    console.log('Calculated Comment:', calculatedComment);
+    setComment(calculatedComment);
+    setScore(scoreNum);
     return { scoreNum, calculatedComment };
   };
 
-  // Function to handle calculation and saving data
   const handleCalculateAndSave = async () => {
     if (!user) {
       toast.error("Please sign in to save calculations.");
@@ -80,7 +75,7 @@ const PM25Concentration: React.FC = () => {
     }
 
     const calculationResult = calculatePM25Score();
-    if (calculationResult === null) return; // Exit if calculation fails
+    if (calculationResult === null) return;
 
     const { scoreNum, calculatedComment } = calculationResult;
     const pm25Value = parseFloat(pm25Concentration.toString());
@@ -88,13 +83,12 @@ const PM25Concentration: React.FC = () => {
     try {
       setIsSubmitting(true);
 
-      console.log('Before Posting:', 'Score:', scoreNum, 'Comment:', calculatedComment);
-
       const postData = {
         city,
         country,
         pm25_concentration: pm25Value,
-        pm25_concentration_comment: calculatedComment, // Use the calculated comment
+        pm25_concentration_standardized: parseFloat(scoreNum), // Add the standardized score
+        pm25_concentration_comment: calculatedComment,
         userId: user.id,
       };
 
@@ -135,9 +129,25 @@ const PM25Concentration: React.FC = () => {
           </h2>
           <p className="mt-2 text-blue-100">Assess and save your city&apos;s PM2.5 concentration data</p>
         </div>
-        
+
         <div className="p-8">
-          {/* Display selected city and country */}
+          {/* Summary Section */}
+          <div className="mb-6 p-4 bg-green-100 border-l-4 border-green-400 rounded-r-lg">
+            <h3 className="text-lg font-semibold mb-2">About the PM2.5 Concentration Index</h3>
+            <p className="text-sm text-gray-700 mb-1">
+              This index provides a simplified environmental score based on your city&apos;s PM2.5 concentration (μg/m³). It assigns a score from 0 to 100, where 100 indicates excellent air quality (≤10 μg/m³), and lower scores indicate poorer air quality.
+            </p>
+            <p className="text-sm text-gray-700 mb-2">
+              The scoring uses recognized benchmark thresholds consistent with major air quality guidelines. Concentrations above 20 μg/m³ receive a score of zero, highlighting high pollution levels.
+            </p>
+            <p className="text-sm text-gray-700 mb-2">
+              Please enter your city’s average PM2.5 concentration accurately for meaningful results.
+            </p>
+            <p className="text-sm text-gray-700">
+              This index is a custom tool designed for easy user interpretation and awareness, not a replacement for official air quality indices.
+            </p>
+          </div>
+
           {city && country && (
             <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
               <p className="text-sm text-gray-600 flex items-center">
@@ -172,9 +182,10 @@ const PM25Concentration: React.FC = () => {
               className="border border-gray-300 rounded-lg p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               placeholder="Enter PM2.5 concentration"
               aria-label="Enter PM2.5 concentration"
+              min="0"
             />
           </div>
-          
+
           <button
             onClick={handleCalculateAndSave}
             disabled={isSubmitting || !city || !country}
@@ -193,9 +204,23 @@ const PM25Concentration: React.FC = () => {
               <>🚀 Calculate and Save</>
             )}
           </button>
-          
-          {comment && (
+
+          {comment && score && (
             <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
+              <p className="text-center font-semibold text-gray-800 mb-2">PM2.5 Concentration: {pm25Concentration} μg/m³</p>
+              <p className="text-center font-semibold text-gray-800 mb-4">Standardized Score: {score}%</p>
+              <div className="mb-6">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={[{ name: 'PM2.5 Score', score: parseFloat(score) }]}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="score" fill="#FF9800" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
               <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
                 comment === "VERY SOLID"
                   ? "bg-gradient-to-r from-green-400 to-green-600"

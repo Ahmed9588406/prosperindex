@@ -1,5 +1,6 @@
 'use client';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import Image from 'next/image';
@@ -11,6 +12,8 @@ type Category = {
   name: string;
   fields: { name: string; description: string }[];
 };
+
+type CalculationData = Record<string, number | string | undefined>;
 
 const categories: Category[] = [
   {
@@ -226,742 +229,215 @@ const getComment = (score: number | string): string => {
   else return "VERY WEAK";
 };
 
+const calculateAverage = (data: CalculationData, fields: string[]): number | string => {
+  let sum = 0;
+  let count = 0;
+  
+  fields.forEach(field => {
+    const value = data[field];
+    if (typeof value === 'number' && !isNaN(value)) {
+      sum += value;
+      count++;
+    }
+  });
+  
+  if (count === 0) return '-';
+  return Number((sum / count).toFixed(2));
+};
+
+const calculateAllIndexes = (data: CalculationData) => {
+  // Calculate all sub-indexes using standardized fields
+  const houseInfra = calculateAverage(data, ["improved_shelter_standardized", "improved_water_standardized", "improved_sanitation_standardized", "sufficient_living_standardized", "population_standardized", "electricity_standardized"]);
+  if (typeof houseInfra === 'number') {
+    data.house_Infrastructure = houseInfra;
+    data.house_Infrastructure_comment = getComment(houseInfra);
+  }
+
+  const economicStrength = calculateAverage(data, ["city_product_per_capita_standardized", "old_age_dependency_ratio_standardized", "mean_household_income_standardized"]);
+  if (typeof economicStrength === 'number') {
+    data.economic_strength = economicStrength;
+    data.economic_strength_comment = getComment(economicStrength);
+  }
+
+  const economicAgglomeration = calculateAverage(data, ["economic_density_standardized", "economic_specialization_standardized"]);
+  if (typeof economicAgglomeration === 'number') {
+    data.economic_agglomeration = economicAgglomeration;
+    data.economic_agglomeration_comment = getComment(economicAgglomeration);
+  }
+
+  const employment = calculateAverage(data, ["unemployment_rate_standardized", "employment_to_population_ratio_standardized", "informal_employment_standardized"]);
+  if (typeof employment === 'number') {
+    data.employment = employment;
+    data.employment_comment = getComment(employment);
+  }
+
+  const socialInfra = calculateAverage(data, ["physician_density_standardized", "number_of_public_libraries_standardized"]);
+  if (typeof socialInfra === 'number') {
+    data.social_infrastructure = socialInfra;
+    data.social_infrastructure_comment = getComment(socialInfra);
+  }
+
+  const urbanMobility = calculateAverage(data, ["use_of_public_transport_standardized", "average_daily_travel_time_standardized", "length_of_mass_transport_network_standardized", "traffic_fatalities_standardized", "affordability_of_transport_standardized"]);
+  if (typeof urbanMobility === 'number') {
+    data.urban_mobility = urbanMobility;
+    data.urban_mobility_comment = getComment(urbanMobility);
+  }
+
+  const urbanForm = calculateAverage(data, ["street_intersection_density_standardized", "street_density_standardized", "land_allocated_to_streets_standardized"]);
+  if (typeof urbanForm === 'number') {
+    data.urban_form = urbanForm;
+    data.urban_form_comment = getComment(urbanForm);
+  }
+
+  const health = calculateAverage(data, ["life_expectancy_at_birth_standardized", "under_five_mortality_rate_standardized", "vaccination_coverage_standardized", "maternal_mortality_standardized"]);
+  if (typeof health === 'number') {
+    data.health = health;
+    data.health_comment = getComment(health);
+  }
+
+  const education = calculateAverage(data, ["literacy_rate_standardized", "mean_years_of_schooling_standardized", "early_childhood_education_standardized", "net_enrollment_rate_in_higher_education_standardized"]);
+  if (typeof education === 'number') {
+    data.education = education;
+    data.education_comment = getComment(education);
+  }
+
+  const safety = calculateAverage(data, ["homicide_rate_standardized", "theft_rate_standardized"]);
+  if (typeof safety === 'number') {
+    data.safety_and_security = safety;
+    data.safety_and_security_comment = getComment(safety);
+  }
+
+  const publicSpace = calculateAverage(data, ["accessibility_to_open_public_areas_standardized", "green_area_per_capita_standardized"]);
+  if (typeof publicSpace === 'number') {
+    data.public_space = publicSpace;
+    data.public_space_comment = getComment(publicSpace);
+  }
+
+  const economicEquity = calculateAverage(data, ["gini_standardized_score", "poverty_rate_standardized_score"]);
+  if (typeof economicEquity === 'number') {
+    data.economic_equity = economicEquity;
+    data.economic_equity_comment = getComment(economicEquity);
+  }
+
+  const socialInclusion = calculateAverage(data, ["slums_households_standardized", "youth_unemployment_standardized"]);
+  if (typeof socialInclusion === 'number') {
+    data.social_inclusion = socialInclusion;
+    data.social_inclusion_comment = getComment(socialInclusion);
+  }
+
+  const genderInclusion = calculateAverage(data, ["equitable_secondary_school_enrollment_standardized", "women_in_local_government_standardized", "women_in_local_work_force_standardized"]);
+  if (typeof genderInclusion === 'number') {
+    data.gender_inclusion = genderInclusion;
+    data.gender_inclusion_comment = getComment(genderInclusion);
+  }
+
+  const urbanDiversity = calculateAverage(data, ["land_use_mix_standardized"]);
+  if (typeof urbanDiversity === 'number') {
+    data.urban_diversity = urbanDiversity;
+    data.urban_diversity_comment = getComment(urbanDiversity);
+  }
+
+  const airQuality = calculateAverage(data, ["number_of_monitoring_stations_standardized", "pm25_concentration_standardized", "co2_emissions_standardized"]);
+  if (typeof airQuality === 'number') {
+    data.air_quality = airQuality;
+    data.air_quality_comment = getComment(airQuality);
+  }
+
+  const wasteManagement = calculateAverage(data, ["solid_waste_collection_standardized", "waste_water_treatment_standardized", "solid_waste_recycling_share_standardized"]);
+  if (typeof wasteManagement === 'number') {
+    data.waste_management = wasteManagement;
+    data.waste_management_comment = getComment(wasteManagement);
+  }
+
+  const sustainableEnergy = calculateAverage(data, ["share_of_renewable_energy_standardized"]);
+  if (typeof sustainableEnergy === 'number') {
+    data.sustainable_energy = sustainableEnergy;
+    data.sustainable_energy_comment = getComment(sustainableEnergy);
+  }
+
+  const participation = calculateAverage(data, ["voter_turnout_standardized", "access_to_public_information_standardized", "civic_participation_standardized"]);
+  if (typeof participation === 'number') {
+    data.participation = participation;
+    data.participation_comment = getComment(participation);
+  }
+
+  const municipalFinancing = calculateAverage(data, ["own_revenue_collection_standardized", "days_to_start_a_business_standardized", "subnational_debt_standardized", "local_expenditure_efficiency_standardized"]);
+  if (typeof municipalFinancing === 'number') {
+    data.municipal_financing_and_institutional_capacity = municipalFinancing;
+    data.municipal_financing_and_institutional_capacity_comment = getComment(municipalFinancing);
+  }
+
+  const governance = calculateAverage(data, ["land_use_efficiency_standardized"]);
+  if (typeof governance === 'number') {
+    data.governance_of_urbanization = governance;
+    data.governance_of_urbanization_comment = getComment(governance);
+  }
+
+  const ict = calculateAverage(data, ["internet_access_standardized", "home_computer_access_standardized", "average_broadband_speed_standardized"]);
+  if (typeof ict === 'number') {
+    data.ict = ict;
+    data.ict_comment = getComment(ict);
+  }
+
+  // Calculate dimension indexes as averages of their sub-indexes
+  const productivity = calculateAverage(data, ["economic_strength", "economic_agglomeration", "employment"]);
+  if (typeof productivity === 'number') {
+    data.productivity = productivity;
+    data.productivity_comment = getComment(productivity);
+  }
+
+  const infrastructureDevelopment = calculateAverage(data, ["house_Infrastructure", "social_infrastructure", "ict", "urban_mobility", "urban_form"]);
+  if (typeof infrastructureDevelopment === 'number') {
+    data.infrastructure_development = infrastructureDevelopment;
+    data.infrastructure_development_comment = getComment(infrastructureDevelopment);
+  }
+
+  const qualityOfLife = calculateAverage(data, ["health", "education", "safety_and_security", "public_space"]);
+  if (typeof qualityOfLife === 'number') {
+    data.quality_of_life = qualityOfLife;
+    data.quality_of_life_comment = getComment(qualityOfLife);
+  }
+
+  const equitySocialInclusion = calculateAverage(data, ["economic_equity", "social_inclusion", "gender_inclusion", "urban_diversity"]);
+  if (typeof equitySocialInclusion === 'number') {
+    data.equity_social_inclusion = equitySocialInclusion;
+    data.equity_social_inclusion_comment = getComment(equitySocialInclusion);
+  }
+
+  const environmentalSustainability = calculateAverage(data, ["air_quality", "waste_management", "sustainable_energy"]);
+  if (typeof environmentalSustainability === 'number') {
+    data.environmental_sustainability = environmentalSustainability;
+    data.environmental_sustainability_comment = getComment(environmentalSustainability);
+  }
+
+  const urbanGovernanceLegislation = calculateAverage(data, ["participation", "municipal_financing_and_institutional_capacity", "governance_of_urbanization"]);
+  if (typeof urbanGovernanceLegislation === 'number') {
+    data.urban_governance_legislation = urbanGovernanceLegislation;
+    data.urban_governance_legislation_comment = getComment(urbanGovernanceLegislation);
+  }
+
+  // Calculate CPI from the 6 dimensions (updated to match schema)
+  const cpiFields = [
+    "productivity",
+    "infrastructure_development",
+    "quality_of_life",
+    "equity_social_inclusion",
+    "environmental_sustainability",
+    "urban_governance_legislation"
+  ];
+
+  const cpi = calculateAverage(data, cpiFields);
+  if (typeof cpi === 'number') {
+    data.cpi = cpi;
+    data.cpi_comment = getComment(cpi);
+  }
+};
+
 export default function ContentTable() {
-  type CalculationData = {
-    [key: string]: number | string;
-  };
+  // CalculationData type moved to module scope
 
-  const [calculationData, setCalculationData] = useState<CalculationData | null>(null);
+  const [calculationData, setCalculationData] = useState<Record<string, number | string | undefined> | null>(null);
   const { isLoaded, userId } = useAuth();
-
-  const calculateHouseInfrastructureAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "improved_shelter",
-      "improved_water",
-      "improved_sanitation",
-      "sufficient_living",
-      "population",
-      "electricity"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the house_Infrastructure value in calculationData
-    if (data) {
-      data.house_Infrastructure = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateEconomicStrengthAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "city_product_per_capita",
-      "old_age_dependency_ratio",
-      "mean_household_income"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the economic_strength value in calculationData
-    if (data) {
-      data.economic_strength = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateEconomicAgglomerationAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "economic_density",
-      "economic_specialization"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the economic_agglomeration value in calculationData
-    if (data) {
-      data.economic_agglomeration = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateEmploymentAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "unemployment_rate",
-      "employment_to_population_ratio",
-      "informal_employment"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the employment value in calculationData
-    if (data) {
-      data.employment = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateSocialInfrastructureAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "physician_density",
-      "number_of_public_libraries"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the social_infrastructure value in calculationData
-    if (data) {
-      data.social_infrastructure = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateUrbanMobilityAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "use_of_public_transport",
-      "average_daily_travel_time",
-      "length_of_mass_transport_network",
-      "traffic_fatalities",
-      "affordability_of_transport"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the urban_mobility value in calculationData
-    if (data) {
-      data.urban_mobility = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateUrbanFormAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "street_intersection_density",
-      "street_density",
-      "land_allocated_to_streets"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the urban_form value in calculationData
-    if (data) {
-      data.urban_form = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateHealthAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "life_expectancy_at_birth",
-      "under_five_mortality_rate",
-      "vaccination_coverage",
-      "maternal_mortality"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the health value in calculationData
-    if (data) {
-      data.health = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateEducationAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "literacy_rate",
-      "mean_years_of_schooling",
-      "early_childhood_education",
-      "net_enrollment_rate_in_higher_education"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the education value in calculationData
-    if (data) {
-      data.education = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateSafetyAndSecurityAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "homicide_rate",
-      "theft_rate"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the safety_and_security value in calculationData
-    if (data) {
-      data.safety_and_security = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculatePublicSpaceAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "accessibility_to_open_public_areas",
-      "green_area_per_capita"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the public_space value in calculationData
-    if (data) {
-      data.public_space = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateEconomicEquityAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "gini_coefficient",
-      "poverty_rate"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the economic_equity value in calculationData
-    if (data) {
-      data.economic_equity = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateSocialInclusionAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "slums_households",
-      "youth_unemployment"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the social_inclusion value in calculationData
-    if (data) {
-      data.social_inclusion = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateGenderInclusionAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "equitable_secondary_school_enrollment",
-      "women_in_local_government",
-      "women_in_local_work_force"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the gender_inclusion value in calculationData
-    if (data) {
-      data.gender_inclusion = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateUrbanDiversityAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "land_use_mix"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the urban_diversity value in calculationData
-    if (data) {
-      data.urban_diversity = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateAirQualityAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "number_of_monitoring_stations",
-      "pm25_concentration",
-      "co2_emissions"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the air_quality value in calculationData
-    if (data) {
-      data.air_quality = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateWasteManagementAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "solid_waste_collection",
-      "waste_water_treatment",
-      "solid_waste_recycling_share"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the waste_management value in calculationData
-    if (data) {
-      data.waste_management = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateSustainableEnergyAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "share_of_renewable_energy"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the sustainable_energy value in calculationData
-    if (data) {
-      data.sustainable_energy = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateParticipationAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "voter_turnout",
-      "access_to_public_information",
-      "civic_participation"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the participation value in calculationData
-    if (data) {
-      data.participation = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateMunicipalFinancingAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "own_revenue_collection",
-      "days_to_start_a_business",
-      "subnational_debt",
-      "local_expenditure_efficiency"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the municipal_financing_and_institutional_capacity value in calculationData
-    if (data) {
-      data.municipal_financing_and_institutional_capacity = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateGovernanceAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "land_use_efficiency"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the governance_of_urbanization value in calculationData
-    if (data) {
-      data.governance_of_urbanization = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateICTAverage = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "internet_access",
-      "home_computer_access",
-      "average_broadband_speed"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the ict value in calculationData
-    if (data) {
-      data.ict = average;
-    }
-    
-    return average;
-  }, []);
-
-  const calculateCPI = useCallback((data: CalculationData | null) => {
-    if (!data) return '-';
-    
-    const fields = [
-      "house_Infrastructure",
-      "economic_agglomeration",
-      "economic_strength",
-      "employment",
-      "social_infrastructure",
-      "urban_mobility",
-      "urban_form",
-      "health",
-      "education",
-      "safety_and_security",
-      "public_space",
-      "economic_equity", 
-      "social_inclusion",
-      "gender_inclusion",
-      "urban_diversity",
-      "air_quality",
-      "waste_management",
-      "sustainable_energy",
-      "participation",
-      "municipal_financing_and_institutional_capacity",
-      "governance_of_urbanization",
-      "ict"
-    ];
-    
-    let sum = 0;
-    let count = 0;
-    
-    fields.forEach(field => {
-      const value = data[field];
-      if (typeof value === 'number' && !isNaN(value)) {
-        sum += value;
-        count++;
-      }
-    });
-    
-    if (count === 0) return '-';
-    const average = Number((sum / count).toFixed(2));
-    
-    // Update the CPI value in calculationData
-    if (data) {
-      data.cpi = average;
-      data.cpi_comment = getComment(average);
-    }
-    
-    return average;
-  }, []);
 
   useEffect(() => {
     const fetchCalculationHistory = async () => {
@@ -977,79 +453,8 @@ export default function ContentTable() {
         if (response.ok) {
           const data = await response.json();
           if (data[0]) {
-            // Calculate all averages
-            const houseInfraAvg = calculateHouseInfrastructureAverage(data[0]);
-            const economicStrengthAvg = calculateEconomicStrengthAverage(data[0]);
-            const economicAgglomerationAvg = calculateEconomicAgglomerationAverage(data[0]);
-            const employmentAvg = calculateEmploymentAverage(data[0]);
-            const socialInfrastructureAvg = calculateSocialInfrastructureAverage(data[0]);
-            const urbanMobilityAvg = calculateUrbanMobilityAverage(data[0]);
-            const urbanFormAvg = calculateUrbanFormAverage(data[0]);
-            const healthAvg = calculateHealthAverage(data[0]);
-            const educationAvg = calculateEducationAverage(data[0]);
-            const safetyAndSecurityAvg = calculateSafetyAndSecurityAverage(data[0]);
-            const publicSpaceAvg = calculatePublicSpaceAverage(data[0]);
-            const economicEquityAvg = calculateEconomicEquityAverage(data[0]);
-            const socialInclusionAvg = calculateSocialInclusionAverage(data[0]);
-            const genderInclusionAvg = calculateGenderInclusionAverage(data[0]);
-            const urbanDiversityAvg = calculateUrbanDiversityAverage(data[0]);
-            const airQualityAvg = calculateAirQualityAverage(data[0]);
-            const wasteManagementAvg = calculateWasteManagementAverage(data[0]);
-            const sustainableEnergyAvg = calculateSustainableEnergyAverage(data[0]);
-            const participationAvg = calculateParticipationAverage(data[0]);
-            const municipalFinancingAvg = calculateMunicipalFinancingAverage(data[0]);
-            const governanceAvg = calculateGovernanceAverage(data[0]);
-            const ictAvg = calculateICTAverage(data[0]);
-            const cpiAvg = calculateCPI(data[0]);
-            
-            data[0].house_Infrastructure = houseInfraAvg;
-            data[0].economic_strength = economicStrengthAvg;
-            data[0].economic_agglomeration = economicAgglomerationAvg;
-            data[0].employment = employmentAvg;
-            data[0].social_infrastructure = socialInfrastructureAvg;
-            data[0].urban_mobility = urbanMobilityAvg;
-            data[0].urban_form = urbanFormAvg;
-            data[0].health = healthAvg;
-            data[0].education = educationAvg;
-            data[0].safety_and_security = safetyAndSecurityAvg;
-            data[0].public_space = publicSpaceAvg;
-            data[0].economic_equity = economicEquityAvg;
-            data[0].social_inclusion = socialInclusionAvg;
-            data[0].gender_inclusion = genderInclusionAvg;
-            data[0].urban_diversity = urbanDiversityAvg;
-            data[0].air_quality = airQualityAvg;
-            data[0].waste_management = wasteManagementAvg;
-            data[0].sustainable_energy = sustainableEnergyAvg;
-            data[0].participation = participationAvg;
-            data[0].municipal_financing_and_institutional_capacity = municipalFinancingAvg;
-            data[0].governance_of_urbanization = governanceAvg;
-            data[0].ict = ictAvg;
-            data[0].cpi = cpiAvg;
-
-            // Apply comments based on scores
-            data[0].house_Infrastructure_comment = getComment(houseInfraAvg);
-            data[0].economic_strength_comment = getComment(economicStrengthAvg);
-            data[0].economic_agglomeration_comment = getComment(economicAgglomerationAvg);
-            data[0].employment_comment = getComment(employmentAvg);
-            data[0].social_infrastructure_comment = getComment(socialInfrastructureAvg);
-            data[0].urban_mobility_comment = getComment(urbanMobilityAvg);
-            data[0].urban_form_comment = getComment(urbanFormAvg);
-            data[0].health_comment = getComment(healthAvg);
-            data[0].education_comment = getComment(educationAvg);
-            data[0].safety_and_security_comment = getComment(safetyAndSecurityAvg);
-            data[0].public_space_comment = getComment(publicSpaceAvg);
-            data[0].economic_equity_comment = getComment(economicEquityAvg);
-            data[0].social_inclusion_comment = getComment(socialInclusionAvg);
-            data[0].gender_inclusion_comment = getComment(genderInclusionAvg);
-            data[0].urban_diversity_comment = getComment(urbanDiversityAvg);
-            data[0].air_quality_comment = getComment(airQualityAvg);
-            data[0].waste_management_comment = getComment(wasteManagementAvg);
-            data[0].sustainable_energy_comment = getComment(sustainableEnergyAvg);
-            data[0].participation_comment = getComment(participationAvg);
-            data[0].municipal_financing_and_institutional_capacity_comment = getComment(municipalFinancingAvg);
-            data[0].governance_of_urbanization_comment = getComment(governanceAvg);
-            data[0].ict_comment = getComment(ictAvg);
-            data[0].cpi_comment = getComment(cpiAvg);
+            // Calculate all indexes
+            calculateAllIndexes(data[0]);
             
             setCalculationData(data[0]);
 
@@ -1076,40 +481,22 @@ export default function ContentTable() {
   }, [
     isLoaded, 
     userId,
-    calculateHouseInfrastructureAverage,
-    calculateEconomicStrengthAverage,
-    calculateEconomicAgglomerationAverage,
-    calculateEmploymentAverage,
-    calculateSocialInfrastructureAverage,
-    calculateUrbanMobilityAverage,
-    calculateUrbanFormAverage,
-    calculateHealthAverage,
-    calculateEducationAverage,
-    calculateSafetyAndSecurityAverage,
-    calculatePublicSpaceAverage,
-    calculateEconomicEquityAverage,
-    calculateSocialInclusionAverage,
-    calculateGenderInclusionAverage,
-    calculateUrbanDiversityAverage,
-    calculateAirQualityAverage,
-    calculateWasteManagementAverage,
-    calculateSustainableEnergyAverage,
-    calculateParticipationAverage,
-    calculateMunicipalFinancingAverage,
-    calculateGovernanceAverage,
-    calculateICTAverage,
-    calculateCPI
+    calculateAllIndexes
   ]);
 
   const formatValue = (value: string | number | null | undefined) => {
-      if (value === null || value === undefined) return '-';
-      const numValue = typeof value === 'string' ? parseFloat(value) : value;
-      return typeof numValue === 'number' && !isNaN(numValue) ? numValue.toFixed(2) : '-';
-    };
+    if (value === null || value === undefined) return '-';
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    return typeof numValue === 'number' && !isNaN(numValue) ? numValue.toFixed(2) : '-';
+  };
+
+  const formatPercentageDisplay = (value: string | number | null | undefined) => {
+    return formatValue(value) + '%';
+  };
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    const tableColumn = ["Category", "Fields", "Description", "Value", "Evaluation"];
+    const tableColumn = ["Category", "Fields", "Description", "Value", "Standardized", "Evaluation"];
     const tableRows: (string | number | null)[][] = [];
 
     // Add circular logo and title to first page only
@@ -1122,11 +509,20 @@ export default function ContentTable() {
 
     categories.forEach(category => {
       category.fields.forEach(field => {
+        let standardizedKey = `${field.name}_standardized`;
+        if (field.name === 'poverty_rate') {
+          standardizedKey = 'poverty_rate_standardized_score';
+        }
+        if (field.name === 'gini_coefficient') {
+          standardizedKey = 'gini_standardized_score';
+        }
+        const standardizedValue = field.name === 'cpi' ? '-' : (calculationData ? formatPercentageDisplay(calculationData[standardizedKey]) : '-');
         const rowData = [
           category.name,
           field.name,
           field.description,
           calculationData ? formatValue(calculationData[field.name]) : '-',
+          standardizedValue,
           calculationData ? calculationData[`${field.name}_comment`] || '-' : '-'
         ];
         tableRows.push(rowData);
@@ -1157,13 +553,17 @@ export default function ContentTable() {
 
   const exportToExcel = () => {
     const worksheetData = categories.map(category => 
-      category.fields.map(field => ({
-        Category: category.name,
-        Fields: field.name,
-        Description: field.description,
-        Value: calculationData ? formatValue(calculationData[field.name]) : '-',
-        Evaluation: calculationData ? calculationData[`${field.name}_comment`] || '-' : '-'
-      }))
+      category.fields.map(field => {
+        const standardizedValue = field.name === 'cpi' ? '-' : (calculationData ? formatPercentageDisplay(calculationData[`${field.name}_standardized`]) : '-');
+        return {
+          Category: category.name,
+          Fields: field.name,
+          Description: field.description,
+          Value: calculationData ? formatValue(calculationData[field.name]) : '-',
+          Standardized: standardizedValue,
+          Evaluation: calculationData ? calculationData[`${field.name}_comment`] || '-' : '-'
+        };
+      })
     ).flat();
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
@@ -1242,6 +642,9 @@ export default function ContentTable() {
                 Value
               </th>
               <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                Standardized
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
                 Evaluation
               </th>
             </tr>
@@ -1251,6 +654,14 @@ export default function ContentTable() {
               <React.Fragment key={category.name}>
                 {category.fields.map((field, fieldIndex) => {
                   const isCPI = category.name === "Overall CPI";
+                  let standardizedKey = `${field.name}_standardized`;
+                  if (field.name === 'poverty_rate') {
+                    standardizedKey = 'poverty_rate_standardized_score';
+                  }
+                  if (field.name === 'gini_coefficient') {
+                    standardizedKey = 'gini_standardized_score';
+                  }
+                  const standardizedValue = field.name === 'cpi' ? '-' : (calculationData ? formatPercentageDisplay(calculationData[standardizedKey]) : '-');
                   return (
                     <tr 
                       key={`${category.name}-${field.name}`}
@@ -1294,6 +705,13 @@ export default function ContentTable() {
                           : "text-gray-500"
                       }`}>
                         {calculationData ? formatValue(calculationData[field.name]) : '-'}
+                      </td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${
+                        isCPI
+                          ? "text-blue-800 font-bold text-lg bg-blue-50 rounded-lg shadow-inner"
+                          : "text-gray-500"
+                      }`}>
+                        {standardizedValue}
                       </td>
                       <td className={`px-6 py-4 whitespace-nowrap text-sm ${
                         isCPI

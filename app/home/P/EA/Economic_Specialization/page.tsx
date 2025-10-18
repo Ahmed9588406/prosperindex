@@ -2,7 +2,22 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from '@clerk/nextjs';
 import { useCity } from "../../../../context/CityContext";
-import toast from "react-hot-toast"; // Import the toast function
+import toast from "react-hot-toast";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+
+const COLORS = ["#6ee7b7", "#e6e6e6"];
 
 const HerfindahlHirschmanIndex: React.FC = () => {
   const { user, isLoaded } = useUser();
@@ -19,6 +34,13 @@ const HerfindahlHirschmanIndex: React.FC = () => {
   const [benchmark, setBenchmark] = useState<number>(0); // X*
   const [decision, setDecision] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
+
+  // New states for raw economic specialization and standardized score (for display and charts)
+  const [actualEconomicSpecialization, setActualEconomicSpecialization] = useState<string | null>(null);
+  const [standardizedScore, setStandardizedScore] = useState<string | null>(null);
+
+  // New state to toggle the summary/help panel
+  const [showSummary, setShowSummary] = useState(false);
 
   // Add getComment function for evaluation
   const getComment = (score: number) => {
@@ -104,11 +126,16 @@ const HerfindahlHirschmanIndex: React.FC = () => {
     const evaluationComment = getComment(standardizedH);
     setDecision(evaluationComment);
 
+    // Set new states for display and charts
+    setActualEconomicSpecialization(h.toFixed(2));
+    setStandardizedScore(standardizedH.toFixed(2));
+
     // Prepare data to send - now includes city and country
     const postData = {
       city,
       country,
       economic_specialization: h,
+      economic_specialization_standardized: parseFloat(standardizedH.toFixed(2)),
       economic_specialization_comment: evaluationComment,
       userId: user.id,
     };
@@ -139,9 +166,16 @@ const HerfindahlHirschmanIndex: React.FC = () => {
     }
   };
 
+  // Prepare pie data (standardized value + remainder)
+  const standardizedValue = standardizedScore ? parseFloat(standardizedScore) : 0;
+  const pieData = [
+    { name: 'Standardized', value: Number(standardizedValue.toFixed(2)) },
+    { name: 'Remaining', value: Number((100 - standardizedValue).toFixed(2)) }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
+      <div className="max-w-3xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-green-600 p-6 text-white">
           <h2 className="text-3xl font-bold flex items-center">
             📊 Economic Specialization
@@ -150,6 +184,46 @@ const HerfindahlHirschmanIndex: React.FC = () => {
         </div>
         
         <div className="p-8">
+          {/* Summary / About this index section (collapsible) */}
+          <div className="mb-4">
+            <button
+              onClick={() => setShowSummary(!showSummary)}
+              className="text-left w-full p-3 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition flex justify-between items-center"
+              aria-expanded={showSummary}
+              aria-controls="summary-panel"
+            >
+              <span className="font-semibold">What is this index?</span>
+              <span className="text-sm text-gray-600">{showSummary ? 'Hide' : 'Show'}</span>
+            </button>
+
+            {showSummary && (
+              <div id="summary-panel" className="mt-3 p-4 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-700">
+                <p className="mb-2">
+                  Economic Specialization measures the concentration of economic activity across industries using the Herfindahl-Hirschman Index (HHI).
+                  This tool calculates the raw HHI from the inputs you provide and converts it into a standardized 0–100 score using predefined benchmarks.
+                </p>
+                <p className="font-mono mb-2">HHI (raw) = Sum of (share_i)^2 for each industry</p>
+                <p className="mb-2">
+                  Standardized score maps HHI to 100..0 with benchmark X* so balanced specialization → higher score.
+                </p>
+
+                <h4 className="font-semibold mt-2 mb-1">What to enter</h4>
+                <ul className="list-disc list-inside mb-2">
+                  <li>Enter the number of industries (N).</li>
+                  <li>Enter industry shares as comma-separated decimals (e.g., 0.2,0.3,0.5) that sum to 1.</li>
+                  <li>Both fields are required for calculation.</li>
+                </ul>
+
+                <h4 className="font-semibold mt-2 mb-1">Tips for meaningful results</h4>
+                <ul className="list-disc list-inside">
+                  <li>Ensure shares are accurate and sum to 1 for the economy.</li>
+                  <li>For comparisons, use consistent industry classifications.</li>
+                  <li>You can save the result to your calculation history (requires sign in and selected city).</li>
+                </ul>
+              </div>
+            )}
+          </div>
+
           {/* Display selected city and country */}
           {city && country && (
             <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
@@ -217,16 +291,72 @@ const HerfindahlHirschmanIndex: React.FC = () => {
             )}
           </button>
           
-          {decision && (
+          {decision && actualEconomicSpecialization && standardizedScore && (
             <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
-              <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
-                decision === "VERY SOLID"
-                  ? "bg-gradient-to-r from-green-400 to-green-600"
-                  : decision === "SOLID"
-                  ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
-                  : "bg-gradient-to-r from-red-400 to-red-600"
-              }`}>
-                {decision}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-lg">Actual Economic Specialization</h3>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {actualEconomicSpecialization}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg">Standardized Specialization Score</h3>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {standardizedScore}%
+                    </p>
+                  </div>
+                </div>
+
+                <div className={`p-4 text-center font-bold text-white rounded-lg transition ${
+                  decision === "VERY SOLID"
+                    ? "bg-gradient-to-r from-green-400 to-green-600"
+                    : decision === "SOLID"
+                    ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                    : "bg-gradient-to-r from-red-400 to-red-600"
+                }`}>
+                  {decision}
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="w-full h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={[
+                        { name: 'Standardized', value: parseFloat(standardizedScore) }
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 100]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="value" fill={COLORS[0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="w-full h-64 flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={2}
+                          label={(entry) => `${entry.name}: ${entry.value}%`}
+                        >
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
             </div>
           )}

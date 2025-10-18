@@ -24,212 +24,275 @@ model CalculationHistory {
   
   // House Infrastructure
   improved_shelter    Float?
+  improved_shelter_standardized Float?
   improved_shelter_comment String?
   improved_water      Float?
+  improved_water_standardized Float?
   improved_water_comment String?
   improved_sanitation Float?
+  improved_sanitation_standardized Float?
   improved_sanitation_comment String?
   sufficient_living   Float?
+  sufficient_living_standardized Float?
   sufficient_living_comment String?
   population         Float?
+  population_standardized Float?
   population_comment String?
   electricity        Float?
+  electricity_standardized Float?
   electricity_comment String?
   house_Infrastructure Float?
+  
   house_Infrastructure_comment String?
 
   // Economic Strength
   city_product_per_capita Float?
+  city_product_per_capita_standardized Float?
   city_product_per_capita_comment String?
   old_age_dependency_ratio Float?
+  old_age_dependency_ratio_standardized Float?
   old_age_dependency_ratio_comment String?
   mean_household_income   Float?
+  mean_household_income_standardized Float?
   mean_household_income_comment String?
   economic_strength       Float?
   economic_strength_comment String?
 
   // Economic Agglomeration
   economic_density        Float?
+  economic_density_standardized Float?
   economic_density_comment String?
   economic_specialization Float?
+  economic_specialization_standardized Float?
   economic_specialization_comment String?
   economic_agglomeration  Float?
   economic_agglomeration_comment String?
 
   // Employment
   unemployment_rate       Float?
+  unemployment_rate_standardized Float?
   unemployment_rate_comment String?
   employment_to_population_ratio Float?
+  employment_to_population_ratio_standardized Float?
   employment_to_population_ratio_comment String?
   informal_employment     Float?
+  informal_employment_standardized Float?
   informal_employment_comment String?
   employment              Float?
   employment_comment String?
 
   // Social Infrastructure
   physician_density       Float?
+  physician_density_standardized Float?
   physician_density_comment String?
-  number_of_public_libraries Int?
+  number_of_public_libraries Float? // Changed from Int to Float for consistency with density
+  number_of_public_libraries_standardized Float?
   number_of_public_libraries_comment String?
   social_infrastructure   Float?
   social_infrastructure_comment String?
 
   // Urban Mobility
   use_of_public_transport Float?
+  use_of_public_transport_standardized Float?
   use_of_public_transport_comment String?
   average_daily_travel_time Float?
+  average_daily_travel_time_standardized Float?
   average_daily_travel_time_comment String?
   length_of_mass_transport_network Float?
+  length_of_mass_transport_network_standardized Float?
   length_of_mass_transport_network_comment String?
   traffic_fatalities      Float?
+  traffic_fatalities_standardized Float?
   traffic_fatalities_comment String?
   affordability_of_transport Float?
+  affordability_of_transport_standardized Float?
   affordability_of_transport_comment String?
   urban_mobility          Float?
   urban_mobility_comment String?
 
   // Urban Form
   street_intersection_density Float?
+  street_intersection_density_standardized Float?
   street_intersection_density_comment String?
   street_density          Float?
+  street_density_standardized Float?
   street_density_comment String?
   land_allocated_to_streets Float?
+  land_allocated_to_streets_standardized Float?
   land_allocated_to_streets_comment String?
   urban_form              Float?
   urban_form_comment String?
 
   // Health
   life_expectancy_at_birth Float?
+  life_expectancy_at_birth_standardized Float?
   life_expectancy_at_birth_comment String?
   under_five_mortality_rate Float?
+  under_five_mortality_rate_standardized Float?
   under_five_mortality_rate_comment String?
   vaccination_coverage     Float?
+  vaccination_coverage_standardized Float?
   vaccination_coverage_comment String?
   maternal_mortality       Float?
+  maternal_mortality_standardized Float?
   maternal_mortality_comment String?
   health                   Float?
   health_comment String?
 
   // Education
   literacy_rate           Float?
+  literacy_rate_standardized Float?
   literacy_rate_comment String?
   mean_years_of_schooling Float?
+  mean_years_of_schooling_standardized Float?
   mean_years_of_schooling_comment String?
   early_childhood_education Float?
+  early_childhood_education_standardized Float?
   early_childhood_education_comment String?
   net_enrollment_rate_in_higher_education Float?
+  net_enrollment_rate_in_higher_education_standardized Float?
   net_enrollment_rate_in_higher_education_comment String?
   education               Float?
   education_comment String?
 
   // Safety and Security
   homicide_rate           Float?
+  homicide_rate_standardized Float?
   homicide_rate_comment String?
   theft_rate              Float?
+  theft_rate_standardized Float?
   theft_rate_comment String?
   safety_and_security     Float?
   safety_and_security_comment String?
 
   // Public Space
   accessibility_to_open_public_areas Float?
+  accessibility_to_open_public_areas_standardized Float?
   accessibility_to_open_public_areas_comment String?
   green_area_per_capita   Float?
+  green_area_per_capita_standardized Float?
   green_area_per_capita_comment String?
   public_space            Float?
   public_space_comment String?
 
   // Economic Equity
   gini_coefficient        Float?
+  gini_standardized_score Float?
   gini_coefficient_comment String?
   poverty_rate            Float?
+  poverty_rate_standardized_score Float?
   poverty_rate_comment String?
   economic_equity         Float?
   economic_equity_comment String?
 
   // Social Inclusion
   slums_households        Float?
+  slums_households_standardized Float?
   slums_households_comment String?
   youth_unemployment      Float?
+  youth_unemployment_standardized Float?
   youth_unemployment_comment String?
   social_inclusion        Float?
   social_inclusion_comment String?
 
   // Gender Inclusion
   equitable_secondary_school_enrollment Float?
+  equitable_secondary_school_enrollment_standardized Float?
   equitable_secondary_school_enrollment_comment String?
   women_in_local_government Float?
+  women_in_local_government_standardized Float?
   women_in_local_government_comment String?
   women_in_local_work_force Float?
+  women_in_local_work_force_standardized Float?
   women_in_local_work_force_comment String?
   gender_inclusion        Float?
   gender_inclusion_comment String?
 
   // Urban Diversity
   land_use_mix            Float?
+  land_use_mix_standardized Float?
   land_use_mix_comment String?
   urban_diversity         Float?
   urban_diversity_comment String?
 
   // Air Quality
   number_of_monitoring_stations Float?
+  number_of_monitoring_stations_standardized Float?
   number_of_monitoring_stations_comment String?
   pm25_concentration      Float?
+  pm25_concentration_standardized Float?
   pm25_concentration_comment String?
   co2_emissions           Float?
+  co2_emissions_standardized Float?
   co2_emissions_comment String?
   air_quality             Float?
   air_quality_comment String?
 
   // Waste Management
   solid_waste_collection  Float?
+  solid_waste_collection_standardized Float?
   solid_waste_collection_comment String?
   waste_water_treatment   Float?
+  waste_water_treatment_standardized Float?
   waste_water_treatment_comment String?
   solid_waste_recycling_share Float?
+  solid_waste_recycling_share_standardized Float?
   solid_waste_recycling_share_comment String?
   waste_management        Float?
   waste_management_comment String?
 
   // Sustainable Energy
   share_of_renewable_energy Float?
+  share_of_renewable_energy_standardized Float?
   share_of_renewable_energy_comment String?
   sustainable_energy      Float?
   sustainable_energy_comment String?
 
   // Participation
   voter_turnout           Float?
+  voter_turnout_standardized Float?
   voter_turnout_comment String?
   access_to_public_information Float?
+  access_to_public_information_standardized Float?
   access_to_public_information_comment String?
   civic_participation     Float?
+  civic_participation_standardized Float?
   civic_participation_comment String?
   participation           Float?
   participation_comment String?
 
   // Municipal Financing
   own_revenue_collection  Float?
+  own_revenue_collection_standardized Float?
   own_revenue_collection_comment String?
   days_to_start_a_business Float?
+  days_to_start_a_business_standardized Float?
   days_to_start_a_business_comment String?
   subnational_debt        Float?
+  subnational_debt_standardized Float?
   subnational_debt_comment String?
   local_expenditure_efficiency Float?
+  local_expenditure_efficiency_standardized Float?
   local_expenditure_efficiency_comment String?
   municipal_financing_and_institutional_capacity Float?
   municipal_financing_and_institutional_capacity_comment String?
 
   // Governance
   land_use_efficiency     Float?
+  land_use_efficiency_standardized Float?
   land_use_efficiency_comment String?
   governance_of_urbanization Float?
   governance_of_urbanization_comment String?
 
   // Information and Communications Technology
   internet_access        Float?
+  internet_access_standardized Float?
   internet_access_comment String?
   home_computer_access   Float?
+  home_computer_access_standardized Float?
   home_computer_access_comment String?
   average_broadband_speed Float?
+  average_broadband_speed_standardized Float?
   average_broadband_speed_comment String?
   ict                    Float?
   ict_comment String?
