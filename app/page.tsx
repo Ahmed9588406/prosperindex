@@ -92,7 +92,7 @@ export default function WelcomePage() {
             </p>
 
             {/* CTA Button */}
-            <Link href="/home" className="w-full sm:w-auto group">
+            <Link href="/cities" className="w-full sm:w-auto group">
               <Button 
                 size="lg"
                 className="relative w-full sm:w-auto px-12 py-7 text-lg font-semibold

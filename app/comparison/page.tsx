@@ -16,6 +16,65 @@ interface CityData {
   updatedAt?: string;
   // All metrics from schema
   [key: string]: unknown;
+  // Add new fields for displays and comments
+  house_infrastructure_display?: string;
+  house_infrastructure_comment?: string;
+  economic_strength_display?: string;
+  economic_strength_comment?: string;
+  economic_agglomeration_display?: string;
+  economic_agglomeration_comment?: string;
+  employment_display?: string;
+  employment_comment?: string;
+  social_infrastructure_display?: string;
+  social_infrastructure_comment?: string;
+  urban_mobility_display?: string;
+  urban_mobility_comment?: string;
+  urban_form_display?: string;
+  urban_form_comment?: string;
+  health_display?: string;
+  health_comment?: string;
+  education_display?: string;
+  education_comment?: string;
+  safety_and_security_display?: string;
+  safety_and_security_comment?: string;
+  public_space_display?: string;
+  public_space_comment?: string;
+  economic_equity_display?: string;
+  economic_equity_comment?: string;
+  social_inclusion_display?: string;
+  social_inclusion_comment?: string;
+  gender_inclusion_display?: string;
+  gender_inclusion_comment?: string;
+  urban_diversity_display?: string;
+  urban_diversity_comment?: string;
+  air_quality_display?: string;
+  air_quality_comment?: string;
+  waste_management_display?: string;
+  waste_management_comment?: string;
+  sustainable_energy_display?: string;
+  sustainable_energy_comment?: string;
+  participation_display?: string;
+  participation_comment?: string;
+  municipal_financing_and_institutional_capacity_display?: string;
+  municipal_financing_and_institutional_capacity_comment?: string;
+  governance_of_urbanization_display?: string;
+  governance_of_urbanization_comment?: string;
+  ict_display?: string;
+  ict_comment?: string;
+  productivity_display?: string;
+  productivity_comment?: string;
+  infrastructure_development_display?: string;
+  infrastructure_development_comment?: string;
+  quality_of_life_display?: string;
+  quality_of_life_comment?: string;
+  equity_social_inclusion_display?: string;
+  equity_social_inclusion_comment?: string;
+  environmental_sustainability_display?: string;
+  environmental_sustainability_comment?: string;
+  urban_governance_legislation_display?: string;
+  urban_governance_legislation_comment?: string;
+  cpi_display?: string;
+  cpi_comment?: string;
 }
 
 interface SavedComparison {
@@ -34,6 +93,8 @@ interface MetricCategory {
     label: string;
   }>;
 }
+
+type CalculationData = Record<string, unknown>;
 
 // Content component that uses useSearchParams
 function ComparisonContent() {
@@ -57,15 +118,15 @@ function ComparisonContent() {
     },
     {
       title: 'House Infrastructure',
-      mainIndex: 'house_Infrastructure',
+      mainIndex: 'house_Infrastructure',  // Updated to match the data key set in calculateAllIndexes
       color: 'bg-blue-600',
       subMetrics: [
-        { key: 'improved_shelter', label: 'Improved Shelter' },
-        { key: 'improved_water', label: 'Improved Water' },
-        { key: 'improved_sanitation', label: 'Improved Sanitation' },
-        { key: 'sufficient_living', label: 'Sufficient Living Space' },
-        { key: 'population', label: 'Population' },
-        { key: 'electricity', label: 'Electricity Access' }
+        { key: 'improved_shelter_standardized', label: 'Improved Shelter' },
+        { key: 'improved_water_standardized', label: 'Improved Water' },
+        { key: 'improved_sanitation_standardized', label: 'Improved Sanitation' },
+        { key: 'sufficient_living_standardized', label: 'Sufficient Living Space' },
+        { key: 'population_standardized', label: 'Population' },
+        { key: 'electricity_standardized', label: 'Electricity Access' }
       ]
     },
     {
@@ -73,9 +134,9 @@ function ComparisonContent() {
       mainIndex: 'economic_strength',
       color: 'bg-green-600',
       subMetrics: [
-        { key: 'city_product_per_capita', label: 'City Product Per Capita' },
-        { key: 'old_age_dependency_ratio', label: 'Old Age Dependency Ratio' },
-        { key: 'mean_household_income', label: 'Mean Household Income' }
+        { key: 'city_product_per_capita_standardized', label: 'City Product Per Capita' },
+        { key: 'old_age_dependency_ratio_standardized', label: 'Old Age Dependency Ratio' },
+        { key: 'mean_household_income_standardized', label: 'Mean Household Income' }
       ]
     },
     {
@@ -83,8 +144,8 @@ function ComparisonContent() {
       mainIndex: 'economic_agglomeration',
       color: 'bg-teal-600',
       subMetrics: [
-        { key: 'economic_density', label: 'Economic Density' },
-        { key: 'economic_specialization', label: 'Economic Specialization' }
+        { key: 'economic_density_standardized', label: 'Economic Density' },
+        { key: 'economic_specialization_standardized', label: 'Economic Specialization' }
       ]
     },
     {
@@ -92,9 +153,9 @@ function ComparisonContent() {
       mainIndex: 'employment',
       color: 'bg-yellow-600',
       subMetrics: [
-        { key: 'unemployment_rate', label: 'Unemployment Rate' },
-        { key: 'employment_to_population_ratio', label: 'Employment to Population Ratio' },
-        { key: 'informal_employment', label: 'Informal Employment' }
+        { key: 'unemployment_rate_standardized', label: 'Unemployment Rate' },
+        { key: 'employment_to_population_ratio_standardized', label: 'Employment to Population Ratio' },
+        { key: 'informal_employment_standardized', label: 'Informal Employment' }
       ]
     },
     {
@@ -102,8 +163,8 @@ function ComparisonContent() {
       mainIndex: 'social_infrastructure',
       color: 'bg-cyan-600',
       subMetrics: [
-        { key: 'physician_density', label: 'Physician Density' },
-        { key: 'number_of_public_libraries', label: 'Number of Public Libraries' }
+        { key: 'physician_density_standardized', label: 'Physician Density' },
+        { key: 'number_of_public_libraries_standardized', label: 'Number of Public Libraries' }
       ]
     },
     {
@@ -111,11 +172,11 @@ function ComparisonContent() {
       mainIndex: 'urban_mobility',
       color: 'bg-indigo-600',
       subMetrics: [
-        { key: 'use_of_public_transport', label: 'Use of Public Transport' },
-        { key: 'average_daily_travel_time', label: 'Average Daily Travel Time' },
-        { key: 'length_of_mass_transport_network', label: 'Mass Transport Network Length' },
-        { key: 'traffic_fatalities', label: 'Traffic Fatalities' },
-        { key: 'affordability_of_transport', label: 'Transport Affordability' }
+        { key: 'use_of_public_transport_standardized', label: 'Use of Public Transport' },
+        { key: 'average_daily_travel_time_standardized', label: 'Average Daily Travel Time' },
+        { key: 'length_of_mass_transport_network_standardized', label: 'Mass Transport Network Length' },
+        { key: 'traffic_fatalities_standardized', label: 'Traffic Fatalities' },
+        { key: 'affordability_of_transport_standardized', label: 'Transport Affordability' }
       ]
     },
     {
@@ -123,9 +184,9 @@ function ComparisonContent() {
       mainIndex: 'urban_form',
       color: 'bg-violet-600',
       subMetrics: [
-        { key: 'street_intersection_density', label: 'Street Intersection Density' },
-        { key: 'street_density', label: 'Street Density' },
-        { key: 'land_allocated_to_streets', label: 'Land Allocated to Streets' }
+        { key: 'street_intersection_density_standardized', label: 'Street Intersection Density' },
+        { key: 'street_density_standardized', label: 'Street Density' },
+        { key: 'land_allocated_to_streets_standardized', label: 'Land Allocated to Streets' }
       ]
     },
     {
@@ -133,10 +194,10 @@ function ComparisonContent() {
       mainIndex: 'health',
       color: 'bg-red-600',
       subMetrics: [
-        { key: 'life_expectancy_at_birth', label: 'Life Expectancy at Birth' },
-        { key: 'under_five_mortality_rate', label: 'Under-5 Mortality Rate' },
-        { key: 'vaccination_coverage', label: 'Vaccination Coverage' },
-        { key: 'maternal_mortality', label: 'Maternal Mortality' }
+        { key: 'life_expectancy_at_birth_standardized', label: 'Life Expectancy at Birth' },
+        { key: 'under_five_mortality_rate_standardized', label: 'Under-5 Mortality Rate' },
+        { key: 'vaccination_coverage_standardized', label: 'Vaccination Coverage' },
+        { key: 'maternal_mortality_standardized', label: 'Maternal Mortality' }
       ]
     },
     {
@@ -144,10 +205,10 @@ function ComparisonContent() {
       mainIndex: 'education',
       color: 'bg-pink-600',
       subMetrics: [
-        { key: 'literacy_rate', label: 'Literacy Rate' },
-        { key: 'mean_years_of_schooling', label: 'Mean Years of Schooling' },
-        { key: 'early_childhood_education', label: 'Early Childhood Education' },
-        { key: 'net_enrollment_rate_in_higher_education', label: 'Higher Education Enrollment' }
+        { key: 'literacy_rate_standardized', label: 'Literacy Rate' },
+        { key: 'mean_years_of_schooling_standardized', label: 'Mean Years of Schooling' },
+        { key: 'early_childhood_education_standardized', label: 'Early Childhood Education' },
+        { key: 'net_enrollment_rate_in_higher_education_standardized', label: 'Higher Education Enrollment' }
       ]
     },
     {
@@ -155,8 +216,8 @@ function ComparisonContent() {
       mainIndex: 'safety_and_security',
       color: 'bg-orange-600',
       subMetrics: [
-        { key: 'homicide_rate', label: 'Homicide Rate' },
-        { key: 'theft_rate', label: 'Theft Rate' }
+        { key: 'homicide_rate_standardized', label: 'Homicide Rate' },
+        { key: 'theft_rate_standardized', label: 'Theft Rate' }
       ]
     },
     {
@@ -164,8 +225,8 @@ function ComparisonContent() {
       mainIndex: 'public_space',
       color: 'bg-lime-600',
       subMetrics: [
-        { key: 'accessibility_to_open_public_areas', label: 'Accessibility to Open Public Areas' },
-        { key: 'green_area_per_capita', label: 'Green Area Per Capita' }
+        { key: 'accessibility_to_open_public_areas_standardized', label: 'Accessibility to Open Public Areas' },
+        { key: 'green_area_per_capita_standardized', label: 'Green Area Per Capita' }
       ]
     },
     {
@@ -173,8 +234,8 @@ function ComparisonContent() {
       mainIndex: 'economic_equity',
       color: 'bg-emerald-600',
       subMetrics: [
-        { key: 'gini_coefficient', label: 'Gini Coefficient' },
-        { key: 'poverty_rate', label: 'Poverty Rate' }
+        { key: 'gini_standardized_score', label: 'Gini Coefficient' },
+        { key: 'poverty_rate_standardized_score', label: 'Poverty Rate' }
       ]
     },
     {
@@ -182,8 +243,8 @@ function ComparisonContent() {
       mainIndex: 'social_inclusion',
       color: 'bg-sky-600',
       subMetrics: [
-        { key: 'slums_households', label: 'Slums Households' },
-        { key: 'youth_unemployment', label: 'Youth Unemployment' }
+        { key: 'slums_households_standardized', label: 'Slums Households' },
+        { key: 'youth_unemployment_standardized', label: 'Youth Unemployment' }
       ]
     },
     {
@@ -191,9 +252,9 @@ function ComparisonContent() {
       mainIndex: 'gender_inclusion',
       color: 'bg-fuchsia-600',
       subMetrics: [
-        { key: 'equitable_secondary_school_enrollment', label: 'Equitable Secondary School Enrollment' },
-        { key: 'women_in_local_government', label: 'Women in Local Government' },
-        { key: 'women_in_local_work_force', label: 'Women in Local Work Force' }
+        { key: 'equitable_secondary_school_enrollment_standardized', label: 'Equitable Secondary School Enrollment' },
+        { key: 'women_in_local_government_standardized', label: 'Women in Local Government' },
+        { key: 'women_in_local_work_force_standardized', label: 'Women in Local Work Force' }
       ]
     },
     {
@@ -201,7 +262,7 @@ function ComparisonContent() {
       mainIndex: 'urban_diversity',
       color: 'bg-rose-600',
       subMetrics: [
-        { key: 'land_use_mix', label: 'Land Use Mix' }
+        { key: 'land_use_mix_standardized', label: 'Land Use Mix' }
       ]
     },
     {
@@ -209,9 +270,9 @@ function ComparisonContent() {
       mainIndex: 'air_quality',
       color: 'bg-slate-600',
       subMetrics: [
-        { key: 'number_of_monitoring_stations', label: 'Monitoring Stations' },
-        { key: 'pm25_concentration', label: 'PM2.5 Concentration' },
-        { key: 'co2_emissions', label: 'CO2 Emissions' }
+        { key: 'number_of_monitoring_stations_standardized', label: 'Monitoring Stations' },
+        { key: 'pm25_concentration_standardized', label: 'PM2.5 Concentration' },
+        { key: 'co2_emissions_standardized', label: 'CO2 Emissions' }
       ]
     },
     {
@@ -219,9 +280,9 @@ function ComparisonContent() {
       mainIndex: 'waste_management',
       color: 'bg-amber-600',
       subMetrics: [
-        { key: 'solid_waste_collection', label: 'Solid Waste Collection' },
-        { key: 'waste_water_treatment', label: 'Waste Water Treatment' },
-        { key: 'solid_waste_recycling_share', label: 'Solid Waste Recycling Share' }
+        { key: 'solid_waste_collection_standardized', label: 'Solid Waste Collection' },
+        { key: 'waste_water_treatment_standardized', label: 'Waste Water Treatment' },
+        { key: 'solid_waste_recycling_share_standardized', label: 'Solid Waste Recycling Share' }
       ]
     },
     {
@@ -229,7 +290,7 @@ function ComparisonContent() {
       mainIndex: 'sustainable_energy',
       color: 'bg-green-700',
       subMetrics: [
-        { key: 'share_of_renewable_energy', label: 'Share of Renewable Energy' }
+        { key: 'share_of_renewable_energy_standardized', label: 'Share of Renewable Energy' }
       ]
     },
     {
@@ -237,9 +298,9 @@ function ComparisonContent() {
       mainIndex: 'participation',
       color: 'bg-blue-700',
       subMetrics: [
-        { key: 'voter_turnout', label: 'Voter Turnout' },
-        { key: 'access_to_public_information', label: 'Access to Public Information' },
-        { key: 'civic_participation', label: 'Civic Participation' }
+        { key: 'voter_turnout_standardized', label: 'Voter Turnout' },
+        { key: 'access_to_public_information_standardized', label: 'Access to Public Information' },
+        { key: 'civic_participation_standardized', label: 'Civic Participation' }
       ]
     },
     {
@@ -247,10 +308,10 @@ function ComparisonContent() {
       mainIndex: 'municipal_financing_and_institutional_capacity',
       color: 'bg-purple-700',
       subMetrics: [
-        { key: 'own_revenue_collection', label: 'Own Revenue Collection' },
-        { key: 'days_to_start_a_business', label: 'Days to Start a Business' },
-        { key: 'subnational_debt', label: 'Subnational Debt' },
-        { key: 'local_expenditure_efficiency', label: 'Local Expenditure Efficiency' }
+        { key: 'own_revenue_collection_standardized', label: 'Own Revenue Collection' },
+        { key: 'days_to_start_a_business_standardized', label: 'Days to Start a Business' },
+        { key: 'subnational_debt_standardized', label: 'Subnational Debt' },
+        { key: 'local_expenditure_efficiency_standardized', label: 'Local Expenditure Efficiency' }
       ]
     },
     {
@@ -258,7 +319,7 @@ function ComparisonContent() {
       mainIndex: 'governance_of_urbanization',
       color: 'bg-gray-700',
       subMetrics: [
-        { key: 'land_use_efficiency', label: 'Land Use Efficiency' }
+        { key: 'land_use_efficiency_standardized', label: 'Land Use Efficiency' }
       ]
     },
     {
@@ -266,9 +327,9 @@ function ComparisonContent() {
       mainIndex: 'ict',
       color: 'bg-indigo-700',
       subMetrics: [
-        { key: 'internet_access', label: 'Internet Access' },
-        { key: 'home_computer_access', label: 'Home Computer Access' },
-        { key: 'average_broadband_speed', label: 'Average Broadband Speed' }
+        { key: 'internet_access_standardized', label: 'Internet Access' },
+        { key: 'home_computer_access_standardized', label: 'Home Computer Access' },
+        { key: 'average_broadband_speed_standardized', label: 'Average Broadband Speed' }
       ]
     }
   ];
@@ -320,20 +381,23 @@ function ComparisonContent() {
   const compareSelectedCities = async () => {
     if (selectedCities.length < 2) return;
 
-    const citiesParam = selectedCities
-      .map(id => {
-        const city = availableCities.find(c => c.id === id);
-        return city ? `${city.city}:${city.country}` : '';
-      })
-      .filter(Boolean)
-      .join(',');
-
     try {
-      const response = await fetch(`/api/calculation-history/compare?cities=${citiesParam}`);
+      // Fetch all calculations
+      const response = await fetch('/api/calculation-history');
       if (response.ok) {
-        const data: CityData[] = await response.json();
-        // Calculate all indexes and add comments
-        const transformedData = data.map((item: CityData) => {
+        const allData = await response.json();
+        // Filter for selected cities based on city and country
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const selectedCityData = allData.filter((calc: any) => {
+          const cityCountry = `${calc.city}:${calc.country}`;
+          return selectedCities.some(id => {
+            const city = availableCities.find(c => c.id === id);
+            return city && `${city.city}:${city.country}` === cityCountry;
+          });
+        });
+        // Calculate all indexes using the standardized fields (already present in data)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transformedData = selectedCityData.map((item: any) => {
           calculateAllIndexes(item);
           return {
             ...item,
@@ -381,10 +445,18 @@ function ComparisonContent() {
     setSelectedCities(cityIds);
     
     try {
-      const response = await fetch(`/api/calculation-history/compare?cities=${comparison.cities.join(',')}`);
+      // Fetch all calculations
+      const response = await fetch('/api/calculation-history');
       if (response.ok) {
-        const data: CityData[] = await response.json();
-        const transformedData = data.map((item: CityData) => {
+        const allData = await response.json();
+        // Filter for cities in the comparison
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const comparisonData = allData.filter((calc: any) => {
+          const cityCountry = `${calc.city}:${calc.country}`;
+          return comparison.cities.includes(cityCountry);
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transformedData = comparisonData.map((item: any) => {
           calculateAllIndexes(item);
           return item;
         });
@@ -799,7 +871,7 @@ const getCommentColor = (comment: string): string => {
   }
 };
 
-const calculateAverage = (data: CityData, fields: string[]): number | string => {
+const calculateAverage = (data: CalculationData, fields: string[]): number | string => {
   let sum = 0;
   let count = 0;
   
@@ -815,84 +887,190 @@ const calculateAverage = (data: CityData, fields: string[]): number | string => 
   return Number((sum / count).toFixed(2));
 };
 
-const calculateAllIndexes = (data: CityData) => {
-  // Calculate all sub-indexes
-  const houseInfra = calculateAverage(data, ["improved_shelter", "improved_water", "improved_sanitation", "sufficient_living", "population", "electricity"]);
-  if (typeof houseInfra === 'number') data.house_Infrastructure = houseInfra;
+const calculateAllIndexes = (data: CalculationData) => {
+  // Calculate all sub-indexes using standardized fields
+  const houseInfra = calculateAverage(data, ["improved_shelter_standardized", "improved_water_standardized", "improved_sanitation_standardized", "sufficient_living_standardized", "population_standardized", "electricity_standardized"]);
+  if (typeof houseInfra === 'number') {
+    data.house_Infrastructure = houseInfra;
+    data.house_Infrastructure_comment = getComment(houseInfra);
+  }
 
-  const economicStrength = calculateAverage(data, ["city_product_per_capita", "old_age_dependency_ratio", "mean_household_income"]);
-  if (typeof economicStrength === 'number') data.economic_strength = economicStrength;
+  const economicStrength = calculateAverage(data, ["city_product_per_capita_standardized", "old_age_dependency_ratio_standardized", "mean_household_income_standardized"]);
+  if (typeof economicStrength === 'number') {
+    data.economic_strength = economicStrength;
+    data.economic_strength_comment = getComment(economicStrength);
+  }
 
-  const economicAgglomeration = calculateAverage(data, ["economic_density", "economic_specialization"]);
-  if (typeof economicAgglomeration === 'number') data.economic_agglomeration = economicAgglomeration;
+  const economicAgglomeration = calculateAverage(data, ["economic_density_standardized", "economic_specialization_standardized"]);
+  if (typeof economicAgglomeration === 'number') {
+    data.economic_agglomeration = economicAgglomeration;
+    data.economic_agglomeration_comment = getComment(economicAgglomeration);
+  }
 
-  const employment = calculateAverage(data, ["unemployment_rate", "employment_to_population_ratio", "informal_employment"]);
-  if (typeof employment === 'number') data.employment = employment;
+  const employment = calculateAverage(data, ["unemployment_rate_standardized", "employment_to_population_ratio_standardized", "informal_employment_standardized"]);
+  if (typeof employment === 'number') {
+    data.employment = employment;
+    data.employment_comment = getComment(employment);
+  }
 
-  const socialInfra = calculateAverage(data, ["physician_density", "number_of_public_libraries"]);
-  if (typeof socialInfra === 'number') data.social_infrastructure = socialInfra;
+  const socialInfra = calculateAverage(data, ["physician_density_standardized", "number_of_public_libraries_standardized"]);
+  if (typeof socialInfra === 'number') {
+    data.social_infrastructure = socialInfra;
+    data.social_infrastructure_comment = getComment(socialInfra);
+  }
 
-  const urbanMobility = calculateAverage(data, ["use_of_public_transport", "average_daily_travel_time", "length_of_mass_transport_network", "traffic_fatalities", "affordability_of_transport"]);
-  if (typeof urbanMobility === 'number') data.urban_mobility = urbanMobility;
+  const urbanMobility = calculateAverage(data, ["use_of_public_transport_standardized", "average_daily_travel_time_standardized", "length_of_mass_transport_network_standardized", "traffic_fatalities_standardized", "affordability_of_transport_standardized"]);
+  if (typeof urbanMobility === 'number') {
+    data.urban_mobility = urbanMobility;
+    data.urban_mobility_comment = getComment(urbanMobility);
+  }
 
-  const urbanForm = calculateAverage(data, ["street_intersection_density", "street_density", "land_allocated_to_streets"]);
-  if (typeof urbanForm === 'number') data.urban_form = urbanForm;
+  const urbanForm = calculateAverage(data, ["street_intersection_density_standardized", "street_density_standardized", "land_allocated_to_streets_standardized"]);
+  if (typeof urbanForm === 'number') {
+    data.urban_form = urbanForm;
+    data.urban_form_comment = getComment(urbanForm);
+  }
 
-  const health = calculateAverage(data, ["life_expectancy_at_birth", "under_five_mortality_rate", "vaccination_coverage", "maternal_mortality"]);
-  if (typeof health === 'number') data.health = health;
+  const health = calculateAverage(data, ["life_expectancy_at_birth_standardized", "under_five_mortality_rate_standardized", "vaccination_coverage_standardized", "maternal_mortality_standardized"]);
+  if (typeof health === 'number') {
+    data.health = health;
+    data.health_comment = getComment(health);
+  }
 
-  const education = calculateAverage(data, ["literacy_rate", "mean_years_of_schooling", "early_childhood_education", "net_enrollment_rate_in_higher_education"]);
-  if (typeof education === 'number') data.education = education;
+  const education = calculateAverage(data, ["literacy_rate_standardized", "mean_years_of_schooling_standardized", "early_childhood_education_standardized", "net_enrollment_rate_in_higher_education_standardized"]);
+  if (typeof education === 'number') {
+    data.education = education;
+    data.education_comment = getComment(education);
+  }
 
-  const safety = calculateAverage(data, ["homicide_rate", "theft_rate"]);
-  if (typeof safety === 'number') data.safety_and_security = safety;
+  const safety = calculateAverage(data, ["homicide_rate_standardized", "theft_rate_standardized"]);
+  if (typeof safety === 'number') {
+    data.safety_and_security = safety;
+    data.safety_and_security_comment = getComment(safety);
+  }
 
-  const publicSpace = calculateAverage(data, ["accessibility_to_open_public_areas", "green_area_per_capita"]);
-  if (typeof publicSpace === 'number') data.public_space = publicSpace;
+  const publicSpace = calculateAverage(data, ["accessibility_to_open_public_areas_standardized", "green_area_per_capita_standardized"]);
+  if (typeof publicSpace === 'number') {
+    data.public_space = publicSpace;
+    data.public_space_comment = getComment(publicSpace);
+  }
 
-  const economicEquity = calculateAverage(data, ["gini_coefficient", "poverty_rate"]);
-  if (typeof economicEquity === 'number') data.economic_equity = economicEquity;
+  const economicEquity = calculateAverage(data, ["gini_standardized_score", "poverty_rate_standardized_score"]);
+  if (typeof economicEquity === 'number') {
+    data.economic_equity = economicEquity;
+    data.economic_equity_comment = getComment(economicEquity);
+  }
 
-  const socialInclusion = calculateAverage(data, ["slums_households", "youth_unemployment"]);
-  if (typeof socialInclusion === 'number') data.social_inclusion = socialInclusion;
+  const socialInclusion = calculateAverage(data, ["slums_households_standardized", "youth_unemployment_standardized"]);
+  if (typeof socialInclusion === 'number') {
+    data.social_inclusion = socialInclusion;
+    data.social_inclusion_comment = getComment(socialInclusion);
+  }
 
-  const genderInclusion = calculateAverage(data, ["equitable_secondary_school_enrollment", "women_in_local_government", "women_in_local_work_force"]);
-  if (typeof genderInclusion === 'number') data.gender_inclusion = genderInclusion;
+  const genderInclusion = calculateAverage(data, ["equitable_secondary_school_enrollment_standardized", "women_in_local_government_standardized", "women_in_local_work_force_standardized"]);
+  if (typeof genderInclusion === 'number') {
+    data.gender_inclusion = genderInclusion;
+    data.gender_inclusion_comment = getComment(genderInclusion);
+  }
 
-  const urbanDiversity = calculateAverage(data, ["land_use_mix"]);
-  if (typeof urbanDiversity === 'number') data.urban_diversity = urbanDiversity;
+  const urbanDiversity = calculateAverage(data, ["land_use_mix_standardized"]);
+  if (typeof urbanDiversity === 'number') {
+    data.urban_diversity = urbanDiversity;
+    data.urban_diversity_comment = getComment(urbanDiversity);
+  }
 
-  const airQuality = calculateAverage(data, ["number_of_monitoring_stations", "pm25_concentration", "co2_emissions"]);
-  if (typeof airQuality === 'number') data.air_quality = airQuality;
+  const airQuality = calculateAverage(data, ["number_of_monitoring_stations_standardized", "pm25_concentration_standardized", "co2_emissions_standardized"]);
+  if (typeof airQuality === 'number') {
+    data.air_quality = airQuality;
+    data.air_quality_comment = getComment(airQuality);
+  }
 
-  const wasteManagement = calculateAverage(data, ["solid_waste_collection", "waste_water_treatment", "solid_waste_recycling_share"]);
-  if (typeof wasteManagement === 'number') data.waste_management = wasteManagement;
+  const wasteManagement = calculateAverage(data, ["solid_waste_collection_standardized", "waste_water_treatment_standardized", "solid_waste_recycling_share_standardized"]);
+  if (typeof wasteManagement === 'number') {
+    data.waste_management = wasteManagement;
+    data.waste_management_comment = getComment(wasteManagement);
+  }
 
-  const sustainableEnergy = calculateAverage(data, ["share_of_renewable_energy"]);
-  if (typeof sustainableEnergy === 'number') data.sustainable_energy = sustainableEnergy;
+  const sustainableEnergy = calculateAverage(data, ["share_of_renewable_energy_standardized"]);
+  if (typeof sustainableEnergy === 'number') {
+    data.sustainable_energy = sustainableEnergy;
+    data.sustainable_energy_comment = getComment(sustainableEnergy);
+  }
 
-  const participation = calculateAverage(data, ["voter_turnout", "access_to_public_information", "civic_participation"]);
-  if (typeof participation === 'number') data.participation = participation;
+  const participation = calculateAverage(data, ["voter_turnout_standardized", "access_to_public_information_standardized", "civic_participation_standardized"]);
+  if (typeof participation === 'number') {
+    data.participation = participation;
+    data.participation_comment = getComment(participation);
+  }
 
-  const municipalFinancing = calculateAverage(data, ["own_revenue_collection", "days_to_start_a_business", "subnational_debt", "local_expenditure_efficiency"]);
-  if (typeof municipalFinancing === 'number') data.municipal_financing_and_institutional_capacity = municipalFinancing;
+  const municipalFinancing = calculateAverage(data, ["own_revenue_collection_standardized", "days_to_start_a_business_standardized", "subnational_debt_standardized", "local_expenditure_efficiency_standardized"]);
+  if (typeof municipalFinancing === 'number') {
+    data.municipal_financing_and_institutional_capacity = municipalFinancing;
+    data.municipal_financing_and_institutional_capacity_comment = getComment(municipalFinancing);
+  }
 
-  const governance = calculateAverage(data, ["land_use_efficiency"]);
-  if (typeof governance === 'number') data.governance_of_urbanization = governance;
+  const governance = calculateAverage(data, ["land_use_efficiency_standardized"]);
+  if (typeof governance === 'number') {
+    data.governance_of_urbanization = governance;
+    data.governance_of_urbanization_comment = getComment(governance);
+  }
 
-  const ict = calculateAverage(data, ["internet_access", "home_computer_access", "average_broadband_speed"]);
-  if (typeof ict === 'number') data.ict = ict;
+  const ict = calculateAverage(data, ["internet_access_standardized", "home_computer_access_standardized", "average_broadband_speed_standardized"]);
+  if (typeof ict === 'number') {
+    data.ict = ict;
+    data.ict_comment = getComment(ict);
+  }
 
-  // Calculate CPI
+  // Calculate dimension indexes as averages of their sub-indexes
+  const productivity = calculateAverage(data, ["economic_strength", "economic_agglomeration", "employment"]);
+  if (typeof productivity === 'number') {
+    data.productivity = productivity;
+    data.productivity_comment = getComment(productivity);
+  }
+
+  const infrastructureDevelopment = calculateAverage(data, ["house_Infrastructure", "social_infrastructure", "ict", "urban_mobility", "urban_form"]);
+  if (typeof infrastructureDevelopment === 'number') {
+    data.infrastructure_development = infrastructureDevelopment;
+    data.infrastructure_development_comment = getComment(infrastructureDevelopment);
+  }
+
+  const qualityOfLife = calculateAverage(data, ["health", "education", "safety_and_security", "public_space"]);
+  if (typeof qualityOfLife === 'number') {
+    data.quality_of_life = qualityOfLife;
+    data.quality_of_life_comment = getComment(qualityOfLife);
+  }
+
+  const equitySocialInclusion = calculateAverage(data, ["economic_equity", "social_inclusion", "gender_inclusion", "urban_diversity"]);
+  if (typeof equitySocialInclusion === 'number') {
+    data.equity_social_inclusion = equitySocialInclusion;
+    data.equity_social_inclusion_comment = getComment(equitySocialInclusion);
+  }
+
+  const environmentalSustainability = calculateAverage(data, ["air_quality", "waste_management", "sustainable_energy"]);
+  if (typeof environmentalSustainability === 'number') {
+    data.environmental_sustainability = environmentalSustainability;
+    data.environmental_sustainability_comment = getComment(environmentalSustainability);
+  }
+
+  const urbanGovernanceLegislation = calculateAverage(data, ["participation", "municipal_financing_and_institutional_capacity", "governance_of_urbanization"]);
+  if (typeof urbanGovernanceLegislation === 'number') {
+    data.urban_governance_legislation = urbanGovernanceLegislation;
+    data.urban_governance_legislation_comment = getComment(urbanGovernanceLegislation);
+  }
+
+  // Calculate CPI from the 6 dimensions (updated to match schema)
   const cpiFields = [
-    "house_Infrastructure", "economic_agglomeration", "economic_strength", "employment",
-    "social_infrastructure", "urban_mobility", "urban_form", "health", "education",
-    "safety_and_security", "public_space", "economic_equity", "social_inclusion",
-    "gender_inclusion", "urban_diversity", "air_quality", "waste_management",
-    "sustainable_energy", "participation", "municipal_financing_and_institutional_capacity",
-    "governance_of_urbanization", "ict"
+    "productivity",
+    "infrastructure_development",
+    "quality_of_life",
+    "equity_social_inclusion",
+    "environmental_sustainability",
+    "urban_governance_legislation"
   ];
 
   const cpi = calculateAverage(data, cpiFields);
-  if (typeof cpi === 'number') data.cpi = cpi;
+  if (typeof cpi === 'number') {
+    data.cpi = cpi;
+    data.cpi_comment = getComment(cpi);
+  }
 };

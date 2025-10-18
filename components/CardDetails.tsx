@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 interface Calculation {
   id: string;
-  userId: string;
+  userId?: string;
   city?: string | null;
   country?: string | null;
   cityName?: string | null;

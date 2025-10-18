@@ -1,5 +1,6 @@
 'use client';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import Image from 'next/image';
@@ -378,30 +379,51 @@ const calculateAllIndexes = (data: CalculationData) => {
     data.ict_comment = getComment(ict);
   }
 
-  // Calculate CPI from all 22 sub-indexes
+  // Calculate dimension indexes as averages of their sub-indexes
+  const productivity = calculateAverage(data, ["economic_strength", "economic_agglomeration", "employment"]);
+  if (typeof productivity === 'number') {
+    data.productivity = productivity;
+    data.productivity_comment = getComment(productivity);
+  }
+
+  const infrastructureDevelopment = calculateAverage(data, ["house_Infrastructure", "social_infrastructure", "ict", "urban_mobility", "urban_form"]);
+  if (typeof infrastructureDevelopment === 'number') {
+    data.infrastructure_development = infrastructureDevelopment;
+    data.infrastructure_development_comment = getComment(infrastructureDevelopment);
+  }
+
+  const qualityOfLife = calculateAverage(data, ["health", "education", "safety_and_security", "public_space"]);
+  if (typeof qualityOfLife === 'number') {
+    data.quality_of_life = qualityOfLife;
+    data.quality_of_life_comment = getComment(qualityOfLife);
+  }
+
+  const equitySocialInclusion = calculateAverage(data, ["economic_equity", "social_inclusion", "gender_inclusion", "urban_diversity"]);
+  if (typeof equitySocialInclusion === 'number') {
+    data.equity_social_inclusion = equitySocialInclusion;
+    data.equity_social_inclusion_comment = getComment(equitySocialInclusion);
+  }
+
+  const environmentalSustainability = calculateAverage(data, ["air_quality", "waste_management", "sustainable_energy"]);
+  if (typeof environmentalSustainability === 'number') {
+    data.environmental_sustainability = environmentalSustainability;
+    data.environmental_sustainability_comment = getComment(environmentalSustainability);
+  }
+
+  const urbanGovernanceLegislation = calculateAverage(data, ["participation", "municipal_financing_and_institutional_capacity", "governance_of_urbanization"]);
+  if (typeof urbanGovernanceLegislation === 'number') {
+    data.urban_governance_legislation = urbanGovernanceLegislation;
+    data.urban_governance_legislation_comment = getComment(urbanGovernanceLegislation);
+  }
+
+  // Calculate CPI from the 6 dimensions (updated to match schema)
   const cpiFields = [
-    "house_Infrastructure",
-    "economic_strength",
-    "economic_agglomeration",
-    "employment",
-    "social_infrastructure",
-    "urban_mobility",
-    "urban_form",
-    "health",
-    "education",
-    "safety_and_security",
-    "public_space",
-    "economic_equity", 
-    "social_inclusion",
-    "gender_inclusion",
-    "urban_diversity",
-    "air_quality",
-    "waste_management",
-    "sustainable_energy",
-    "participation",
-    "municipal_financing_and_institutional_capacity",
-    "governance_of_urbanization",
-    "ict"
+    "productivity",
+    "infrastructure_development",
+    "quality_of_life",
+    "equity_social_inclusion",
+    "environmental_sustainability",
+    "urban_governance_legislation"
   ];
 
   const cpi = calculateAverage(data, cpiFields);
