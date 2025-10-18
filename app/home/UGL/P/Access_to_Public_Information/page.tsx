@@ -173,7 +173,7 @@ const AccessToPublicInfo: React.FC = () => {
 
                 <h4 className="font-semibold mt-2 mb-1">What to enter</h4>
                 <ul className="list-disc list-inside mb-2">
-                  <li>Check all elements present on the city's e-government website.</li>
+                  <li>Check all elements present on the city&apos;s e-government website.</li>
                   <li>There are 10 elements in total.</li>
                   <li>All selections are optional.</li>
                 </ul>

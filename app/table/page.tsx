@@ -1170,12 +1170,6 @@ export default function ContentTable() {
     return typeof numValue === 'number' && !isNaN(numValue) ? numValue.toFixed(2) : '-';
   };
 
-  const formatPercentage = (value: string | number | null | undefined) => {
-    if (value === null || value === undefined) return '-';
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    return typeof numValue === 'number' && !isNaN(numValue) ? (numValue * 100).toFixed(2) + '%' : '-';
-  };
-
   const formatPercentageDisplay = (value: string | number | null | undefined) => {
     return formatValue(value) + '%';
   };
