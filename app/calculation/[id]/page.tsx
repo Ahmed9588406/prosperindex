@@ -12,7 +12,70 @@ interface Calculation {
   cpi?: number | null;
   createdAt: string | Date;
   updatedAt: string | Date;
-  // Add display fields for percentages
+  // Only standardized values and display fields
+  improved_shelter_standardized?: number | null;
+  improved_water_standardized?: number | null;
+  improved_sanitation_standardized?: number | null;
+  sufficient_living_standardized?: number | null;
+  population_standardized?: number | null;
+  electricity_standardized?: number | null;
+  city_product_per_capita_standardized?: number | null;
+  old_age_dependency_ratio_standardized?: number | null;
+  mean_household_income_standardized?: number | null;
+  economic_density_standardized?: number | null;
+  economic_specialization_standardized?: number | null;
+  unemployment_rate_standardized?: number | null;
+  employment_to_population_ratio_standardized?: number | null;
+  informal_employment_standardized?: number | null;
+  physician_density_standardized?: number | null;
+  number_of_public_libraries_standardized?: number | null;
+  use_of_public_transport_standardized?: number | null;
+  average_daily_travel_time_standardized?: number | null;
+  length_of_mass_transport_network_standardized?: number | null;
+  traffic_fatalities_standardized?: number | null;
+  affordability_of_transport_standardized?: number | null;
+  street_intersection_density_standardized?: number | null;
+  street_density_standardized?: number | null;
+  land_allocated_to_streets_standardized?: number | null;
+  life_expectancy_at_birth_standardized?: number | null;
+  under_five_mortality_rate_standardized?: number | null;
+  vaccination_coverage_standardized?: number | null;
+  maternal_mortality_standardized?: number | null;
+  literacy_rate_standardized?: number | null;
+  mean_years_of_schooling_standardized?: number | null;
+  early_childhood_education_standardized?: number | null;
+  net_enrollment_rate_in_higher_education_standardized?: number | null;
+  homicide_rate_standardized?: number | null;
+  theft_rate_standardized?: number | null;
+  accessibility_to_open_public_areas_standardized?: number | null;
+  green_area_per_capita_standardized?: number | null;
+  gini_standardized_score?: number | null;
+  poverty_rate_standardized_score?: number | null;
+  slums_households_standardized?: number | null;
+  youth_unemployment_standardized?: number | null;
+  equitable_secondary_school_enrollment_standardized?: number | null;
+  women_in_local_government_standardized?: number | null;
+  women_in_local_work_force_standardized?: number | null;
+  land_use_mix_standardized?: number | null;
+  number_of_monitoring_stations_standardized?: number | null;
+  pm25_concentration_standardized?: number | null;
+  co2_emissions_standardized?: number | null;
+  solid_waste_collection_standardized?: number | null;
+  waste_water_treatment_standardized?: number | null;
+  solid_waste_recycling_share_standardized?: number | null;
+  share_of_renewable_energy_standardized?: number | null;
+  voter_turnout_standardized?: number | null;
+  access_to_public_information_standardized?: number | null;
+  civic_participation_standardized?: number | null;
+  own_revenue_collection_standardized?: number | null;
+  days_to_start_a_business_standardized?: number | null;
+  subnational_debt_standardized?: number | null;
+  local_expenditure_efficiency_standardized?: number | null;
+  land_use_efficiency_standardized?: number | null;
+  internet_access_standardized?: number | null;
+  home_computer_access_standardized?: number | null;
+  average_broadband_speed_standardized?: number | null;
+  // Display fields for percentages
   house_Infrastructure_display?: string;
   economic_strength_display?: string;
   economic_agglomeration_display?: string;
@@ -66,192 +129,163 @@ const calculateAverage = (data: Calculation, fields: string[]): number | string 
   return Number((sum / count).toFixed(2));
 };
 
-// New normalization function to scale to 0-100
-const normalizeTo100 = (value: number, min: number = 0, max: number = 100): number => {
-  // Assuming min=0 and max=100 for simplicity; adjust if your data has different ranges
-  if (max === min) return 0;
-  return Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100));
-};
-
 const calculateAllIndexes = (data: Calculation) => {
   // Calculate all sub-indexes using standardized fields
   const houseInfra = calculateAverage(data, ["improved_shelter_standardized", "improved_water_standardized", "improved_sanitation_standardized", "sufficient_living_standardized", "population_standardized", "electricity_standardized"]);
   if (typeof houseInfra === 'number') {
-    const normalized = normalizeTo100(houseInfra);
-    data.house_Infrastructure = normalized;
-    data.house_Infrastructure_comment = getComment(normalized);
-    data.house_Infrastructure_display = `${normalized}%`;
+    data.house_Infrastructure = houseInfra;
+    data.house_Infrastructure_comment = getComment(houseInfra);
+    data.house_Infrastructure_display = `${houseInfra.toFixed(2)}%`;
   }
 
   const economicStrength = calculateAverage(data, ["city_product_per_capita_standardized", "old_age_dependency_ratio_standardized", "mean_household_income_standardized"]);
   if (typeof economicStrength === 'number') {
-    const normalized = normalizeTo100(economicStrength);
-    data.economic_strength = normalized;
-    data.economic_strength_comment = getComment(normalized);
-    data.economic_strength_display = `${normalized}%`;
+    data.economic_strength = economicStrength;
+    data.economic_strength_comment = getComment(economicStrength);
+    data.economic_strength_display = `${economicStrength.toFixed(2)}%`;
   }
 
   const economicAgglomeration = calculateAverage(data, ["economic_density_standardized", "economic_specialization_standardized"]);
   if (typeof economicAgglomeration === 'number') {
-    const normalized = normalizeTo100(economicAgglomeration);
-    data.economic_agglomeration = normalized;
-    data.economic_agglomeration_comment = getComment(normalized);
-    data.economic_agglomeration_display = `${normalized}%`;
+    data.economic_agglomeration = economicAgglomeration;
+    data.economic_agglomeration_comment = getComment(economicAgglomeration);
+    data.economic_agglomeration_display = `${economicAgglomeration.toFixed(2)}%`;
   }
 
   const employment = calculateAverage(data, ["unemployment_rate_standardized", "employment_to_population_ratio_standardized", "informal_employment_standardized"]);
   if (typeof employment === 'number') {
-    const normalized = normalizeTo100(employment);
-    data.employment = normalized;
-    data.employment_comment = getComment(normalized);
-    data.employment_display = `${normalized}%`;
+    data.employment = employment;
+    data.employment_comment = getComment(employment);
+    data.employment_display = `${employment.toFixed(2)}%`;
   }
 
   const socialInfra = calculateAverage(data, ["physician_density_standardized", "number_of_public_libraries_standardized"]);
   if (typeof socialInfra === 'number') {
-    const normalized = normalizeTo100(socialInfra);
-    data.social_infrastructure = normalized;
-    data.social_infrastructure_comment = getComment(normalized);
-    data.social_infrastructure_display = `${normalized}%`;
+    data.social_infrastructure = socialInfra;
+    data.social_infrastructure_comment = getComment(socialInfra);
+    data.social_infrastructure_display = `${socialInfra.toFixed(2)}%`;
   }
 
   const urbanMobility = calculateAverage(data, ["use_of_public_transport_standardized", "average_daily_travel_time_standardized", "length_of_mass_transport_network_standardized", "traffic_fatalities_standardized", "affordability_of_transport_standardized"]);
   if (typeof urbanMobility === 'number') {
-    const normalized = normalizeTo100(urbanMobility);
-    data.urban_mobility = normalized;
-    data.urban_mobility_comment = getComment(normalized);
-    data.urban_mobility_display = `${normalized}%`;
+    data.urban_mobility = urbanMobility;
+    data.urban_mobility_comment = getComment(urbanMobility);
+    data.urban_mobility_display = `${urbanMobility.toFixed(2)}%`;
   }
 
   const urbanForm = calculateAverage(data, ["street_intersection_density_standardized", "street_density_standardized", "land_allocated_to_streets_standardized"]);
   if (typeof urbanForm === 'number') {
-    const normalized = normalizeTo100(urbanForm);
-    data.urban_form = normalized;
-    data.urban_form_comment = getComment(normalized);
-    data.urban_form_display = `${normalized}%`;
+    data.urban_form = urbanForm;
+    data.urban_form_comment = getComment(urbanForm);
+    data.urban_form_display = `${urbanForm.toFixed(2)}%`;
   }
 
   const health = calculateAverage(data, ["life_expectancy_at_birth_standardized", "under_five_mortality_rate_standardized", "vaccination_coverage_standardized", "maternal_mortality_standardized"]);
   if (typeof health === 'number') {
-    const normalized = normalizeTo100(health);
-    data.health = normalized;
-    data.health_comment = getComment(normalized);
-    data.health_display = `${normalized}%`;
+    data.health = health;
+    data.health_comment = getComment(health);
+    data.health_display = `${health.toFixed(2)}%`;
   }
 
   const education = calculateAverage(data, ["literacy_rate_standardized", "mean_years_of_schooling_standardized", "early_childhood_education_standardized", "net_enrollment_rate_in_higher_education_standardized"]);
   if (typeof education === 'number') {
-    const normalized = normalizeTo100(education);
-    data.education = normalized;
-    data.education_comment = getComment(normalized);
-    data.education_display = `${normalized}%`;
+    data.education = education;
+    data.education_comment = getComment(education);
+    data.education_display = `${education.toFixed(2)}%`;
   }
 
   const safety = calculateAverage(data, ["homicide_rate_standardized", "theft_rate_standardized"]);
   if (typeof safety === 'number') {
-    const normalized = normalizeTo100(safety);
-    data.safety_and_security = normalized;
-    data.safety_and_security_comment = getComment(normalized);
-    data.safety_and_security_display = `${normalized}%`;
+    data.safety_and_security = safety;
+    data.safety_and_security_comment = getComment(safety);
+    data.safety_and_security_display = `${safety.toFixed(2)}%`;
   }
 
   const publicSpace = calculateAverage(data, ["accessibility_to_open_public_areas_standardized", "green_area_per_capita_standardized"]);
   if (typeof publicSpace === 'number') {
-    const normalized = normalizeTo100(publicSpace);
-    data.public_space = normalized;
-    data.public_space_comment = getComment(normalized);
-    data.public_space_display = `${normalized}%`;
+    data.public_space = publicSpace;
+    data.public_space_comment = getComment(publicSpace);
+    data.public_space_display = `${publicSpace.toFixed(2)}%`;
   }
 
   const economicEquity = calculateAverage(data, ["gini_standardized_score", "poverty_rate_standardized_score"]);
   if (typeof economicEquity === 'number') {
-    const normalized = normalizeTo100(economicEquity);
-    data.economic_equity = normalized;
-    data.economic_equity_comment = getComment(normalized);
-    data.economic_equity_display = `${normalized}%`;
+    data.economic_equity = economicEquity;
+    data.economic_equity_comment = getComment(economicEquity);
+    data.economic_equity_display = `${economicEquity.toFixed(2)}%`;
   }
 
   const socialInclusion = calculateAverage(data, ["slums_households_standardized", "youth_unemployment_standardized"]);
   if (typeof socialInclusion === 'number') {
-    const normalized = normalizeTo100(socialInclusion);
-    data.social_inclusion = normalized;
-    data.social_inclusion_comment = getComment(normalized);
-    data.social_inclusion_display = `${normalized}%`;
+    data.social_inclusion = socialInclusion;
+    data.social_inclusion_comment = getComment(socialInclusion);
+    data.social_inclusion_display = `${socialInclusion.toFixed(2)}%`;
   }
 
   const genderInclusion = calculateAverage(data, ["equitable_secondary_school_enrollment_standardized", "women_in_local_government_standardized", "women_in_local_work_force_standardized"]);
   if (typeof genderInclusion === 'number') {
-    const normalized = normalizeTo100(genderInclusion);
-    data.gender_inclusion = normalized;
-    data.gender_inclusion_comment = getComment(normalized);
-    data.gender_inclusion_display = `${normalized}%`;
+    data.gender_inclusion = genderInclusion;
+    data.gender_inclusion_comment = getComment(genderInclusion);
+    data.gender_inclusion_display = `${genderInclusion.toFixed(2)}%`;
   }
 
   const urbanDiversity = calculateAverage(data, ["land_use_mix_standardized"]);
   if (typeof urbanDiversity === 'number') {
-    const normalized = normalizeTo100(urbanDiversity);
-    data.urban_diversity = normalized;
-    data.urban_diversity_comment = getComment(normalized);
-    data.urban_diversity_display = `${normalized}%`;
+    data.urban_diversity = urbanDiversity;
+    data.urban_diversity_comment = getComment(urbanDiversity);
+    data.urban_diversity_display = `${urbanDiversity.toFixed(2)}%`;
   }
 
   const airQuality = calculateAverage(data, ["number_of_monitoring_stations_standardized", "pm25_concentration_standardized", "co2_emissions_standardized"]);
   if (typeof airQuality === 'number') {
-    const normalized = normalizeTo100(airQuality);
-    data.air_quality = normalized;
-    data.air_quality_comment = getComment(normalized);
-    data.air_quality_display = `${normalized}%`;
+    data.air_quality = airQuality;
+    data.air_quality_comment = getComment(airQuality);
+    data.air_quality_display = `${airQuality.toFixed(2)}%`;
   }
 
   const wasteManagement = calculateAverage(data, ["solid_waste_collection_standardized", "waste_water_treatment_standardized", "solid_waste_recycling_share_standardized"]);
   if (typeof wasteManagement === 'number') {
-    const normalized = normalizeTo100(wasteManagement);
-    data.waste_management = normalized;
-    data.waste_management_comment = getComment(normalized);
-    data.waste_management_display = `${normalized}%`;
+    data.waste_management = wasteManagement;
+    data.waste_management_comment = getComment(wasteManagement);
+    data.waste_management_display = `${wasteManagement.toFixed(2)}%`;
   }
 
   const sustainableEnergy = calculateAverage(data, ["share_of_renewable_energy_standardized"]);
   if (typeof sustainableEnergy === 'number') {
-    const normalized = normalizeTo100(sustainableEnergy);
-    data.sustainable_energy = normalized;
-    data.sustainable_energy_comment = getComment(normalized);
-    data.sustainable_energy_display = `${normalized}%`;
+    data.sustainable_energy = sustainableEnergy;
+    data.sustainable_energy_comment = getComment(sustainableEnergy);
+    data.sustainable_energy_display = `${sustainableEnergy.toFixed(2)}%`;
   }
 
   const participation = calculateAverage(data, ["voter_turnout_standardized", "access_to_public_information_standardized", "civic_participation_standardized"]);
   if (typeof participation === 'number') {
-    const normalized = normalizeTo100(participation);
-    data.participation = normalized;
-    data.participation_comment = getComment(normalized);
-    data.participation_display = `${normalized}%`;
+    data.participation = participation;
+    data.participation_comment = getComment(participation);
+    data.participation_display = `${participation.toFixed(2)}%`;
   }
 
   const municipalFinancing = calculateAverage(data, ["own_revenue_collection_standardized", "days_to_start_a_business_standardized", "subnational_debt_standardized", "local_expenditure_efficiency_standardized"]);
   if (typeof municipalFinancing === 'number') {
-    const normalized = normalizeTo100(municipalFinancing);
-    data.municipal_financing_and_institutional_capacity = normalized;
-    data.municipal_financing_and_institutional_capacity_comment = getComment(normalized);
-    data.municipal_financing_and_institutional_capacity_display = `${normalized}%`;
+    data.municipal_financing_and_institutional_capacity = municipalFinancing;
+    data.municipal_financing_and_institutional_capacity_comment = getComment(municipalFinancing);
+    data.municipal_financing_and_institutional_capacity_display = `${municipalFinancing.toFixed(2)}%`;
   }
 
   const governance = calculateAverage(data, ["land_use_efficiency_standardized"]);
   if (typeof governance === 'number') {
-    const normalized = normalizeTo100(governance);
-    data.governance_of_urbanization = normalized;
-    data.governance_of_urbanization_comment = getComment(normalized);
-    data.governance_of_urbanization_display = `${normalized}%`;
+    data.governance_of_urbanization = governance;
+    data.governance_of_urbanization_comment = getComment(governance);
+    data.governance_of_urbanization_display = `${governance.toFixed(2)}%`;
   }
 
   const ict = calculateAverage(data, ["internet_access_standardized", "home_computer_access_standardized", "average_broadband_speed_standardized"]);
   if (typeof ict === 'number') {
-    const normalized = normalizeTo100(ict);
-    data.ict = normalized;
-    data.ict_comment = getComment(normalized);
-    data.ict_display = `${normalized}%`;
+    data.ict = ict;
+    data.ict_comment = getComment(ict);
+    data.ict_display = `${ict.toFixed(2)}%`;
   }
 
-  // Now calculate CPI from all 22 sub-indexes
+  // Calculate CPI from all 22 sub-indexes (same as table page)
   const cpiFields = [
     "house_Infrastructure",
     "economic_agglomeration",
@@ -279,10 +313,9 @@ const calculateAllIndexes = (data: Calculation) => {
 
   const cpi = calculateAverage(data, cpiFields);
   if (typeof cpi === 'number') {
-    const normalizedCpi = normalizeTo100(cpi);
-    data.cpi = normalizedCpi;
-    data.cpi_comment = getComment(normalizedCpi);
-    data.cpi_display = `${normalizedCpi}%`;
+    data.cpi = cpi;
+    data.cpi_comment = getComment(cpi);
+    data.cpi_display = `${cpi.toFixed(2)}%`;
   }
 };
 

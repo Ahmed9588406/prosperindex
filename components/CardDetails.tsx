@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { ArrowLeft, MapPin, Calendar, TrendingUp } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, TrendingUp, Info } from 'lucide-react';
 import Link from 'next/link';
 
 interface Calculation {
@@ -24,194 +24,194 @@ const CardDetails: React.FC<CardDetailsProps> = ({ calculation }) => {
     {
       title: 'House Infrastructure',
       fields: [
-        { key: 'improved_shelter', label: 'Improved Shelter' },
-        { key: 'improved_water', label: 'Improved Water' },
-        { key: 'improved_sanitation', label: 'Improved Sanitation' },
-        { key: 'sufficient_living', label: 'Sufficient Living Space' },
-        { key: 'population', label: 'Population Density' },
-        { key: 'electricity', label: 'Electricity Access' },
+        { key: 'improved_shelter_standardized', label: 'Improved Shelter' },
+        { key: 'improved_water_standardized', label: 'Improved Water' },
+        { key: 'improved_sanitation_standardized', label: 'Improved Sanitation' },
+        { key: 'sufficient_living_standardized', label: 'Sufficient Living Space' },
+        { key: 'population_standardized', label: 'Population Density' },
+        { key: 'electricity_standardized', label: 'Electricity Access' },
         { key: 'house_Infrastructure', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Economic Strength',
       fields: [
-        { key: 'city_product_per_capita', label: 'City Product Per Capita' },
-        { key: 'old_age_dependency_ratio', label: 'Old Age Dependency Ratio' },
-        { key: 'mean_household_income', label: 'Mean Household Income' },
+        { key: 'city_product_per_capita_standardized', label: 'City Product Per Capita' },
+        { key: 'old_age_dependency_ratio_standardized', label: 'Old Age Dependency Ratio' },
+        { key: 'mean_household_income_standardized', label: 'Mean Household Income' },
         { key: 'economic_strength', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Economic Agglomeration',
       fields: [
-        { key: 'economic_density', label: 'Economic Density' },
-        { key: 'economic_specialization', label: 'Economic Specialization' },
+        { key: 'economic_density_standardized', label: 'Economic Density' },
+        { key: 'economic_specialization_standardized', label: 'Economic Specialization' },
         { key: 'economic_agglomeration', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Employment',
       fields: [
-        { key: 'unemployment_rate', label: 'Unemployment Rate' },
-        { key: 'employment_to_population_ratio', label: 'Employment to Population Ratio' },
-        { key: 'informal_employment', label: 'Informal Employment' },
+        { key: 'unemployment_rate_standardized', label: 'Unemployment Rate' },
+        { key: 'employment_to_population_ratio_standardized', label: 'Employment to Population Ratio' },
+        { key: 'informal_employment_standardized', label: 'Informal Employment' },
         { key: 'employment', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Social Infrastructure',
       fields: [
-        { key: 'physician_density', label: 'Physician Density' },
-        { key: 'number_of_public_libraries', label: 'Number of Public Libraries' },
+        { key: 'physician_density_standardized', label: 'Physician Density' },
+        { key: 'number_of_public_libraries_standardized', label: 'Number of Public Libraries' },
         { key: 'social_infrastructure', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Urban Mobility',
       fields: [
-        { key: 'use_of_public_transport', label: 'Use of Public Transport' },
-        { key: 'average_daily_travel_time', label: 'Average Daily Travel Time' },
-        { key: 'length_of_mass_transport_network', label: 'Length of Mass Transport Network' },
-        { key: 'traffic_fatalities', label: 'Traffic Fatalities' },
-        { key: 'affordability_of_transport', label: 'Affordability of Transport' },
+        { key: 'use_of_public_transport_standardized', label: 'Use of Public Transport' },
+        { key: 'average_daily_travel_time_standardized', label: 'Average Daily Travel Time' },
+        { key: 'length_of_mass_transport_network_standardized', label: 'Length of Mass Transport Network' },
+        { key: 'traffic_fatalities_standardized', label: 'Traffic Fatalities' },
+        { key: 'affordability_of_transport_standardized', label: 'Affordability of Transport' },
         { key: 'urban_mobility', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Urban Form',
       fields: [
-        { key: 'street_intersection_density', label: 'Street Intersection Density' },
-        { key: 'street_density', label: 'Street Density' },
-        { key: 'land_allocated_to_streets', label: 'Land Allocated to Streets' },
+        { key: 'street_intersection_density_standardized', label: 'Street Intersection Density' },
+        { key: 'street_density_standardized', label: 'Street Density' },
+        { key: 'land_allocated_to_streets_standardized', label: 'Land Allocated to Streets' },
         { key: 'urban_form', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Health',
       fields: [
-        { key: 'life_expectancy_at_birth', label: 'Life Expectancy at Birth' },
-        { key: 'under_five_mortality_rate', label: 'Under Five Mortality Rate' },
-        { key: 'vaccination_coverage', label: 'Vaccination Coverage' },
-        { key: 'maternal_mortality', label: 'Maternal Mortality' },
+        { key: 'life_expectancy_at_birth_standardized', label: 'Life Expectancy at Birth' },
+        { key: 'under_five_mortality_rate_standardized', label: 'Under Five Mortality Rate' },
+        { key: 'vaccination_coverage_standardized', label: 'Vaccination Coverage' },
+        { key: 'maternal_mortality_standardized', label: 'Maternal Mortality' },
         { key: 'health', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Education',
       fields: [
-        { key: 'literacy_rate', label: 'Literacy Rate' },
-        { key: 'mean_years_of_schooling', label: 'Mean Years of Schooling' },
-        { key: 'early_childhood_education', label: 'Early Childhood Education' },
-        { key: 'net_enrollment_rate_in_higher_education', label: 'Net Enrollment Rate in Higher Education' },
+        { key: 'literacy_rate_standardized', label: 'Literacy Rate' },
+        { key: 'mean_years_of_schooling_standardized', label: 'Mean Years of Schooling' },
+        { key: 'early_childhood_education_standardized', label: 'Early Childhood Education' },
+        { key: 'net_enrollment_rate_in_higher_education_standardized', label: 'Net Enrollment Rate in Higher Education' },
         { key: 'education', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Safety and Security',
       fields: [
-        { key: 'homicide_rate', label: 'Homicide Rate' },
-        { key: 'theft_rate', label: 'Theft Rate' },
+        { key: 'homicide_rate_standardized', label: 'Homicide Rate' },
+        { key: 'theft_rate_standardized', label: 'Theft Rate' },
         { key: 'safety_and_security', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Public Space',
       fields: [
-        { key: 'accessibility_to_open_public_areas', label: 'Accessibility to Open Public Areas' },
-        { key: 'green_area_per_capita', label: 'Green Area Per Capita' },
+        { key: 'accessibility_to_open_public_areas_standardized', label: 'Accessibility to Open Public Areas' },
+        { key: 'green_area_per_capita_standardized', label: 'Green Area Per Capita' },
         { key: 'public_space', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Economic Equity',
       fields: [
-        { key: 'gini_coefficient', label: 'Gini Coefficient' },
-        { key: 'poverty_rate', label: 'Poverty Rate' },
+        { key: 'gini_standardized_score', label: 'Gini Coefficient' },
+        { key: 'poverty_rate_standardized_score', label: 'Poverty Rate' },
         { key: 'economic_equity', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Social Inclusion',
       fields: [
-        { key: 'slums_households', label: 'Slums Households' },
-        { key: 'youth_unemployment', label: 'Youth Unemployment' },
+        { key: 'slums_households_standardized', label: 'Slums Households' },
+        { key: 'youth_unemployment_standardized', label: 'Youth Unemployment' },
         { key: 'social_inclusion', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Gender Inclusion',
       fields: [
-        { key: 'equitable_secondary_school_enrollment', label: 'Equitable Secondary School Enrollment' },
-        { key: 'women_in_local_government', label: 'Women in Local Government' },
-        { key: 'women_in_local_work_force', label: 'Women in Local Work Force' },
+        { key: 'equitable_secondary_school_enrollment_standardized', label: 'Equitable Secondary School Enrollment' },
+        { key: 'women_in_local_government_standardized', label: 'Women in Local Government' },
+        { key: 'women_in_local_work_force_standardized', label: 'Women in Local Work Force' },
         { key: 'gender_inclusion', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Urban Diversity',
       fields: [
-        { key: 'land_use_mix', label: 'Land Use Mix' },
+        { key: 'land_use_mix_standardized', label: 'Land Use Mix' },
         { key: 'urban_diversity', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Air Quality',
       fields: [
-        { key: 'number_of_monitoring_stations', label: 'Number of Monitoring Stations' },
-        { key: 'pm25_concentration', label: 'PM2.5 Concentration' },
-        { key: 'co2_emissions', label: 'CO2 Emissions' },
+        { key: 'number_of_monitoring_stations_standardized', label: 'Number of Monitoring Stations' },
+        { key: 'pm25_concentration_standardized', label: 'PM2.5 Concentration' },
+        { key: 'co2_emissions_standardized', label: 'CO2 Emissions' },
         { key: 'air_quality', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Waste Management',
       fields: [
-        { key: 'solid_waste_collection', label: 'Solid Waste Collection' },
-        { key: 'waste_water_treatment', label: 'Waste Water Treatment' },
-        { key: 'solid_waste_recycling_share', label: 'Solid Waste Recycling Share' },
+        { key: 'solid_waste_collection_standardized', label: 'Solid Waste Collection' },
+        { key: 'waste_water_treatment_standardized', label: 'Waste Water Treatment' },
+        { key: 'solid_waste_recycling_share_standardized', label: 'Solid Waste Recycling Share' },
         { key: 'waste_management', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Sustainable Energy',
       fields: [
-        { key: 'share_of_renewable_energy', label: 'Share of Renewable Energy' },
+        { key: 'share_of_renewable_energy_standardized', label: 'Share of Renewable Energy' },
         { key: 'sustainable_energy', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Participation',
       fields: [
-        { key: 'voter_turnout', label: 'Voter Turnout' },
-        { key: 'access_to_public_information', label: 'Access to Public Information' },
-        { key: 'civic_participation', label: 'Civic Participation' },
+        { key: 'voter_turnout_standardized', label: 'Voter Turnout' },
+        { key: 'access_to_public_information_standardized', label: 'Access to Public Information' },
+        { key: 'civic_participation_standardized', label: 'Civic Participation' },
         { key: 'participation', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Municipal Financing',
       fields: [
-        { key: 'own_revenue_collection', label: 'Own Revenue Collection' },
-        { key: 'days_to_start_a_business', label: 'Days to Start a Business' },
-        { key: 'subnational_debt', label: 'Subnational Debt' },
-        { key: 'local_expenditure_efficiency', label: 'Local Expenditure Efficiency' },
+        { key: 'own_revenue_collection_standardized', label: 'Own Revenue Collection' },
+        { key: 'days_to_start_a_business_standardized', label: 'Days to Start a Business' },
+        { key: 'subnational_debt_standardized', label: 'Subnational Debt' },
+        { key: 'local_expenditure_efficiency_standardized', label: 'Local Expenditure Efficiency' },
         { key: 'municipal_financing_and_institutional_capacity', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Governance',
       fields: [
-        { key: 'land_use_efficiency', label: 'Land Use Efficiency' },
+        { key: 'land_use_efficiency_standardized', label: 'Land Use Efficiency' },
         { key: 'governance_of_urbanization', label: 'Overall Score', highlight: true },
       ]
     },
     {
       title: 'Information and Communications Technology',
       fields: [
-        { key: 'internet_access', label: 'Internet Access' },
-        { key: 'home_computer_access', label: 'Home Computer Access' },
-        { key: 'average_broadband_speed', label: 'Average Broadband Speed' },
+        { key: 'internet_access_standardized', label: 'Internet Access' },
+        { key: 'home_computer_access_standardized', label: 'Home Computer Access' },
+        { key: 'average_broadband_speed_standardized', label: 'Average Broadband Speed' },
         { key: 'ict', label: 'Overall Score', highlight: true },
       ]
     },
@@ -260,8 +260,8 @@ const CardDetails: React.FC<CardDetailsProps> = ({ calculation }) => {
                 <span className="text-sm text-purple-100">CPI</span>
               </div>
               {calculation.cpi_comment && (
-                <div className="bg-white/10 px-3 py-1 rounded-lg">
-                  <p className="text-sm font-semibold text-purple-100">
+                <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
+                  <p className="text-sm font-bold text-white tracking-wide">
                     {String(calculation.cpi_comment)}
                   </p>
                 </div>
@@ -277,31 +277,49 @@ const CardDetails: React.FC<CardDetailsProps> = ({ calculation }) => {
         {/* Categories Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {categories.map((category) => (
-            <div key={category.title} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
+            <div key={category.title} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
               <h3 className="text-xl font-bold text-white mb-4 pb-3 border-b border-white/20">
                 {category.title}
               </h3>
               <div className="space-y-3">
                 {category.fields.map((field) => {
                   const value = calculation[field.key];
-                  const comment = calculation[`${field.key}_comment`];
+                  
+                  // Get comment from the base field name (without _standardized suffix)
+                  const baseFieldKey = field.key.replace('_standardized', '').replace('_score', '');
+                  const comment = calculation[`${baseFieldKey}_comment`];
                   
                   if (value === null || value === undefined) return null;
 
+                  // Format value with percentage
+                  const formattedValue = typeof value === 'number' 
+                    ? `${value.toFixed(2)}%` 
+                    : String(value);
+
                   return (
-                    <div key={field.key} className={`${field.highlight ? 'bg-purple-600/20 border border-purple-500/30 rounded-lg p-3' : ''}`}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className={`${field.highlight ? 'font-semibold text-purple-200' : 'text-gray-300'}`}>
+                    <div 
+                      key={field.key} 
+                      className={`${
+                        field.highlight 
+                          ? 'bg-gradient-to-r from-purple-600/30 to-blue-600/30 border border-purple-400/40 rounded-lg p-4 shadow-lg' 
+                          : 'bg-white/5 rounded-lg p-3 hover:bg-white/10 transition-colors'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className={`${field.highlight ? 'font-semibold text-purple-100 text-base' : 'text-gray-300 text-sm'}`}>
                           {field.label}
                         </span>
-                        <span className={`${field.highlight ? 'text-xl font-bold text-white' : 'font-medium text-white'}`}>
-                          {typeof value === 'number' ? value.toFixed(2) : String(value)}
+                        <span className={`${field.highlight ? 'text-2xl font-bold text-white' : 'font-semibold text-white'}`}>
+                          {formattedValue}
                         </span>
                       </div>
                       {comment && (
-                        <p className="text-sm text-gray-400 mt-1 italic">
-                          {String(comment)}
-                        </p>
+                        <div className="mt-3 flex items-start gap-2 bg-white/10 backdrop-blur-sm rounded-md p-2 border border-white/20">
+                          <Info className="w-4 h-4 text-blue-300 flex-shrink-0 mt-0.5" />
+                          <p className="text-xs font-medium text-blue-200 leading-relaxed">
+                            {String(comment)}
+                          </p>
+                        </div>
                       )}
                     </div>
                   );
