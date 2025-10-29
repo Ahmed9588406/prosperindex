@@ -4,12 +4,87 @@
     "save": "Save",
     "loading": "Loading...",
     "success": "Success",
-    "error": "Error"
+    "error": "Error",
+    "language": "Language",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "clear": "Clear",
+    "refresh": "Refresh"
+  },
+  "navigation": {
+    "history": "History",
+    "openMenu": "Open Menu",
+    "closeMenu": "Close Menu",
+    "hideSidebar": "Hide Sidebar",
+    "showSidebar": "Show Sidebar"
+  },
+  "homepage": {
+    "title": "AI-PAT",
+    "subtitle": "Transform urban data into",
+    "subtitleHighlight": "actionable insights",
+    "description": "Harness the power of artificial intelligence to analyze, predict, and optimize urban development across multiple indices.",
+    "startButton": "Let's Start Your Journey",
+    "feature1": "Real-time Analytics",
+    "feature2": "Smart Insights"
+  },
+  "citiesPage": {
+    "title": "Where to?",
+    "subtitle": "Tell us your dream destination and let's start your journey",
+    "savedCities": "Your Saved Cities",
+    "countryLabel": "Country",
+    "countryPlaceholder": "e.g., France, Japan, Italy...",
+    "cityLabel": "City",
+    "cityPlaceholder": "e.g., Paris, Tokyo, New York...",
+    "continueButton": "Continue Your Journey",
+    "orChoose": "or choose popular",
+    "popularDestinations": "Popular Destinations",
+    "footerText": "Can't decide? We'll help you discover the perfect destination",
+    "errorCountry": "Please enter a country",
+    "errorCity": "Please enter a city",
+    "existingCityConfirm": "You already have calculations for {city}, {country}. Do you want to continue with existing data?\n\nClick OK to continue, or Cancel to start fresh.",
+    "lastUpdated": "Last updated:"
+  },
+  "historyPage": {
+    "title": "Calculation History",
+    "loadingCalculations": "Loading calculations...",
+    "newCalculation": "New Calculation",
+    "searchPlaceholder": "Search by city or country...",
+    "compare": "Compare",
+    "selected": "selected",
+    "totalCalculations": "Total calculations:",
+    "noResults": "No Results Found",
+    "noCalculations": "No Calculations Yet",
+    "adjustSearch": "Try adjusting your search terms",
+    "startCalculating": "Start by calculating city prosperity indices",
+    "createNew": "Create New Calculation",
+    "deleteConfirm": "Are you sure you want to delete this calculation?",
+    "compareInfo": "Click Compare to view side-by-side",
+    "selectMoreInfo": "Select at least one more to compare",
+    "maxCompareInfo": "Maximum 5 calculations can be compared",
+    "refreshCalculations": "Refresh calculations"
   },
   "landUseMix": {
-    "title": "Land Use Mix",
-    "inputLabel": "Enter Land Use Data for Each Cell",
+    "title": "Land Use Mix Calculator",
+    "inputLabel": "Enter Land Use Proportions for Each Cell:",
     "totalCells": "Total Number of Cells",
-    "calculate": "Calculate Land Use Mix"
+    "calculate": "Calculate Land Use Mix",
+    "numCategoriesLabel": "Number of Land Use Categories:",
+    "subtitle": "Calculate Shannon-Wiener Diversity Index for urban land use",
+    "calculateAndSave": "Calculate and Save",
+    "calculatingAndSaving": "Calculating and Saving...",
+    "diversityComments": {
+      "veryHigh": "VERY HIGH DIVERSITY",
+      "high": "HIGH DIVERSITY",
+      "moderateHigh": "MODERATE-HIGH DIVERSITY",
+      "moderate": "MODERATE DIVERSITY",
+      "moderateLow": "MODERATE-LOW DIVERSITY",
+      "low": "LOW DIVERSITY",
+      "veryLow": "VERY LOW DIVERSITY"
+    }
   }
 }

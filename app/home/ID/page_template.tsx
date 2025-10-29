@@ -2,7 +2,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { useCity } from "../../context/CityContext";
 import { useUser } from '@clerk/nextjs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -17,20 +16,23 @@ interface IndicatorData {
   subDimension: string;
 }
 
-function ProductivityIndex() {
+function QualityOfLifeIndex() {
   const router = useRouter();
   const { city, country, cityName } = useCity();
   const { user, isLoaded } = useUser();
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [calculationData, setCalculationData] = useState<any>(null);
 
   const handleCardClick = (id: number) => {
     if (id === 1) {
-      router.push("/home/P/EG");
+      router.push("/home/QOL/H");
     } else if (id === 2) {
-      router.push("/home/P/EA");
+      router.push("/home/QOL/E");
     } else if (id === 3) {
-      router.push("/home/P/E");
+      router.push("/home/QOL/SS");
+    } else if (id === 4) {
+      router.push("/home/QOL/PS");
     }
   };
 
@@ -57,8 +59,8 @@ function ProductivityIndex() {
 
         const history = await response.json();
         
-        // Find the record for the selected city
         const cityData = history.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (record: any) => record.city === city && record.country === country
         );
 
@@ -79,121 +81,159 @@ function ProductivityIndex() {
   }, [city, country, user, isLoaded]);
 
   // Build dynamic data structure from database
-  const getProductivityData = (): IndicatorData[] => {
+  const getQualityOfLifeData = (): IndicatorData[] => {
     if (!calculationData) return [];
-
     const data: IndicatorData[] = [];
 
-    // Economic Growth indicators
-    if (calculationData.city_product_per_capita !== null && calculationData.city_product_per_capita !== undefined) {
+    // Health indicators
+    if (calculationData.life_expectancy_at_birth !== null && calculationData.life_expectancy_at_birth !== undefined) {
       data.push({
-        subDimension: "Economic Growth",
-        indicator: "City Product per Capita",
-        actual: calculationData.city_product_per_capita?.toFixed(2) || "N/A",
-        unit: "USD (PPP)/inhab",
-        standardized: calculationData.city_product_per_capita_standardized || 0,
-        comment: calculationData.city_product_per_capita_comment || "N/A"
+        subDimension: "Health",
+        indicator: "Life Expectancy at Birth",
+        actual: calculationData.life_expectancy_at_birth?.toFixed(2) || "N/A",
+        unit: "years",
+        standardized: calculationData.life_expectancy_at_birth_standardized || 0,
+        comment: calculationData.life_expectancy_at_birth_comment || "N/A"
       });
     }
-
-    if (calculationData.mean_household_income !== null && calculationData.mean_household_income !== undefined) {
+    if (calculationData.under_five_mortality_rate !== null && calculationData.under_five_mortality_rate !== undefined) {
       data.push({
-        subDimension: "Economic Growth",
-        indicator: "Mean Household Income",
-        actual: calculationData.mean_household_income?.toFixed(2) || "N/A",
-        unit: "USD(PPP)",
-        standardized: calculationData.mean_household_income_standardized || 0,
-        comment: calculationData.mean_household_income_comment || "N/A"
+        subDimension: "Health",
+        indicator: "Under Five Mortality Rate",
+        actual: calculationData.under_five_mortality_rate?.toFixed(2) || "N/A",
+        unit: "per 1,000 live births",
+        standardized: calculationData.under_five_mortality_rate_standardized || 0,
+        comment: calculationData.under_five_mortality_rate_comment || "N/A"
       });
     }
-
-    if (calculationData.old_age_dependency_ratio !== null && calculationData.old_age_dependency_ratio !== undefined) {
+    if (calculationData.vaccination_coverage !== null && calculationData.vaccination_coverage !== undefined) {
       data.push({
-        subDimension: "Economic Growth",
-        indicator: "Old Age Dependency Ratio",
-        actual: calculationData.old_age_dependency_ratio?.toFixed(2) || "N/A",
+        subDimension: "Health",
+        indicator: "Vaccination Coverage",
+        actual: calculationData.vaccination_coverage?.toFixed(2) || "N/A",
         unit: "%",
-        standardized: calculationData.old_age_dependency_ratio_standardized || 0,
-        comment: calculationData.old_age_dependency_ratio_comment || "N/A"
+        standardized: calculationData.vaccination_coverage_standardized || 0,
+        comment: calculationData.vaccination_coverage_comment || "N/A"
+      });
+    }
+    if (calculationData.maternal_mortality !== null && calculationData.maternal_mortality !== undefined) {
+      data.push({
+        subDimension: "Health",
+        indicator: "Maternal Mortality",
+        actual: calculationData.maternal_mortality?.toFixed(2) || "N/A",
+        unit: "per 100,000 live births",
+        standardized: calculationData.maternal_mortality_standardized || 0,
+        comment: calculationData.maternal_mortality_comment || "N/A"
       });
     }
 
-    // Employment indicators
-    if (calculationData.employment_to_population_ratio !== null && calculationData.employment_to_population_ratio !== undefined) {
+    // Education indicators
+    if (calculationData.literacy_rate !== null && calculationData.literacy_rate !== undefined) {
       data.push({
-        subDimension: "Employment",
-        indicator: "Employment in Population Ratio",
-        actual: calculationData.employment_to_population_ratio?.toFixed(2) || "N/A",
+        subDimension: "Education",
+        indicator: "Literacy Rate",
+        actual: calculationData.literacy_rate?.toFixed(2) || "N/A",
         unit: "%",
-        standardized: calculationData.employment_to_population_ratio_standardized || 0,
-        comment: calculationData.employment_to_population_ratio_comment || "N/A"
+        standardized: calculationData.literacy_rate_standardized || 0,
+        comment: calculationData.literacy_rate_comment || "N/A"
       });
     }
-
-    if (calculationData.informal_employment !== null && calculationData.informal_employment !== undefined) {
+    if (calculationData.mean_years_of_schooling !== null && calculationData.mean_years_of_schooling !== undefined) {
       data.push({
-        subDimension: "Employment",
-        indicator: "Informal Employment",
-        actual: calculationData.informal_employment?.toFixed(2) || "N/A",
+        subDimension: "Education",
+        indicator: "Mean Years of Schooling",
+        actual: calculationData.mean_years_of_schooling?.toFixed(2) || "N/A",
+        unit: "years",
+        standardized: calculationData.mean_years_of_schooling_standardized || 0,
+        comment: calculationData.mean_years_of_schooling_comment || "N/A"
+      });
+    }
+    if (calculationData.early_childhood_education !== null && calculationData.early_childhood_education !== undefined) {
+      data.push({
+        subDimension: "Education",
+        indicator: "Early Childhood Education",
+        actual: calculationData.early_childhood_education?.toFixed(2) || "N/A",
         unit: "%",
-        standardized: calculationData.informal_employment_standardized || 0,
-        comment: calculationData.informal_employment_comment || "N/A"
+        standardized: calculationData.early_childhood_education_standardized || 0,
+        comment: calculationData.early_childhood_education_comment || "N/A"
       });
     }
-
-    if (calculationData.unemployment_rate !== null && calculationData.unemployment_rate !== undefined) {
+    if (calculationData.net_enrollment_rate_in_higher_education !== null && calculationData.net_enrollment_rate_in_higher_education !== undefined) {
       data.push({
-        subDimension: "Employment",
-        indicator: "Unemployment Rate",
-        actual: calculationData.unemployment_rate?.toFixed(2) || "N/A",
+        subDimension: "Education",
+        indicator: "Net Enrollment Rate in Higher Education",
+        actual: calculationData.net_enrollment_rate_in_higher_education?.toFixed(2) || "N/A",
         unit: "%",
-        standardized: calculationData.unemployment_rate_standardized || 0,
-        comment: calculationData.unemployment_rate_comment || "N/A"
+        standardized: calculationData.net_enrollment_rate_in_higher_education_standardized || 0,
+        comment: calculationData.net_enrollment_rate_in_higher_education_comment || "N/A"
       });
     }
 
-    // Economic Agglomeration indicators
-    if (calculationData.economic_density !== null && calculationData.economic_density !== undefined) {
+    // Safety and Security indicators
+    if (calculationData.homicide_rate !== null && calculationData.homicide_rate !== undefined) {
       data.push({
-        subDimension: "Economic Agglomeration",
-        indicator: "Economic Density",
-        actual: calculationData.economic_density?.toFixed(2) || "N/A",
-        unit: "USD (PPP)/km2",
-        standardized: calculationData.economic_density_standardized || 0,
-        comment: calculationData.economic_density_comment || "N/A"
+        subDimension: "Safety and Security",
+        indicator: "Homicide Rate",
+        actual: calculationData.homicide_rate?.toFixed(2) || "N/A",
+        unit: "per 100,000 inhabitants",
+        standardized: calculationData.homicide_rate_standardized || 0,
+        comment: calculationData.homicide_rate_comment || "N/A"
+      });
+    }
+    if (calculationData.theft_rate !== null && calculationData.theft_rate !== undefined) {
+      data.push({
+        subDimension: "Safety and Security",
+        indicator: "Theft Rate",
+        actual: calculationData.theft_rate?.toFixed(2) || "N/A",
+        unit: "per 100,000 inhabitants",
+        standardized: calculationData.theft_rate_standardized || 0,
+        comment: calculationData.theft_rate_comment || "N/A"
       });
     }
 
-    if (calculationData.economic_specialization !== null && calculationData.economic_specialization !== undefined) {
+    // Public Space indicators
+    if (calculationData.accessibility_to_open_public_areas !== null && calculationData.accessibility_to_open_public_areas !== undefined) {
       data.push({
-        subDimension: "Economic Agglomeration",
-        indicator: "Economic Specialization",
-        actual: calculationData.economic_specialization?.toFixed(2) || "N/A",
-        unit: "Dimensionless",
-        standardized: calculationData.economic_specialization_standardized || 0,
-        comment: calculationData.economic_specialization_comment || "N/A"
+        subDimension: "Public Space",
+        indicator: "Accessibility to Open Public Areas",
+        actual: calculationData.accessibility_to_open_public_areas?.toFixed(2) || "N/A",
+        unit: "%",
+        standardized: calculationData.accessibility_to_open_public_areas_standardized || 0,
+        comment: calculationData.accessibility_to_open_public_areas_comment || "N/A"
+      });
+    }
+    if (calculationData.green_area_per_capita !== null && calculationData.green_area_per_capita !== undefined) {
+      data.push({
+        subDimension: "Public Space",
+        indicator: "Green Area Per Capita",
+        actual: calculationData.green_area_per_capita?.toFixed(2) || "N/A",
+        unit: "m²/person",
+        standardized: calculationData.green_area_per_capita_standardized || 0,
+        comment: calculationData.green_area_per_capita_comment || "N/A"
       });
     }
 
     return data;
   };
 
-  const productivityData = getProductivityData();
+  const qualityOfLifeData = getQualityOfLifeData();
 
-  // Build chart data from productivity data
   const getChartData = () => {
     const colorMap: Record<string, string> = {
-      "City Product per Capita": "#FDB462",
-      "Mean Household Income": "#FDB462",
-      "Old Age Dependency Ratio": "#FDB462",
-      "Employment in Population Ratio": "#80CBC4",
-      "Informal Employment": "#4FC3F7",
-      "Unemployment Rate": "#4DD0E1",
-      "Economic Density": "#90CAF9",
-      "Economic Specialization": "#81C784"
+      "Life Expectancy at Birth": "#81C784",
+      "Under Five Mortality Rate": "#66BB6A",
+      "Vaccination Coverage": "#4CAF50",
+      "Maternal Mortality": "#43A047",
+      "Literacy Rate": "#64B5F6",
+      "Mean Years of Schooling": "#42A5F5",
+      "Early Childhood Education": "#2196F3",
+      "Net Enrollment Rate in Higher Education": "#1E88E5",
+      "Homicide Rate": "#FFB74D",
+      "Theft Rate": "#FFA726",
+      "Accessibility to Open Public Areas": "#BA68C8",
+      "Green Area Per Capita": "#AB47BC"
     };
-
-    return productivityData.map(item => ({
+    return qualityOfLifeData.map(item => ({
       name: item.indicator,
       value: item.standardized,
       color: colorMap[item.indicator] || "#888888"
@@ -202,18 +242,14 @@ function ProductivityIndex() {
 
   const chartData = getChartData();
 
-  // Group data by sub-dimension and calculate averages
-  const groupedData = productivityData.reduce((acc, item) => {
+  const groupedData = qualityOfLifeData.reduce((acc, item) => {
     if (!acc[item.subDimension]) {
-      acc[item.subDimension] = {
-        indicators: []
-      };
+      acc[item.subDimension] = { indicators: [] };
     }
     acc[item.subDimension].indicators.push(item);
     return acc;
   }, {} as Record<string, { indicators: IndicatorData[] }>);
 
-  // Calculate sub-dimension averages
   const getSubDimensionAverage = (subDim: string): number => {
     const indicators = groupedData[subDim]?.indicators || [];
     if (indicators.length === 0) return 0;
@@ -221,25 +257,21 @@ function ProductivityIndex() {
     return sum / indicators.length;
   };
 
-  // Calculate overall Productivity Index as simple average of sub-dimensions
-  const calculateProductivityIndex = (): number => {
-    const subDimensions = ["Economic Growth", "Employment", "Economic Agglomeration"];
+  const calculateQualityOfLifeIndex = (): number => {
+    const subDimensions = ["Health", "Education", "Safety and Security", "Public Space"];
     const availableAverages: number[] = [];
-
     subDimensions.forEach(subDim => {
       const avg = getSubDimensionAverage(subDim);
       if (avg > 0 && groupedData[subDim]) {
         availableAverages.push(avg);
       }
     });
-
     if (availableAverages.length === 0) return 0;
-    
     const sum = availableAverages.reduce((total, val) => total + val, 0);
     return sum / availableAverages.length;
   };
 
-  const productivityIndex = calculateProductivityIndex();
+  const qualityOfLifeIndex = calculateQualityOfLifeIndex();
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -255,32 +287,30 @@ function ProductivityIndex() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading productivity data...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading quality of life data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">The Productivity Index</h1>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">The Quality of Life Index</h1>
           {city && country && (
             <p className="text-lg text-gray-600 mb-4">📍 {cityName || `${city}, ${country}`}</p>
           )}
-          <div className="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-full shadow-lg">
+          <div className="inline-block bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-3 rounded-full shadow-lg">
             <span className="text-3xl font-bold">
-              {productivityData.length > 0 ? `${productivityIndex.toFixed(1)}%` : "N/A"}
+              {qualityOfLifeData.length > 0 ? `${qualityOfLifeIndex.toFixed(1)}%` : "N/A"}
             </span>
           </div>
         </div>
 
-        {/* Warning if no data */}
         {(!city || !country) && (
           <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
             <p className="text-sm text-yellow-800 flex items-center">
@@ -289,7 +319,7 @@ function ProductivityIndex() {
           </div>
         )}
 
-        {city && country && productivityData.length === 0 && (
+        {city && country && qualityOfLifeData.length === 0 && (
           <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
             <p className="text-sm text-blue-800 flex items-center">
               ℹ️ No calculation data available for this city. Please calculate indicators from the sub-dimensions below.
@@ -297,12 +327,11 @@ function ProductivityIndex() {
           </div>
         )}
 
-        {/* Table Section */}
-        {productivityData.length > 0 && (
+        {qualityOfLifeData.length > 0 && (
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4">
+          <div className="bg-gradient-to-r from-green-600 to-blue-600 p-4">
             <h2 className="text-2xl font-bold text-white">
-              Table 2: The Productivity Index ({productivityIndex.toFixed(1)}%)
+              Quality of Life Index ({qualityOfLifeIndex.toFixed(1)}%)
             </h2>
           </div>
           
@@ -362,9 +391,10 @@ function ProductivityIndex() {
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                            item.comment.includes('V. Strong') ? 'bg-green-100 text-green-800' :
-                            item.comment.includes('M. Strong') ? 'bg-blue-100 text-blue-800' :
-                            item.comment.includes('moderate') ? 'bg-yellow-100 text-yellow-800' :
+                            item.comment.includes('VERY SOLID') ? 'bg-green-100 text-green-800' :
+                            item.comment.includes('SOLID') ? 'bg-blue-100 text-blue-800' :
+                            item.comment.includes('MODERATELY SOLID') ? 'bg-yellow-100 text-yellow-800' :
+                            item.comment.includes('MODERATELY WEAK') ? 'bg-orange-100 text-orange-800' :
                             'bg-red-100 text-red-800'
                           }`}>
                             {item.comment}
@@ -380,11 +410,10 @@ function ProductivityIndex() {
         </div>
         )}
 
-        {/* Chart Section */}
-        {productivityData.length > 0 && (
+        {qualityOfLifeData.length > 0 && (
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-            Figure 4: The Productivity Indicators
+            Quality of Life Indicators
           </h2>
           
           <div className="w-full" style={{ height: '500px' }}>
@@ -399,7 +428,7 @@ function ProductivityIndex() {
                   angle={-45} 
                   textAnchor="end" 
                   height={150}
-                  tick={{ fontSize: 12, fill: '#666' }}
+                  tick={{ fontSize: 11, fill: '#666' }}
                   interval={0}
                 />
                 <YAxis 
@@ -417,94 +446,86 @@ function ProductivityIndex() {
             </ResponsiveContainer>
           </div>
 
-          {/* Legend */}
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#FDB462' }}></div>
-              <span className="text-sm text-gray-700">Economic Growth</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#80CBC4' }}></div>
-              <span className="text-sm text-gray-700">Employment</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#4FC3F7' }}></div>
-              <span className="text-sm text-gray-700">Employment</span>
-            </div>
-            <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded" style={{ backgroundColor: '#81C784' }}></div>
-              <span className="text-sm text-gray-700">Economic Agglomeration</span>
+              <span className="text-sm text-gray-700">Health</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#64B5F6' }}></div>
+              <span className="text-sm text-gray-700">Education</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#FFB74D' }}></div>
+              <span className="text-sm text-gray-700">Safety and Security</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded" style={{ backgroundColor: '#BA68C8' }}></div>
+              <span className="text-sm text-gray-700">Public Space</span>
             </div>
           </div>
         </div>
         )}
 
-        {/* Navigation Cards */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Explore Sub-Dimensions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {/* Economic Growth */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
             <div
               className="relative group bg-white shadow-lg rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer"
               onClick={() => handleCardClick(1)}
             >
               <div className="flex flex-col items-center p-8">
-                <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full p-4 mb-4 shadow-lg transform transition-all duration-300 group-hover:shadow-xl group-hover:scale-110">
-                  <Image 
-                    src="/assets/economic_strength.png" 
-                    alt="Economic Strength" 
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-contain filter drop-shadow-md"
-                  />
+                <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mb-4 shadow-lg transform transition-all duration-300 group-hover:shadow-xl group-hover:scale-110">
+                  <span className="text-3xl">🏥</span>
                 </div>
-                <h4 className="text-xl font-bold text-gray-800 mb-2 text-center">Economic Growth</h4>
-                <p className="text-sm text-blue-600 font-semibold">
-                  {groupedData["Economic Growth"] ? `${getSubDimensionAverage("Economic Growth").toFixed(1)}%` : "71.2%"}
+                <h4 className="text-xl font-bold text-gray-800 mb-2 text-center">Health</h4>
+                <p className="text-sm text-green-600 font-semibold">
+                  {groupedData["Health"] ? `${getSubDimensionAverage("Health").toFixed(1)}%` : "N/A"}
                 </p>
               </div>
             </div>
 
-            {/* Economic Agglomeration */}
             <div
               className="relative group bg-white shadow-lg rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer"
               onClick={() => handleCardClick(2)}
             >
               <div className="flex flex-col items-center p-8">
-                <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full p-4 mb-4 shadow-lg transform transition-all duration-300 group-hover:shadow-xl group-hover:scale-110">
-                  <Image 
-                    src="/assets/economic_aggregation.png" 
-                    alt="Economic Agglomeration" 
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-contain rounded-full filter drop-shadow-md"
-                  />
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mb-4 shadow-lg transform transition-all duration-300 group-hover:shadow-xl group-hover:scale-110">
+                  <span className="text-3xl">📚</span>
                 </div>
-                <h4 className="text-xl font-bold text-gray-800 mb-2 text-center">Economic Agglomeration</h4>
+                <h4 className="text-xl font-bold text-gray-800 mb-2 text-center">Education</h4>
                 <p className="text-sm text-blue-600 font-semibold">
-                  {groupedData["Economic Agglomeration"] ? `${getSubDimensionAverage("Economic Agglomeration").toFixed(1)}%` : "42.1%"}
+                  {groupedData["Education"] ? `${getSubDimensionAverage("Education").toFixed(1)}%` : "N/A"}
                 </p>
               </div>
             </div>
 
-            {/* Employment */}
             <div
               className="relative group bg-white shadow-lg rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer"
               onClick={() => handleCardClick(3)}
             >
               <div className="flex flex-col items-center p-8">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full p-4 mb-4 shadow-lg transform transition-all duration-300 group-hover:shadow-xl group-hover:scale-110">
-                  <Image 
-                    src="/assets/Employment-Logo-PNG-HD-Quality.png" 
-                    alt="Employment" 
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-contain filter drop-shadow-md"
-                  />
+                <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center mb-4 shadow-lg transform transition-all duration-300 group-hover:shadow-xl group-hover:scale-110">
+                  <span className="text-3xl">🛡️</span>
                 </div>
-                <h4 className="text-xl font-bold text-gray-800 mb-2 text-center">Employment</h4>
-                <p className="text-sm text-blue-600 font-semibold">
-                  {groupedData["Employment"] ? `${getSubDimensionAverage("Employment").toFixed(1)}%` : "75.7%"}
+                <h4 className="text-xl font-bold text-gray-800 mb-2 text-center">Safety & Security</h4>
+                <p className="text-sm text-orange-600 font-semibold">
+                  {groupedData["Safety and Security"] ? `${getSubDimensionAverage("Safety and Security").toFixed(1)}%` : "N/A"}
+                </p>
+              </div>
+            </div>
+
+            <div
+              className="relative group bg-white shadow-lg rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer"
+              onClick={() => handleCardClick(4)}
+            >
+              <div className="flex flex-col items-center p-8">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mb-4 shadow-lg transform transition-all duration-300 group-hover:shadow-xl group-hover:scale-110">
+                  <span className="text-3xl">🌳</span>
+                </div>
+                <h4 className="text-xl font-bold text-gray-800 mb-2 text-center">Public Space</h4>
+                <p className="text-sm text-purple-600 font-semibold">
+                  {groupedData["Public Space"] ? `${getSubDimensionAverage("Public Space").toFixed(1)}%` : "N/A"}
                 </p>
               </div>
             </div>
@@ -515,4 +536,4 @@ function ProductivityIndex() {
   );
 }
 
-export default ProductivityIndex;
+export default QualityOfLifeIndex;
