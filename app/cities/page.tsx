@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Globe, ChevronRight, Sparkles, Map, Building2, History } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCity } from '../context/CityContext';
+import { useTranslations } from 'next-intl';
 
 interface ExistingCity {
   id: string;
@@ -16,6 +17,8 @@ interface ExistingCity {
 export default function Page() {
   const router = useRouter();
   const { setLocation, isLoaded } = useCity();
+  const t = useTranslations('citiesPage');
+  const tCommon = useTranslations('common');
   const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
   const [errors, setErrors] = useState({ country: false, city: false });
@@ -117,7 +120,7 @@ export default function Page() {
   if (!mounted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-        <div className="text-white text-xl">Loading...</div>
+        <div className="text-white text-xl">{tCommon('loading')}</div>
       </div>
     );
   }
@@ -131,10 +134,10 @@ export default function Page() {
             <Globe className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4">
-            Where to?
+            {t('title')}
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-gray-300 max-w-xl mx-auto px-4">
-            Tell us your dream destination and let&apos;s start your journey
+            {t('subtitle')}
           </p>
         </div>
 
@@ -147,7 +150,7 @@ export default function Page() {
             >
               <div className="flex items-center gap-3">
                 <History className="w-5 h-5 text-purple-400" />
-                <span className="font-medium">Your Saved Cities ({existingCities.length})</span>
+                <span className="font-medium">{t('savedCities')} ({existingCities.length})</span>
               </div>
               <ChevronRight className={`w-5 h-5 transition-transform ${showExisting ? 'rotate-90' : ''}`} />
             </button>
@@ -167,7 +170,7 @@ export default function Page() {
                         </div>
                         <div className="text-gray-400 text-sm">{existingCity.country}</div>
                         <div className="text-xs text-gray-500 mt-1">
-                          Last updated: {existingCity.updatedAt ? formatDate(existingCity.updatedAt) : 'N/A'}
+                          {t('lastUpdated')} {existingCity.updatedAt ? formatDate(existingCity.updatedAt) : 'N/A'}
                         </div>
                       </div>
                       <MapPin className="w-5 h-5 text-purple-400" />
@@ -186,7 +189,7 @@ export default function Page() {
             <div>
               <label className="flex items-center text-white text-sm sm:text-base font-medium mb-3">
                 <Map className="w-5 h-5 mr-2 text-purple-400" />
-                Country
+                {t('countryLabel')}
               </label>
               <div className="relative">
                 <input
@@ -196,13 +199,13 @@ export default function Page() {
                     setCountry(e.target.value);
                     setErrors({ ...errors, country: false });
                   }}
-                  placeholder="e.g., France, Japan, Italy..."
+                  placeholder={t('countryPlaceholder')}
                   className={`w-full bg-white/5 border ${
                     errors.country ? 'border-red-500' : 'border-white/20'
                   } rounded-xl px-4 sm:px-5 py-3 sm:py-4 text-white placeholder-gray-400 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition text-base sm:text-lg`}
                 />
                 {errors.country && (
-                  <p className="text-red-400 text-xs sm:text-sm mt-2 ml-1">Please enter a country</p>
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 ml-1">{t('errorCountry')}</p>
                 )}
               </div>
             </div>
@@ -211,7 +214,7 @@ export default function Page() {
             <div>
               <label className="flex items-center text-white text-sm sm:text-base font-medium mb-3">
                 <Building2 className="w-5 h-5 mr-2 text-pink-400" />
-                City
+                {t('cityLabel')}
               </label>
               <div className="relative">
                 <input
@@ -226,13 +229,13 @@ export default function Page() {
                       handleSubmit();
                     }
                   }}
-                  placeholder="e.g., Paris, Tokyo, New York..."
+                  placeholder={t('cityPlaceholder')}
                   className={`w-full bg-white/5 border ${
                     errors.city ? 'border-red-500' : 'border-white/20'
                   } rounded-xl px-4 sm:px-5 py-3 sm:py-4 text-white placeholder-gray-400 outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/50 transition text-base sm:text-lg`}
                 />
                 {errors.city && (
-                  <p className="text-red-400 text-xs sm:text-sm mt-2 ml-1">Please enter a city</p>
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 ml-1">{t('errorCity')}</p>
                 )}
               </div>
             </div>
@@ -242,7 +245,7 @@ export default function Page() {
               onClick={() => handleSubmit()}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-4 sm:py-5 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-2xl hover:scale-105 text-base sm:text-lg"
             >
-              <span>Continue Your Journey</span>
+              <span>{t('continueButton')}</span>
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
@@ -250,7 +253,7 @@ export default function Page() {
           {/* Divider */}
           <div className="flex items-center my-6 sm:my-8">
             <div className="flex-1 border-t border-white/20"></div>
-            <span className="px-4 text-gray-400 text-xs sm:text-sm">or choose popular</span>
+            <span className="px-4 text-gray-400 text-xs sm:text-sm">{t('orChoose')}</span>
             <div className="flex-1 border-t border-white/20"></div>
           </div>
 
@@ -258,7 +261,7 @@ export default function Page() {
           <div className="space-y-3">
             <div className="flex items-center text-white text-xs sm:text-sm font-medium mb-3">
               <Sparkles className="w-4 h-4 mr-2 text-yellow-400" />
-              Popular Destinations
+              {t('popularDestinations')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {popularDestinations.map((dest, index) => (
@@ -285,7 +288,7 @@ export default function Page() {
         {/* Footer Info */}
         <div className="text-center mt-6 sm:mt-8">
           <p className="text-gray-400 text-xs sm:text-sm">
-            Can&apos;t decide? We&apos;ll help you discover the perfect destination
+            {t('footerText')}
           </p>
         </div>
       </div>

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -22,6 +21,7 @@ function ProductivityIndex() {
   const { city, country, cityName } = useCity();
   const { user, isLoaded } = useUser();
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [calculationData, setCalculationData] = useState<any>(null);
 
   const handleCardClick = (id: number) => {
@@ -59,6 +59,7 @@ function ProductivityIndex() {
         
         // Find the record for the selected city
         const cityData = history.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (record: any) => record.city === city && record.country === country
         );
 
@@ -241,6 +242,7 @@ function ProductivityIndex() {
 
   const productivityIndex = calculateProductivityIndex();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (

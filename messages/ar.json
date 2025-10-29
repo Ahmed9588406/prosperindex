@@ -4,12 +4,87 @@
     "save": "حفظ",
     "loading": "جاري التحميل...",
     "success": "نجاح",
-    "error": "خطأ"
+    "error": "خطأ",
+    "language": "اللغة",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "back": "رجوع",
+    "next": "التالي",
+    "search": "بحث",
+    "clear": "مسح",
+    "refresh": "تحديث"
+  },
+  "navigation": {
+    "history": "السجل",
+    "openMenu": "فتح القائمة",
+    "closeMenu": "إغلاق القائمة",
+    "hideSidebar": "إخفاء الشريط الجانبي",
+    "showSidebar": "إظهار الشريط الجانبي"
+  },
+  "homepage": {
+    "title": "AI-PAT",
+    "subtitle": "حول بيانات المدن إلى",
+    "subtitleHighlight": "رؤى قابلة للتنفيذ",
+    "description": "استخدم قوة الذكاء الاصطناعي لتحليل وتوقع وتحسين التنمية الحضرية عبر مؤشرات متعددة.",
+    "startButton": "لنبدأ رحلتك",
+    "feature1": "تحليلات في الوقت الفعلي",
+    "feature2": "رؤى ذكية"
+  },
+  "citiesPage": {
+    "title": "إلى أين؟",
+    "subtitle": "أخبرنا عن وجهتك المثالية ولنبدأ رحلتك",
+    "savedCities": "مدنك المحفوظة",
+    "countryLabel": "الدولة",
+    "countryPlaceholder": "مثال: فرنسا، اليابان، إيطاليا...",
+    "cityLabel": "المدينة",
+    "cityPlaceholder": "مثال: باريس، طوكيو، نيويورك...",
+    "continueButton": "استمر في رحلتك",
+    "orChoose": "أو اختر الشائعة",
+    "popularDestinations": "الوجهات الشائعة",
+    "footerText": "لا تستطيع تحديد؟ سنساعدك في اكتشاف الوجهة المثالية",
+    "errorCountry": "الرجاء إدخال اسم الدولة",
+    "errorCity": "الرجاء إدخال اسم المدينة",
+    "existingCityConfirm": "لديك حسابات موجودة لـ {city}، {country}. هل تريد الاستمرار بالبيانات الموجودة؟\\n\\nانقر موافق للاستمرار، أو إلغاء للبدء من جديد.",
+    "lastUpdated": "آخر تحديث:"
+  },
+  "historyPage": {
+    "title": "سجل الحسابات",
+    "loadingCalculations": "جاري تحميل الحسابات...",
+    "newCalculation": "حساب جديد",
+    "searchPlaceholder": "البحث حسب المدينة أو الدولة...",
+    "compare": "مقارنة",
+    "selected": "محدد",
+    "totalCalculations": "إجمالي الحسابات:",
+    "noResults": "لا توجد نتائج",
+    "noCalculations": "لا توجد حسابات بعد",
+    "adjustSearch": "حاول تعديل مصطلحات البحث",
+    "startCalculating": "ابدأ بحساب مؤشرات ازدهار المدن",
+    "createNew": "إنشاء حساب جديد",
+    "deleteConfirm": "هل أنت متأكد من حذف هذا الحساب؟",
+    "compareInfo": "انقر على مقارنة لعرض جنباً إلى جنب",
+    "selectMoreInfo": "حدد واحداً آخر على الأقل للمقارنة",
+    "maxCompareInfo": "يمكن مقارنة 5 حسابات كحد أقصى",
+    "refreshCalculations": "تحديث الحسابات"
   },
   "landUseMix": {
-    "title": "مزيج استخدام الأراضي",
-    "inputLabel": "أدخل بيانات استخدام الأراضي لكل خلية",
+    "title": "حاسبة مزيج استخدام الأراضي",
+    "inputLabel": "أدخل نسب استخدام الأراضي لكل خلية:",
     "totalCells": "إجمالي عدد الخلايا",
-    "calculate": "حساب مزيج استخدام الأراضي"
+    "calculate": "حساب مزيج استخدام الأراضي",
+    "numCategoriesLabel": "عدد فئات استخدام الأراضي:",
+    "subtitle": "حساب مؤشر شانون وينر للتنوع لاستخدام الأراضي الحضرية",
+    "calculateAndSave": "حساب وحفظ",
+    "calculatingAndSaving": "جاري الحساب والحفظ...",
+    "diversityComments": {
+      "veryHigh": "تنوع عالي جداً",
+      "high": "تنوع عالي",
+      "moderateHigh": "تنوع متوسط-عالي",
+      "moderate": "تنوع متوسط",
+      "moderateLow": "تنوع متوسط-منخفض",
+      "low": "تنوع منخفض",
+      "veryLow": "تنوع منخفض جداً"
+    }
   }
 }

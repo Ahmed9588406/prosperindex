@@ -3,13 +3,16 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: "Welcome",
   description: "Welcome to AI-PAT - Your AI-Powered Analytics Platform",
 }
 
-export default function WelcomePage() {
+export default async function WelcomePage() {
+  const t = await getTranslations('homepage');
+  
   return (
     <main className="relative flex justify-center items-center min-h-screen overflow-hidden">
       {/* Animated Background Gradient */}
@@ -74,21 +77,21 @@ export default function WelcomePage() {
             <div className="space-y-4">
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold font-jura">
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 animate-gradient-x">
-                  AI-PAT
+                  {t('title')}
                 </span>
               </h1>
               
               <p className="text-xl sm:text-2xl text-white/80 font-light leading-relaxed">
-                Transform urban data into
+                {t('subtitle')}
                 <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-blue-300 font-semibold">
-                  actionable insights
+                  {t('subtitleHighlight')}
                 </span>
               </p>
             </div>
 
             {/* Description */}
             <p className="text-gray-300 text-lg max-w-md leading-relaxed">
-              Harness the power of artificial intelligence to analyze, predict, and optimize urban development across multiple indices.
+              {t('description')}
             </p>
 
             {/* CTA Button */}
@@ -108,7 +111,7 @@ export default function WelcomePage() {
                 <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 
                 <span className="relative flex items-center gap-3">
-                  Let&apos;s Start Your Journey
+                  {t('startButton')}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Button>
@@ -116,7 +119,7 @@ export default function WelcomePage() {
 
             {/* Features List */}
             <div className="flex flex-wrap gap-4 pt-4">
-              {['Real-time Analytics', 'Smart Insights'].map((feature) => (
+              {[t('feature1'), t('feature2')].map((feature) => (
                 <div 
                   key={feature}
                   className="px-4 py-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-colors"

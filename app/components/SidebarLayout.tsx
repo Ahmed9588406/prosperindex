@@ -11,6 +11,8 @@ import Image from 'next/image';
 import Link from "next/link";
 import { Menu, X, History } from 'lucide-react';
 import CategoryNavigation from '../categories/CategoryNavigation';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useTranslations } from 'next-intl';
 
 type Category = {
   name: string;
@@ -23,6 +25,7 @@ interface SidebarLayoutProps {
 }
 
 export default function SidebarLayout({ categories, children }: SidebarLayoutProps) {
+  const t = useTranslations('navigation');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -342,7 +345,7 @@ export default function SidebarLayout({ categories, children }: SidebarLayoutPro
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
                 }}
-                title={isSidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
+                title={isSidebarOpen ? t('hideSidebar') : t('showSidebar')}
               >
                 {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
@@ -361,9 +364,10 @@ export default function SidebarLayout({ categories, children }: SidebarLayoutPro
               <Link href="/history">
                 <button className="history-button">
                   <History className="history-icon" />
-                  <span>History</span>
+                  <span>{t('history')}</span>
                 </button>
               </Link>
+              <LanguageSwitcher />
               <SignedOut>
                 <SignInButton />
               </SignedOut>
@@ -387,7 +391,7 @@ export default function SidebarLayout({ categories, children }: SidebarLayoutPro
             <span></span>
             <span></span>
           </div>
-          <span>{isMobileMenuOpen ? 'Close Menu' : 'Open Menu'}</span>
+          <span>{isMobileMenuOpen ? t('closeMenu') : t('openMenu')}</span>
         </button>
       </div>
     </>

@@ -32,6 +32,8 @@ function CardSlider() {
                   src="/assets/1999149.png"
                   alt="City Product Icon"
                   className="w-full h-full object-contain hover:scale-110 transition-transform duration-300"
+                  width={64}
+                  height={64}
                 />
                 </div>
               <h4 className="text-lg font-bold text-gray-800 mb-2">City Product per capita</h4>
@@ -49,6 +51,8 @@ function CardSlider() {
                 src="/assets/pensions_policy.webp"
                 alt="Pensions Policy Icon"
                 className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 rounded-full"
+                width={64}
+                height={64}
                 />
                 </div>
               <h4 className="text-lg font-bold text-gray-800 mb-2">Old Age Dependency Ratio </h4>
@@ -66,7 +70,9 @@ function CardSlider() {
                 src="/assets/family-at-house-icon-isolated-illustration-free-vector.jpg"
                 alt="Mean Household Income Icon"
                 className="w-full h-full object-contain hover:scale-110 transition-transform duration-300 rounded-full"
-                />
+                width={64}
+                height={64}
+                      />
               </div>
               <h4 className="text-lg font-bold text-gray-800 mb-2">Mean Household Income</h4>
             </div>
